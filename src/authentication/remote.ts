@@ -1,13 +1,9 @@
 import { clientGateway } from '../utils/constants'
 import {
-  arrayBufferToString,
-  arrayToArrayBuffer,
-  deriveBitsFromPassword
-} from '@innatical/inncryption/dist/util'
-import {
-  createProtectedKeychain,
-  exportProtectedKeychain,
-  generateKeychain
+  EncryptedMessage,
+  JsonWebKeyChain,
+  Keychain,
+  SymmetricKey
 } from '@innatical/inncryption'
 
 type LoginResponse = {
@@ -18,40 +14,29 @@ export const login = async (
   values: { email: string; password: string },
   promptForCode: () => Promise<string>
 ) => {
-  const {
-    data: { tokenSalt, totp }
-  } = await clientGateway.get<{ tokenSalt?: number[]; totp: boolean }>(
-    `/users/login?email=${values.email}`
+  const { data: challenge } = await clientGateway.post<{
+    challenge: string
+    salt: number[]
+    encryptedKeychain: EncryptedMessage
+  }>('/users/challenge', {
+    email: values.email
+  })
+  const key = await SymmetricKey.generateFromPassword(
+    values.password,
+    challenge.salt
   )
 
-  const code = totp ? await promptForCode() : undefined
+  const keychain = await Keychain.fromJWKChain(
+    (await key.decrypt(challenge.encryptedKeychain)) as JsonWebKeyChain
+  )
 
-  if (tokenSalt) {
-    const password = arrayBufferToString(
-      await deriveBitsFromPassword(
-        values.password,
-        arrayToArrayBuffer(tokenSalt)
-      )
-    )
-    return (
-      await clientGateway.post<LoginResponse>('/users/login', {
-        ...values,
-        password,
-        code
-      })
-    ).data
-  } else {
-    return (
-      await clientGateway.post<LoginResponse>('/users/login', {
-        ...values,
-        code
-      })
-    ).data
-  }
-}
-
-type RegisterResponse = {
-  authorization: string
+  const signed = await keychain.signing.sign(challenge.challenge)
+  return (
+    await clientGateway.post<{ token: string }>('/users/login', {
+      email: values.email,
+      signedChallenge: signed
+    })
+  ).data
 }
 
 export const register = async (values: {
@@ -59,15 +44,17 @@ export const register = async (values: {
   username: string
   password: string
 }) => {
-  const keychain = await generateKeychain(values.password)
-  const protectedKeychain = exportProtectedKeychain(
-    await createProtectedKeychain(keychain, values.password)
-  )
+  const keychain = await Keychain.generate()
+  const salt = SymmetricKey.generateSalt()
+  const key = await SymmetricKey.generateFromPassword(values.password, salt)
+
   return (
-    await clientGateway.post<RegisterResponse>('/users', {
-      ...values,
-      keychain: protectedKeychain,
-      password: keychain.authenticationToken
+    await clientGateway.post<{ token: string }>('/users/register', {
+      email: values.email,
+      username: values.username,
+      encryptedKeychain: await key.encrypt(await keychain.toJWKChain()),
+      publicKeychain: await keychain.toJWKPublicChain(),
+      salt
     })
   ).data
 }

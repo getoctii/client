@@ -72,35 +72,36 @@ const getPayloads = async (
 }
 
 const useIntegrations = () => {
-  const auth = Auth.useContainer()
-  const { data: purchases } = useQuery(
-    ['purchases', auth.id, auth.token],
-    getPurchases,
-    {
-      enabled: auth.authenticated
-    }
-  )
-
-  const payloadKeys = useMemo(
-    () =>
-      (purchases ?? [])
-        ?.filter((purchase) => !!purchase.latest_version)
-        .map((purchase) => [purchase.id, purchase.latest_version]),
-    [purchases]
-  )
-
-  const { data: payloads } = useQuery<
-    {
-      server: any[]
-      themes: ThemeBundle[]
-      client: any[]
-    }[]
-  >(['payloads', payloadKeys, auth.token], getPayloads, {
-    enabled: auth.authenticated
-  })
+  // const auth = Auth.useContainer()
+  // const { data: purchases } = useQuery(
+  //   ['purchases', auth.id, auth.token],
+  //   getPurchases,
+  //   {
+  //     enabled: auth.authenticated
+  //   }
+  // )
+  // const payloadKeys = useMemo(
+  //   () =>
+  //     (purchases ?? [])
+  //       ?.filter((purchase) => !!purchase.latest_version)
+  //       .map((purchase) => [purchase.id, purchase.latest_version]),
+  //   [purchases]
+  // )
+  // const { data: payloads } = useQuery<
+  //   {
+  //     server: any[]
+  //     themes: ThemeBundle[]
+  //     client: any[]
+  //   }[]
+  // >(['payloads', payloadKeys, auth.token], getPayloads, {
+  //   enabled: auth.authenticated
+  // })
+  // return {
+  //   payloads
+  // }
 
   return {
-    payloads
+    payloads: []
   }
 }
 

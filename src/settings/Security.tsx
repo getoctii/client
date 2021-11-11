@@ -13,7 +13,6 @@ import { useHistory } from 'react-router-dom'
 import * as Yup from 'yup'
 import { Keychain } from '../keychain/state'
 import { UI } from '../state/ui'
-import { queryCache } from 'react-query'
 import {
   createProtectedKeychain,
   exportProtectedKeychain,
@@ -21,6 +20,7 @@ import {
 } from '@innatical/inncryption'
 import { useUser } from '../user/state'
 import { Plugins } from '@capacitor/core'
+import queryClient from '../utils/queryClient'
 
 const { Clipboard } = Plugins
 
@@ -79,7 +79,7 @@ const MFACard = () => {
             authorization: token
           }
         })
-        queryCache.invalidateQueries(['users', id, token])
+        queryClient.invalidateQueries(['users', id, token])
       }}
     >
       {({ isSubmitting }) => (
@@ -123,7 +123,7 @@ const MFACard = () => {
             name: ModalTypes.ENABLED_2FA,
             props: { url, TOTPKey: key }
           })
-          queryCache.invalidateQueries(['users', id, token])
+          queryClient.invalidateQueries(['users', id, token])
         }}
       >
         Enable 2FA
@@ -215,7 +215,7 @@ const Security: FC = () => {
               }
             )
 
-            await queryCache.invalidateQueries(['keychain', id, token])
+            await queryClient.invalidateQueries(['keychain', id, token])
           } catch {
             setErrors({ oldPassword: 'Incorrect Password' })
           } finally {

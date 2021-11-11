@@ -8,13 +8,14 @@ import styles from './NewProduct.module.scss'
 import { useRouteMatch } from 'react-router-dom'
 import { getCommunity } from '../remote'
 import { UI } from '../../state/ui'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import * as Yup from 'yup'
 import Modal from '../../components/Modal'
 import { FC } from 'react'
 import IconPicker from '../../components/IconPicker'
 import TextArea from '../../components/TextArea'
+import queryClient from '../../utils/queryClient'
 
 const ProductSchema = Yup.object().shape({
   name: Yup.string()
@@ -60,7 +61,7 @@ const NewProduct: FC = () => {
             }
           )
           if (!product) return
-          queryCache.setQueryData<string[]>(
+          queryClient.setQueryData<string[]>(
             ['products', match?.params?.id, token],
             (initial) => {
               if (initial) return [...initial, product.id]

@@ -7,7 +7,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC } from 'react'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Auth } from '../authentication/state'
 import { clientGateway } from '../utils/constants'
 import { UI } from '../state/ui'
@@ -33,7 +34,7 @@ const updateStatus = async (id: string, state: State, token: string) => {
       }
     }
   )
-  await queryCache.refetchQueries(['users', id, token])
+  await queryClient.refetchQueries(['users', id, token])
 }
 
 const StatusSchema = Yup.object().shape({
@@ -118,7 +119,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
                   }
                 }
               )
-              await queryCache.invalidateQueries(['users', id])
+              await queryClient.invalidateQueries(['users', id])
             } finally {
               setSubmitting(false)
             }
@@ -140,7 +141,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
                 className={styles.logout}
                 onClick={async () => {
                   auth.setToken(null)
-                  await queryCache.invalidateQueries()
+                  await queryClient.invalidateQueries()
                   await Plugins.Storage.clear()
                   history.push('/authenticate/login')
                 }}

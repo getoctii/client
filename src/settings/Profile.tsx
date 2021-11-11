@@ -1,7 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
-import { queryCache } from 'react-query'
 import { Auth } from '../authentication/state'
 import { clientGateway, ModalTypes } from '../utils/constants'
 import Button from '../components/Button'
@@ -16,6 +15,7 @@ import * as Yup from 'yup'
 import { UI } from '../state/ui'
 import { State, UserResponse } from '../user/remote'
 import { FC } from 'react'
+import queryClient from '../utils/queryClient'
 
 const ProfileSchema = Yup.object().shape({
   username: Yup.string()
@@ -78,7 +78,7 @@ const Profile: FC = () => {
                 }
               }
             )
-            queryCache.setQueryData<UserResponse>(
+            queryClient.setQueryData<UserResponse>(
               ['users', id, token],
               (initial) => {
                 if (initial) {

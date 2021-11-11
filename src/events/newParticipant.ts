@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
@@ -22,7 +22,7 @@ const useNewParticipant = (eventSource: EventSourcePolyfill | null) => {
         }
       }
       log('Events', 'purple', 'NEW_PARTICIPANT')
-      queryCache.setQueryData<ParticipantsResponse>(
+      queryClient.setQueryData<ParticipantsResponse>(
         ['participants', id, token],
         (initial) => {
           if (initial) {

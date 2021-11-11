@@ -8,10 +8,11 @@ import { UI } from '../../../state/ui'
 import { ModalTypes, clientGateway } from '../../../utils/constants'
 import styles from './Groups.module.scss'
 import Group from './Group'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { getGroups } from '../../remote'
 import { AnimatePresence } from 'framer-motion'
 import { faPlusCircle, faUsers } from '@fortawesome/free-solid-svg-icons'
+import queryClient from '../../../utils/queryClient'
 
 const reorder = (
   list: string[],
@@ -46,7 +47,7 @@ const GroupsList: FC = () => {
         result.destination.index
       ).reverse()
 
-      queryCache.setQueryData(
+      queryClient.setQueryData(
         ['groups', match?.params.id, auth.token],
         reorder(groupIDs ?? [], result.source.index, result.destination.index)
       )

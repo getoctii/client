@@ -1,5 +1,5 @@
 import { FC, Suspense, useState } from 'react'
-import { queryCache, useMutation } from 'react-query'
+import { useMutation } from 'react-query'
 import { ParticipantsResponse } from '../user/remote'
 import { Auth } from '../authentication/state'
 import styles from './Lookup.module.scss'
@@ -19,6 +19,7 @@ import { clientGateway } from '../utils/constants'
 import { Plugins } from '@capacitor/core'
 import { useMedia } from 'react-use'
 import { useUser } from '../user/state'
+import queryClient from '../utils/queryClient'
 
 const UserLookup: FC<{ userID: string }> = ({ userID }) => {
   const history = useHistory()
@@ -39,7 +40,7 @@ const UserLookup: FC<{ userID: string }> = ({ userID }) => {
       ).data,
     {
       onSuccess: async () => {
-        await queryCache.invalidateQueries(['users', userID, auth.token])
+        await queryClient.invalidateQueries(['users', userID, auth.token])
       }
     }
   )
@@ -83,7 +84,7 @@ const UserLookup: FC<{ userID: string }> = ({ userID }) => {
         <Button
           type='button'
           onClick={async () => {
-            const cache = queryCache.getQueryData([
+            const cache = queryClient.getQueryData([
               'participants',
               auth.id,
               auth.token

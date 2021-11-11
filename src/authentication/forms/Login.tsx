@@ -8,6 +8,7 @@ import { FC } from 'react'
 import { Keychain } from '../../keychain/state'
 import { UI } from '../../state/ui'
 import { ModalTypes } from '../../utils/constants'
+import axios, { AxiosError } from 'axios'
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email'),
@@ -41,24 +42,31 @@ export const Login: FC = () => {
             })
           })
           if (response) {
-            auth.setToken(response.authorization)
+            auth.setToken(response.token)
             setKeychainPassword(values.password)
           }
-        } catch (e: any) {
-          const errors = e.response?.data?.errors ?? ['UserNotFound']
-          const userErrors: {
-            email?: string
-            password?: string
-            code?: string
-          } = {}
-          if (errors.includes('UserNotFound'))
-            userErrors.email = 'Incorrect Email'
-          if (errors.includes('WrongPassword'))
-            userErrors.password = 'Incorrect Password'
-          if (errors.includes('WrongCode')) {
-            userErrors.password = 'Incorrect Code'
+        } catch (e) {
+          if (axios.isAxiosError(e)) {
+            const error = e.response?.data?.errors ?? ['UserNotFound']
+            switch (error) {
+              case 'UserNotFound':
+                setErrors({
+                  email: 'A user with that email could not be found'
+                })
+                break
+              case 'InvalidSignature':
+                setErrors({
+                  password: 'Invalid password'
+                })
+                break
+              default:
+                return
+            }
+          } else {
+            setErrors({
+              password: 'Invalid password'
+            })
           }
-          setErrors(userErrors)
         } finally {
           setSubmitting(false)
         }

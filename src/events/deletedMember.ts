@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
@@ -18,27 +18,27 @@ const useDeletedMember = (eventSource: EventSourcePolyfill | null) => {
         community_id: string
       }
       log('Events', 'purple', 'DELETED_MEMBER')
-      queryCache.setQueryData(['communities', id, token], (initial) => {
+      queryClient.setQueryData(['communities', id, token], (initial) => {
         if (initial instanceof Array) {
           return initial.filter((m: any) => m.id !== event.id)
         } else return initial
       })
 
       history.push('/')
-      const community = queryCache.getQueryData<CommunityResponse>([
+      const community = queryClient.getQueryData<CommunityResponse>([
         'community',
         event.community_id,
         token
       ])
       if (community?.channels) {
         community.channels.forEach((channelID) => {
-          queryCache.removeQueries(['messages', channelID, token])
-          queryCache.removeQueries(['channel', channelID, token])
+          queryClient.removeQueries(['messages', channelID, token])
+          queryClient.removeQueries(['channel', channelID, token])
         })
       }
 
-      queryCache.removeQueries(['channels', event.community_id, token])
-      queryCache.removeQueries(['community', event.community_id, token])
+      queryClient.removeQueries(['channels', event.community_id, token])
+      queryClient.removeQueries(['community', event.community_id, token])
     }
 
     eventSource.addEventListener(Events.DELETED_MEMBER, handler)

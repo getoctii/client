@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { isPlatform } from '@ionic/react'
 import Typing from '../state/typing'
 import { Plugins } from '@capacitor/core'
@@ -77,18 +78,18 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
       const event = JSON.parse(e.data) as Message
       log('Events', 'purple', 'NEW_MESSAGE')
 
-      queryCache.setQueryData<MessageResponse>(['message', event.id, token], {
+      queryClient.setQueryData<MessageResponse>(['message', event.id, token], {
         ...event,
         author_id: event.author.id
       })
 
-      const participants = queryCache.getQueryData<ParticipantsResponse>([
+      const participants = queryClient.getQueryData<ParticipantsResponse>([
         'participants',
         id,
         token
       ])
 
-      const otherKeychain = await queryCache.fetchQuery(
+      const otherKeychain = await queryClient.fetchQuery(
         ['keychain', event.author.id, token],
         getKeychain,
         {
@@ -96,7 +97,7 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
         }
       )
 
-      const publicKey = await queryCache.fetchQuery(
+      const publicKey = await queryClient.fetchQuery(
         ['publicKey', otherKeychain?.signing.publicKey],
         async (_: string, key: number[]) => {
           if (!key) return undefined
@@ -107,7 +108,7 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
         }
       )
 
-      const content = await queryCache.fetchQuery(
+      const content = await queryClient.fetchQuery(
         [
           'messageContent',
           event?.content ??
@@ -146,14 +147,14 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
         }
       )
 
-      const initial = queryCache.getQueryData<MessageResponse[][]>([
+      const initial = queryClient.getQueryData<MessageResponse[][]>([
         'messages',
         event.channel_id,
         token
       ])
 
       if (initial instanceof Array) {
-        queryCache.setQueryData<MessageResponse[][]>(
+        queryClient.setQueryData<MessageResponse[][]>(
           ['messages', event.channel_id, token],
           initial[0].length < 25
             ? [
@@ -179,7 +180,7 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
       }
 
       if (participants instanceof Array) {
-        queryCache.setQueryData<ParticipantsResponse>(
+        queryClient.setQueryData<ParticipantsResponse>(
           ['participants', id, token],
           participants.map((participant) =>
             participant?.conversation?.channel_id === event.channel_id
@@ -196,7 +197,7 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
         )
       }
 
-      queryCache.setQueryData<Unreads>(['unreads', id, token], (initial) => {
+      queryClient.setQueryData<Unreads>(['unreads', id, token], (initial) => {
         if (initial) {
           return {
             ...initial,
@@ -241,7 +242,7 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
             [
               /<@([A-Za-z0-9-]+?)>/g,
               (str) => {
-                const mention = queryCache.getQueryData<UserResponse>([
+                const mention = queryClient.getQueryData<UserResponse>([
                   'users',
                   str,
                   token

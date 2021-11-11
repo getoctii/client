@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { Auth } from '../authentication/state'
 import { log } from '../utils/logging'
@@ -17,11 +17,11 @@ const useReorderedGroups = (eventSource: EventSourcePolyfill | null) => {
         order: string[]
       }
       log('Events', 'purple', 'REORDERED_GROUPS')
-      queryCache.setQueryData(
+      queryClient.setQueryData(
         ['groups', event.community_id, token],
         event.order.reverse()
       )
-      const communities = queryCache.getQueryData<MembersResponse>([
+      const communities = queryClient.getQueryData<MembersResponse>([
         'communities',
         id,
         token
@@ -30,13 +30,13 @@ const useReorderedGroups = (eventSource: EventSourcePolyfill | null) => {
         (m) => m.community.id === event.community_id
       )
       if (!!member?.id) {
-        const memberGroups = queryCache.getQueryData<MemberResponse>([
+        const memberGroups = queryClient.getQueryData<MemberResponse>([
           'member',
           member.id,
           token
         ])
         if (memberGroups?.groups?.some((g) => event.order.includes(g))) {
-          await queryCache.invalidateQueries(['member', member.id, token])
+          await queryClient.invalidateQueries(['member', member.id, token])
         }
       }
     }

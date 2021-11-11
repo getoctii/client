@@ -29,9 +29,9 @@ const Footer: FC = () => {
         <span role='img' aria-label='heart'>
           ❤️
         </span>{' '}
-        in California
+        in California & Minnesota
       </p>
-      <h3>© 2021 Innatical</h3>
+      <h3>© 2021 Innatical LLC</h3>
     </div>
   )
 }

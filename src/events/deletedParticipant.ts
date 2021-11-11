@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
@@ -18,7 +18,7 @@ const useDeletedParticipant = (eventSource: EventSourcePolyfill | null) => {
       }
       log('Events', 'purple', 'DELETED_PARTICIPANT')
 
-      const participants = queryCache.getQueryData<ParticipantsResponse>([
+      const participants = queryClient.getQueryData<ParticipantsResponse>([
         'participants',
         id,
         token
@@ -27,7 +27,7 @@ const useDeletedParticipant = (eventSource: EventSourcePolyfill | null) => {
         (p) => p.conversation.id === event.conversation_id
       )
 
-      queryCache.setQueryData<ParticipantsResponse>(
+      queryClient.setQueryData<ParticipantsResponse>(
         ['participants', id, token],
         (initial) => {
           if (initial) {
@@ -53,7 +53,7 @@ const useDeletedParticipant = (eventSource: EventSourcePolyfill | null) => {
       )
 
       if (event.user_id === id)
-        queryCache.removeQueries([
+        queryClient.removeQueries([
           'messages',
           participant?.conversation.channel_id,
           token

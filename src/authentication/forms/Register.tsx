@@ -6,6 +6,7 @@ import { BarLoader } from 'react-spinners'
 import { Auth } from '../state'
 import * as Yup from 'yup'
 import { Keychain } from '../../keychain/state'
+import axios from 'axios'
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email'),
@@ -38,12 +39,28 @@ export const Register: FC = () => {
         }
         try {
           const response = await register(values)
-          if (auth.betaCode) auth.setBetaCode(undefined)
           if (response) {
-            auth.setToken(response.authorization)
+            auth.setToken(response.token)
             setKeychainPassword(values.password)
           }
         } catch (e) {
+          if (axios.isAxiosError(e)) {
+            const error = e.response?.data?.errors
+            switch (error) {
+              case 'UsernameTaken':
+                setErrors({
+                  email: 'This username is already in use'
+                })
+                break
+              case 'EmailInUse':
+                setErrors({
+                  password: 'This email is already in use'
+                })
+                break
+              default:
+                return
+            }
+          }
         } finally {
           setSubmitting(false)
         }

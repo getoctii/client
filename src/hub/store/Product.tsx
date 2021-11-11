@@ -3,13 +3,14 @@ import styles from './Product.module.scss'
 import { faChevronCircleLeft } from '@fortawesome/free-solid-svg-icons'
 import Header from '../../components/Header'
 import { useHistory, useParams } from 'react-router-dom'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { Auth } from '../../authentication/state'
 import { getProduct } from '../../community/remote'
 import { clientGateway } from '../../utils/constants'
 import { getPurchases } from '../../user/remote'
 import { BarLoader } from 'react-spinners'
 import { useState, FC } from 'react'
+import queryClient from '../../utils/queryClient'
 
 const Product: FC = () => {
   const auth = Auth.useContainer()
@@ -67,7 +68,7 @@ const Product: FC = () => {
                     }
                   }
                 )
-                await queryCache.refetchQueries([
+                await queryClient.refetchQueries([
                   'purchases',
                   auth.id,
                   auth.token

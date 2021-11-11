@@ -52,7 +52,6 @@ import {
   importPublicKey
 } from '@innatical/inncryption'
 import { Keychain } from '../keychain/state'
-import { getKeychain } from '../user/remote'
 import { getProduct, getResource } from '../community/remote'
 
 const { Clipboard } = Plugins
@@ -145,18 +144,11 @@ const MessageView: FC<{
 }> = memo(
   ({ id, authorID, createdAt, primary, content, type, richContent }) => {
     const auth = Auth.useContainer()
-
+    const user = useUser(authorID)
     const { keychain } = Keychain.useContainer()
-    const { data: otherKeychain } = useQuery(
-      ['keychain', authorID, auth.token],
-      getKeychain,
-      {
-        enabled: typeof content !== 'string'
-      }
-    )
 
     const { data: publicKey } = useQuery(
-      ['publicKey', otherKeychain?.signing.publicKey],
+      ['publicKey', []],
       async (_: string, key: number[]) => {
         if (!key) return undefined
         return await importPublicKey(key, 'signing')
@@ -168,7 +160,7 @@ const MessageView: FC<{
 
     const { data: product } = useQuery(
       ['products', richContent?.product_id, auth.token],
-      getProduct,
+      async () => getProduct('', richContent?.product_id!, auth.token!),
       {
         enabled: !!richContent?.product_id
       }
@@ -181,7 +173,13 @@ const MessageView: FC<{
         richContent?.resource_id,
         auth.token
       ],
-      getResource,
+      async () =>
+        getResource(
+          '',
+          richContent?.product_id!,
+          richContent?.resource_id!,
+          auth.token!
+        ),
       {
         enabled: !!richContent?.resource_id
       }
@@ -231,7 +229,6 @@ const MessageView: FC<{
           })
         ).data
     )
-    const user = useUser(authorID)
     const getItems = useCallback(() => {
       const items: {
         text: string

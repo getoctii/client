@@ -2,7 +2,7 @@ import { Auth } from '../authentication/state'
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { log } from '../utils/logging'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Mentions } from '../user/remote'
 import { Events } from '../utils/constants'
 
@@ -19,13 +19,13 @@ const useNewMention = (eventSource: EventSourcePolyfill | null) => {
         channel_id: string
       }
       log('Events', 'purple', 'NEW_MENTION')
-      const initial: Mentions | undefined = queryCache.getQueryData([
+      const initial: Mentions | undefined = queryClient.getQueryData([
         'mentions',
         id,
         token
       ])
       if (initial) {
-        queryCache.setQueryData(['mentions', id, token], {
+        queryClient.setQueryData(['mentions', id, token], {
           ...initial,
           [event.channel_id]: [...(initial[event.channel_id] ?? []), event]
         })

@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ChannelTypes, Events } from '../utils/constants'
-import { queryCache } from 'react-query'
+
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
 import { ChannelResponse } from '../community/remote'
+import queryClient from '../utils/queryClient'
 
 const useUpdatedChannel = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()
@@ -24,7 +25,7 @@ const useUpdatedChannel = (eventSource: EventSourcePolyfill | null) => {
         voice_users?: string[]
       }
       log('Events', 'purple', 'UPDATED_CHANNEL')
-      queryCache.setQueryData<ChannelResponse>(
+      queryClient.setQueryData<ChannelResponse>(
         ['channel', event.id, token],
         (initial) => {
           if (initial) {
@@ -37,7 +38,7 @@ const useUpdatedChannel = (eventSource: EventSourcePolyfill | null) => {
           }
         }
       )
-      queryCache.setQueryData<ChannelResponse[]>(
+      queryClient.setQueryData<ChannelResponse[]>(
         ['channels', event.community_id, token],
         (initial) => {
           if (initial) {

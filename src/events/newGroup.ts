@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { Auth } from '../authentication/state'
 import { log } from '../utils/logging'
@@ -16,11 +16,11 @@ const useNewGroup = (eventSource: EventSourcePolyfill | null) => {
         community_id: string
       }
       log('Events', 'purple', 'NEW_GROUP')
-      queryCache.setQueryData<string[]>(
+      queryClient.setQueryData<string[]>(
         ['groups', event.community_id, token],
         (initial) => (initial ? [...initial, event.id] : [event.id])
       )
-      const communities = queryCache.getQueryData<MembersResponse>([
+      const communities = queryClient.getQueryData<MembersResponse>([
         'communities',
         id,
         token
@@ -29,7 +29,7 @@ const useNewGroup = (eventSource: EventSourcePolyfill | null) => {
         (m) => m.community.id === event.community_id
       )
       if (!!member?.id)
-        await queryCache.invalidateQueries(['member', member.id, token])
+        await queryClient.invalidateQueries(['member', member.id, token])
     }
 
     eventSource.addEventListener(Events.NEW_GROUP, handler)

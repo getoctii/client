@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events } from '../utils/constants'
-import { queryCache } from 'react-query'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
 import { MessageResponse } from '../chat/remote'
@@ -13,6 +12,7 @@ import {
   importPublicKey
 } from '@innatical/inncryption'
 import { Keychain } from '../keychain/state'
+import queryClient from '../utils/queryClient'
 
 const useUpdatedMessage = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()
@@ -31,13 +31,13 @@ const useUpdatedMessage = (eventSource: EventSourcePolyfill | null) => {
       }
       log('Events', 'purple', 'UPDATED_MESSAGE')
 
-      const initial = queryCache.getQueryData([
+      const initial = queryClient.getQueryData([
         'messages',
         event.channel_id,
         token
       ])
       if (initial instanceof Array) {
-        queryCache.setQueryData(
+        queryClient.setQueryData(
           ['messages', event.channel_id, token],
           await Promise.all(
             initial.map(
@@ -45,7 +45,7 @@ const useUpdatedMessage = (eventSource: EventSourcePolyfill | null) => {
                 await Promise.all(
                   sub.map(async (msg: MessageResponse) => {
                     if (msg.id === event.id) {
-                      const otherKeychain = await queryCache.fetchQuery(
+                      const otherKeychain = await queryClient.fetchQuery(
                         ['keychain', msg.author_id, token],
                         getKeychain,
                         {
@@ -53,7 +53,7 @@ const useUpdatedMessage = (eventSource: EventSourcePolyfill | null) => {
                         }
                       )
 
-                      const publicKey = await queryCache.fetchQuery(
+                      const publicKey = await queryClient.fetchQuery(
                         ['publicKey', otherKeychain?.signing.publicKey],
                         async (_: string, key: number[]) => {
                           if (!key) return undefined
@@ -64,7 +64,7 @@ const useUpdatedMessage = (eventSource: EventSourcePolyfill | null) => {
                         }
                       )
 
-                      await queryCache.fetchQuery(
+                      await queryClient.fetchQuery(
                         [
                           'messageContent',
                           event?.content ??

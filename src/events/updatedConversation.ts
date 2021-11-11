@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events } from '../utils/constants'
-import { queryCache } from 'react-query'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
 import { ParticipantsResponse } from '../user/remote'
+import queryClient from '../utils/queryClient'
 
 const useUpdatedConversation = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()
@@ -18,12 +18,11 @@ const useUpdatedConversation = (eventSource: EventSourcePolyfill | null) => {
       }
       log('Events', 'purple', 'UPDATED_CONVERSATION')
 
-      const initial:
-        | ParticipantsResponse
-        | undefined = queryCache.getQueryData(['participants', id, token])
+      const initial: ParticipantsResponse | undefined =
+        queryClient.getQueryData(['participants', id, token])
 
       if (initial) {
-        queryCache.setQueryData(
+        queryClient.setQueryData(
           ['participants', id, token],
           initial.map((p) =>
             p.conversation.id === event.conversation_id

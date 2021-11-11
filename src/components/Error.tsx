@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLock, faPoo } from '@fortawesome/free-solid-svg-icons'
 import Button from './Button'
 import { Plugins } from '@capacitor/core'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 
 const Error: FC<{
   className?: string
@@ -25,7 +25,7 @@ const Error: FC<{
           type='button'
           onClick={async () => {
             await Plugins.Storage.clear()
-            await queryCache.invalidateQueries()
+            await queryClient.invalidateQueries()
             window.location.pathname = '/authenticate/login'
           }}
         >

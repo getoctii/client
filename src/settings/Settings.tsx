@@ -19,11 +19,11 @@ import {
 import Sideview from '../components/Sideview'
 // import { isPlatform } from '@ionic/react'
 // import GitInfo from 'react-git-info/macro'
-import { queryCache } from 'react-query'
 import { Plugins } from '@capacitor/core'
 import Purchases from './Purchases'
 import StatusBar from '../components/StatusBar'
 import Status from '../components/Status'
+import queryClient from '../utils/queryClient'
 
 // const gitInfo = GitInfo()
 
@@ -89,7 +89,7 @@ const Settings: FC = () => {
                 className={styles.logout}
                 onClick={async () => {
                   auth.setToken(null)
-                  await queryCache.invalidateQueries()
+                  await queryClient.invalidateQueries()
                   await Plugins.Storage.clear()
                   history.push('/authenticate/login')
                 }}

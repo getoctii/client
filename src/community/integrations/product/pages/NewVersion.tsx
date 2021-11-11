@@ -8,12 +8,13 @@ import styles from './NewVersion.module.scss'
 import { useRouteMatch } from 'react-router-dom'
 import { getProduct } from '../../../remote'
 import { UI } from '../../../../state/ui'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import * as Yup from 'yup'
 import Modal from '../../../../components/Modal'
 import { FC } from 'react'
 import TextArea from '../../../../components/TextArea'
+import queryClient from '../../../../utils/queryClient'
 
 const VersionSchema = Yup.object().shape({
   name: Yup.string()
@@ -54,7 +55,7 @@ const NewVersion: FC = () => {
             }
           )
           if (!version) return
-          queryCache.setQueryData<number[]>(
+          queryClient.setQueryData<number[]>(
             ['versions', match?.params?.productID, token],
             (initial) => {
               if (initial) return [...initial, version.number]

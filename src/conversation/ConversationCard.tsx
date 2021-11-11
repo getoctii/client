@@ -8,7 +8,8 @@ import {
   faUserFriends,
   faGlasses
 } from '@fortawesome/free-solid-svg-icons'
-import { useQuery, useMutation, queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
+import { useQuery, useMutation } from 'react-query'
 import { clientGateway, MessageTypes } from '../utils/constants'
 import styles from './ConversationCard.module.scss'
 import { Auth } from '../authentication/state'
@@ -156,7 +157,7 @@ const ConversationCardView: FC<{
             }
           )
           // TODO: Maybe we want to push a gateway event instead?
-          queryCache.setQueryData(['unreads', id, token], (initial: any) => ({
+          queryClient.setQueryData(['unreads', id, token], (initial: any) => ({
             ...initial,
             [channelId]: {
               ...initial[channelId],
@@ -164,14 +165,14 @@ const ConversationCardView: FC<{
             }
           }))
 
-          const initialMentions = queryCache.getQueryData<Mentions>([
+          const initialMentions = queryClient.getQueryData<Mentions>([
             'mentions',
             id,
             token
           ])
 
           if (initialMentions) {
-            queryCache.setQueryData(['mentions', id, token], {
+            queryClient.setQueryData(['mentions', id, token], {
               ...initialMentions,
               [channelId]: initialMentions[channelId]?.map((m) => ({
                 ...m,

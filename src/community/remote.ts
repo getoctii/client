@@ -1,9 +1,9 @@
 import { ChannelTypes, clientGateway, Permissions } from '../utils/constants'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 
 export const fetchManyGroups = (_: string, ids: string[], token: string) => {
   return Promise.all(
-    ids.map((id) => queryCache.fetchQuery(['group', id, token], getGroup))
+    ids.map((id) => queryClient.fetchQuery(['group', id, token], getGroup))
   )
 }
 

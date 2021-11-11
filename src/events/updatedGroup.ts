@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events, Permissions } from '../utils/constants'
-import { queryCache } from 'react-query'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
 import { GroupResponse, MemberResponse } from '../community/remote'
 import { MembersResponse } from '../user/remote'
+import queryClient from '../utils/queryClient'
 
 const useUpdatedGroup = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()
@@ -22,20 +22,20 @@ const useUpdatedGroup = (eventSource: EventSourcePolyfill | null) => {
       }
       log('Events', 'purple', 'UPDATED_GROUP')
 
-      const initial: GroupResponse | undefined = queryCache.getQueryData([
+      const initial: GroupResponse | undefined = queryClient.getQueryData([
         'group',
         event.id,
         token
       ])
       if (initial) {
-        queryCache.setQueryData(['group', event.id, token], {
+        queryClient.setQueryData(['group', event.id, token], {
           ...event,
           name: event.name,
           color: event.color,
           permissions: event.permissions
         })
       }
-      const communities = queryCache.getQueryData<MembersResponse>([
+      const communities = queryClient.getQueryData<MembersResponse>([
         'communities',
         id,
         token
@@ -44,13 +44,13 @@ const useUpdatedGroup = (eventSource: EventSourcePolyfill | null) => {
         (m) => m.community.id === event.community_id
       )
       if (!!member?.id) {
-        const memberGroups = queryCache.getQueryData<MemberResponse>([
+        const memberGroups = queryClient.getQueryData<MemberResponse>([
           'member',
           member.id,
           token
         ])
         if (memberGroups?.groups?.some((g) => g === event.id)) {
-          await queryCache.invalidateQueries(['member', member.id, token])
+          await queryClient.invalidateQueries(['member', member.id, token])
         }
       }
     }

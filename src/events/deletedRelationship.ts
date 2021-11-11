@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
@@ -16,7 +16,7 @@ const useDeletedRelationship = (eventSource: EventSourcePolyfill | null) => {
         recipient_id: string
       }
       log('Events', 'purple', 'DELETED_RELATIONSHIP')
-      queryCache.setQueryData<RelationshipResponse[]>(
+      queryClient.setQueryData<RelationshipResponse[]>(
         ['relationships', id, token],
         (initial) =>
           initial?.filter(

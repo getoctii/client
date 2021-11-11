@@ -23,9 +23,10 @@ import * as NewGroup from './NewGroup'
 import Button from '../../../components/Button'
 import { useMedia, useSet } from 'react-use'
 import { Draggable } from '@react-forked/dnd'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import { Permission } from '../../../utils/permissions'
+import queryClient from '../../../utils/queryClient'
 
 const GroupNameEditor: FC<{ id: string; name: string }> = (group) => {
   const { token } = Auth.useContainer()
@@ -159,7 +160,7 @@ const PermissionsEditor: FC<{
                 }
               )
               if (base) {
-                await queryCache.invalidateQueries(['community', id])
+                await queryClient.invalidateQueries(['community', id])
               }
             }}
             className={styles.save}

@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events } from '../utils/constants'
-import { queryCache } from 'react-query'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
 import { CommunityResponse } from '../community/remote'
 import { MembersResponse } from '../user/remote'
+import queryClient from '../utils/queryClient'
 
 const useUpdatedCommunity = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()
@@ -15,7 +15,7 @@ const useUpdatedCommunity = (eventSource: EventSourcePolyfill | null) => {
     const handler = async (e: MessageEvent) => {
       const event = JSON.parse(e.data) as CommunityResponse
       log('Events', 'purple', 'UPDATED_COMMUNITY')
-      queryCache.setQueryData<CommunityResponse>(
+      queryClient.setQueryData<CommunityResponse>(
         ['community', event.id, token],
         (initial) => {
           if (initial) {
@@ -28,7 +28,7 @@ const useUpdatedCommunity = (eventSource: EventSourcePolyfill | null) => {
           }
         }
       )
-      queryCache.setQueryData<MembersResponse>(
+      queryClient.setQueryData<MembersResponse>(
         ['communities', id, token],
         (initial) => {
           if (initial) {

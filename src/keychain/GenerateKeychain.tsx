@@ -16,7 +16,7 @@ import { clientGateway } from '../utils/constants'
 import { Auth } from '../authentication/state'
 import { Keychain } from './state'
 import { UI } from '../state/ui'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 
 const PasswordSchema = Yup.object().shape({
   password: Yup.string()
@@ -96,7 +96,7 @@ const GenerateKeychain: FC = () => {
           }
         )
 
-        await queryCache.invalidateQueries(['keychain', id, token])
+        await queryClient.invalidateQueries(['keychain', id, token])
         ui.setModal(undefined)
       }}
     >

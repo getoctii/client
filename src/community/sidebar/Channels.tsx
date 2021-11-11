@@ -7,7 +7,8 @@ import {
   Permissions
 } from '../../utils/constants'
 import ChannelCard from './channel/ChannelCard'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
+import queryClient from '../../utils/queryClient'
 import { Auth } from '../../authentication/state'
 import { ChannelResponse, getChannels } from '../remote'
 import { useRouteMatch } from 'react-router-dom'
@@ -138,7 +139,7 @@ const ChannelsView: FC = () => {
               c.type === ChannelTypes.CATEGORY ||
               (c.parent_id !== destinationParentID && c.id !== channel.id)
           ) ?? []
-        queryCache.setQueryData<ChannelResponse[]>(
+        queryClient.setQueryData<ChannelResponse[]>(
           ['channels', match?.params.id, auth.token],
           [
             ...otherChannels,
@@ -184,7 +185,7 @@ const ChannelsView: FC = () => {
 
         const nonParents =
           channels?.filter((c) => c.type !== ChannelTypes.CATEGORY) ?? []
-        queryCache.setQueryData<ChannelResponse[]>(
+        queryClient.setQueryData<ChannelResponse[]>(
           ['channels', match?.params.id, auth.token],
           [
             ...nonParents,

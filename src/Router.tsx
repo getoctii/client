@@ -186,7 +186,7 @@ const AppRouter: FC = () => {
   return (
     <>
       <OnboardingHandler onboardingStateChange={onboardingHandler} />
-      <EventSource />
+      {/* <EventSource /> */}
       <Suspense fallback={<></>}>
         {showOnBoarding ? (
           <OnBoarding />
@@ -263,7 +263,7 @@ export const Router: FC = memo(() => {
         <Context.Global />
         {!isMobile && auth.authenticated && <SidebarWrapper />}
         <MarketingRouter />
-        {auth.authenticated && <AppRouter />}
+        {/* {auth.authenticated && <AppRouter />} */}
         <Suspense fallback={<></>}>
           <AnimatePresence>
             <Modal key='modals' />

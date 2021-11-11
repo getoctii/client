@@ -8,9 +8,9 @@ import { Router } from './Router'
 import { ReactQueryDevtools } from 'react-query-devtools'
 import { Auth } from './authentication/state'
 import {
-  queryCache,
-  ReactQueryConfigProvider,
-  setFocusHandler
+  QueryClient,
+  QueryClientProvider,
+  QueryErrorResetBoundary
 } from 'react-query'
 import Loader from './components/Loader'
 import Error from './components/Error'
@@ -31,6 +31,7 @@ import Integration from './integrations/state'
 import { Keychain } from './keychain/state'
 import { Relationships } from './friends/relationships'
 import { AppState, Plugins } from '@capacitor/core'
+import queryClient from './utils/queryClient'
 smoothscroll.polyfill()
 
 const { App } = Plugins
@@ -58,17 +59,17 @@ lleyton@innatical.com
   'font-size: 18px; font-family: Inter, sans-serif; font-weight: 600'
 )
 
-setFocusHandler((handleFocus) => {
-  const listener = App.addListener('appStateChange', (state: AppState) => {
-    if (state.isActive) {
-      handleFocus()
-    }
-  })
+// setFocusHandler((handleFocus) => {
+//   const listener = App.addListener('appStateChange', (state: AppState) => {
+//     if (state.isActive) {
+//       handleFocus()
+//     }
+//   })
 
-  return () => {
-    listener.remove()
-  }
-})
+//   return () => {
+//     listener.remove()
+//   }
+// })
 
 addEventListener('contextmenu', (e) => {
   e.preventDefault()
@@ -76,51 +77,45 @@ addEventListener('contextmenu', (e) => {
 
 ReactDOM.render(
   <StrictMode>
-    <ReactQueryConfigProvider
-      config={{
-        shared: {
-          suspense: true
-        },
-        queries: {
-          refetchOnWindowFocus: true,
-          staleTime: Infinity
-        }
-      }}
-    >
-      <Sentry.ErrorBoundary
-        onReset={() => queryCache.resetErrorBoundaries()}
-        fallback={({ resetError, error }) => (
-          <Error resetErrorBoundary={resetError} error={error} />
+    <QueryClientProvider client={queryClient}>
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <Sentry.ErrorBoundary
+            onReset={reset}
+            fallback={({ resetError, error }) => (
+              <Error resetErrorBoundary={resetError} error={error} />
+            )}
+          >
+            <Suspense fallback={<Loader />}>
+              <HelmetProvider>
+                <Auth.Provider>
+                  <UI.Provider>
+                    <Typing.Provider>
+                      <Call.Provider>
+                        <Keychain.Provider>
+                          <Chat.Provider>
+                            <Integration.Provider>
+                              <Theme.Provider>
+                                <Relationships.Provider>
+                                  <ScrollPosition.Provider>
+                                    <Router />
+                                  </ScrollPosition.Provider>
+                                </Relationships.Provider>
+                              </Theme.Provider>
+                            </Integration.Provider>
+                          </Chat.Provider>
+                        </Keychain.Provider>
+                      </Call.Provider>
+                    </Typing.Provider>
+                  </UI.Provider>
+                </Auth.Provider>
+              </HelmetProvider>
+              <ReactQueryDevtools />
+            </Suspense>
+          </Sentry.ErrorBoundary>
         )}
-      >
-        <Suspense fallback={<Loader />}>
-          <HelmetProvider>
-            <Auth.Provider>
-              <UI.Provider>
-                <Typing.Provider>
-                  <Call.Provider>
-                    <Keychain.Provider>
-                      <Chat.Provider>
-                        <Integration.Provider>
-                          <Theme.Provider>
-                            <Relationships.Provider>
-                              <ScrollPosition.Provider>
-                                <Router />
-                              </ScrollPosition.Provider>
-                            </Relationships.Provider>
-                          </Theme.Provider>
-                        </Integration.Provider>
-                      </Chat.Provider>
-                    </Keychain.Provider>
-                  </Call.Provider>
-                </Typing.Provider>
-              </UI.Provider>
-            </Auth.Provider>
-          </HelmetProvider>
-          <ReactQueryDevtools />
-        </Suspense>
-      </Sentry.ErrorBoundary>
-    </ReactQueryConfigProvider>
+      </QueryErrorResetBoundary>
+    </QueryClientProvider>
   </StrictMode>,
   document.getElementById('root')
 )

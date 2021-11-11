@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
 import dayjsCalendar from 'dayjs/plugin/calendar'
 import { FC, memo, useMemo, useRef, useState } from 'react'
-import { queryCache, useInfiniteQuery, useMutation } from 'react-query'
+import { useInfiniteQuery, useMutation } from 'react-query'
 import { Waypoint } from 'react-waypoint'
 import { Auth } from '../authentication/state'
 import styles from './Codes.module.scss'
@@ -22,6 +22,7 @@ import Header from '../components/Header'
 import List from '../components/List'
 import { useHistory } from 'react-router-dom'
 import { useMedia } from 'react-use'
+import queryClient from '../utils/queryClient'
 
 dayjs.extend(dayjsUTC)
 dayjs.extend(dayjsCalendar)
@@ -46,7 +47,7 @@ const Code: FC<CodeResponse> = memo(({ id, used, created_at }) => {
       ).data,
     {
       onSuccess: async () => {
-        await queryCache.invalidateQueries(['codes', token])
+        await queryClient.invalidateQueries(['codes', token])
       }
     }
   )
@@ -126,7 +127,7 @@ const Codes: FC = () => {
       ).data,
     {
       onSuccess: async () => {
-        await queryCache.invalidateQueries(['codes', token])
+        await queryClient.invalidateQueries(['codes', token])
       }
     }
   )

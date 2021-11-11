@@ -7,26 +7,23 @@ import styles from './PreviewUser.module.scss'
 import { ParticipantsResponse } from '../user/remote'
 import { useHistory } from 'react-router-dom'
 import { createConversation } from '../conversation/remote'
-import { queryCache } from 'react-query'
 import { UI } from '../state/ui'
 import { Relationships } from '../friends/relationships'
 import { useCallback, useMemo } from 'react'
+import queryClient from '../utils/queryClient'
 
 const PreviewUser = ({ id }: { id: string }) => {
   const user = useUser(id)
   const auth = Auth.useContainer()
   const ui = UI.useContainer()
   const history = useHistory()
-  const {
-    newRelationship,
-    deleteRelationship,
-    lookupRelationship
-  } = Relationships.useContainer()
+  const { newRelationship, deleteRelationship, lookupRelationship } =
+    Relationships.useContainer()
 
-  const relationshipType = useMemo(() => lookupRelationship(id), [
-    id,
-    lookupRelationship
-  ])
+  const relationshipType = useMemo(
+    () => lookupRelationship(id),
+    [id, lookupRelationship]
+  )
 
   const icon = useCallback(
     () => <Icon avatar={user?.avatar} state={user?.state}></Icon>,
@@ -52,7 +49,7 @@ const PreviewUser = ({ id }: { id: string }) => {
             type='button'
             onClick={async () => {
               if (relationshipType === 'friend') {
-                const cache = queryCache.getQueryData([
+                const cache = queryClient.getQueryData([
                   'participants',
                   auth.id,
                   auth.token

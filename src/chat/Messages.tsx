@@ -8,7 +8,7 @@ import {
   Suspense
 } from 'react'
 import styles from './Messages.module.scss'
-import { queryCache, useInfiniteQuery, useQuery } from 'react-query'
+import { useInfiniteQuery, useQuery } from 'react-query'
 import { clientGateway } from '../utils/constants'
 import { Auth } from '../authentication/state'
 import Message from './Message'
@@ -24,6 +24,7 @@ import { Plugins } from '@capacitor/core'
 import { Keychain } from '../keychain/state'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import queryClient from '../utils/queryClient'
 
 const { Keyboard } = Plugins
 
@@ -138,7 +139,7 @@ const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
         }
       )
       // TODO: Maybe we want to push a gateway event instead?
-      queryCache.setQueryData(['unreads', id, token], (initial: any) => ({
+      queryClient.setQueryData(['unreads', id, token], (initial: any) => ({
         ...initial,
         [channel.id]: {
           ...initial[channel.id],
@@ -146,14 +147,14 @@ const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
         }
       }))
 
-      const initialMentions = queryCache.getQueryData<Mentions>([
+      const initialMentions = queryClient.getQueryData<Mentions>([
         'mentions',
         id,
         token
       ])
 
       if (initialMentions) {
-        queryCache.setQueryData(['mentions', id, token], {
+        queryClient.setQueryData(['mentions', id, token], {
           ...initialMentions,
           [channel.id]: initialMentions[channel.id]?.map((m) => ({
             ...m,

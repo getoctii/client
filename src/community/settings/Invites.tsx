@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
 import dayjsCalendar from 'dayjs/plugin/calendar'
 import { memo, Suspense, FC } from 'react'
-import { queryCache, useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { useRouteMatch } from 'react-router-dom'
 import { Auth } from '../../authentication/state'
 import Button from '../../components/Button'
@@ -21,6 +21,7 @@ import { Plugins } from '@capacitor/core'
 import List from '../../components/List'
 import { UI } from '../../state/ui'
 import { useMedia } from 'react-use'
+import queryClient from '../../utils/queryClient'
 
 dayjs.extend(dayjsUTC)
 dayjs.extend(dayjsCalendar)
@@ -39,7 +40,11 @@ const InviteCard: FC<InviteResponse> = memo((invite) => {
       ).data,
     {
       onSuccess: async () => {
-        await queryCache.invalidateQueries(['invites', match?.params.id, token])
+        await queryClient.invalidateQueries([
+          'invites',
+          match?.params.id,
+          token
+        ])
       }
     }
   )

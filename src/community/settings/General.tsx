@@ -1,6 +1,6 @@
 import { Formik, Form, ErrorMessage, Field } from 'formik'
 import { FC, useState } from 'react'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 import { Auth } from '../../authentication/state'
 import Button from '../../components/Button'
@@ -18,6 +18,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { useUser } from '../../user/state'
 import * as Yup from 'yup'
+import queryClient from '../../utils/queryClient'
 
 const TransferSchema = Yup.object().shape({
   username: Yup.string()
@@ -50,7 +51,7 @@ const saveSettings = async (
       authorization: token
     }
   })
-  await queryCache.invalidateQueries(['community', communityID])
+  await queryClient.invalidateQueries(['community', communityID])
 }
 
 const SystemChannel: FC<{ community: CommunityResponse }> = ({ community }) => {
@@ -264,7 +265,7 @@ const DangerZone: FC<{ community: CommunityResponse }> = ({ community }) => {
                   },
                   { headers: { Authorization: auth.token } }
                 )
-                await queryCache.invalidateQueries(['community', community.id])
+                await queryClient.invalidateQueries(['community', community.id])
                 history.push(`/communities/${community.id}`)
               } finally {
                 setSubmitting(false)
@@ -331,7 +332,7 @@ const DangerZone: FC<{ community: CommunityResponse }> = ({ community }) => {
                 new URLSearchParams({ owner_id: user.id }),
                 { headers: { Authorization: auth.token } }
               )
-              await queryCache.invalidateQueries(['community', community.id])
+              await queryClient.invalidateQueries(['community', community.id])
               history.push(`/communities/${community.id}`)
             } catch (e: any) {
               if (e.response.data.errors.includes('UserNotFound'))

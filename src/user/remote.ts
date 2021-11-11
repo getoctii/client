@@ -1,13 +1,18 @@
-import { queryCache } from 'react-query'
+import { JsonWebKeyPublicChain } from '@innatical/inncryption'
 import { clientGateway } from '../utils/constants'
-import { ExportedProtectedKeychain } from '@innatical/inncryption/dist/types'
+import queryClient from '../utils/queryClient'
+// import { Key } from '@innatical/inncryption'
 
 export const fetchManyUsers = (_: string, ids: string[], token: string) => {
   return Promise.all(
     ids.map((id) =>
-      queryCache.fetchQuery(['users', id, token], getUser, {
-        staleTime: Infinity
-      })
+      queryClient.fetchQuery(
+        ['users', id, token],
+        async () => getUser(id, token),
+        {
+          staleTime: Infinity
+        }
+      )
     )
   )
 }
@@ -43,15 +48,18 @@ export type ParticipantsResponse = Participant[]
 
 export type UserResponse = {
   id: string
-  avatar: string
   username: string
   discriminator: number
-  state: State
+  avatar?: string
   status: string
-  email?: string
-  developer?: boolean
-  disabled?: boolean
-  totp: boolean
+  state: State
+  createdAt: Date
+  updatedAt: Date
+  badges: string[]
+  flags: string[]
+  keychain: {
+    publicKeychain: JsonWebKeyPublicChain
+  }
 }
 
 export type Member = {
@@ -81,9 +89,18 @@ export interface Mentions {
 
 export type MembersResponse = Member[]
 
-export const getUser = async (_: string, userID: string, token: string) =>
+export const getUser = async (userID: string, token: string) =>
   (
     await clientGateway.get<UserResponse>(`/users/${userID}`, {
+      headers: {
+        Authorization: token
+      }
+    })
+  ).data
+
+export const getCurrentUser = async (token: string) =>
+  (
+    await clientGateway.get<UserResponse>(`/users/me`, {
       headers: {
         Authorization: token
       }
@@ -149,13 +166,10 @@ export const getMentions = async (_: string, userID: string, token: string) =>
 export const getKeychain = async (_: string, userID: string, token: string) =>
   userID && token
     ? (
-        await clientGateway.get<ExportedProtectedKeychain>(
-          `/users/${userID}/keychain`,
-          {
-            headers: {
-              Authorization: token
-            }
+        await clientGateway.get<any>(`/users/${userID}/keychain`, {
+          headers: {
+            Authorization: token
           }
-        )
+        })
       ).data
     : null

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { ChannelPermissions, ChannelTypes, Events } from '../utils/constants'
 import { Auth } from '../authentication/state'
 import { log } from '../utils/logging'
@@ -19,7 +19,7 @@ const useNewOverride = (eventSource: EventSourcePolyfill | null) => {
       }
       log('Events', 'purple', 'NEW_OVERRIDE')
 
-      queryCache.setQueryData<ChannelResponse>(
+      queryClient.setQueryData<ChannelResponse>(
         ['channel', event.channel_id, token],
         (initial) => {
           if (initial) {

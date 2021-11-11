@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { queryCache } from 'react-query'
 import { Auth } from '../authentication/state'
 import { CLIENT_GATEWAY_URL } from '../utils/constants'
 import { AppState, Plugins } from '@capacitor/core'
@@ -10,6 +9,7 @@ import {
   getUnreads
 } from '../user/remote'
 import { isPlatform } from '@ionic/react'
+import queryClient from '../utils/queryClient'
 
 const { App, BackgroundTask } = Plugins
 
@@ -29,10 +29,10 @@ const useSubscribe = () => {
 
       setEventSource(source)
 
-      queryCache.prefetchQuery(['communities', id, token], getCommunities)
-      queryCache.prefetchQuery(['participants', id, token], getParticipants)
-      queryCache.prefetchQuery(['unreads', id, token], getUnreads)
-      queryCache.prefetchQuery(['mentions', id, token], getMentions)
+      queryClient.prefetchQuery(['communities', id, token], getCommunities)
+      queryClient.prefetchQuery(['participants', id, token], getParticipants)
+      queryClient.prefetchQuery(['unreads', id, token], getUnreads)
+      queryClient.prefetchQuery(['mentions', id, token], getMentions)
     }
 
     const stateChangeCb = (state: AppState) => {

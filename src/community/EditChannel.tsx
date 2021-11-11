@@ -14,7 +14,7 @@ import {
 import { BarLoader } from 'react-spinners'
 import styles from './EditChannel.module.scss'
 import { UI } from '../state/ui'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { FC, useMemo, useState } from 'react'
 import { ChannelResponse, getChannel, Override } from '../chat/remote'
 import * as Yup from 'yup'
@@ -42,6 +42,7 @@ import { Permission } from '../utils/permissions'
 import TextArea from '../components/TextArea'
 import StatusBar from '../components/StatusBar'
 import { Plugins } from '@capacitor/core'
+import queryClient from '../utils/queryClient'
 
 const { Clipboard } = Plugins
 
@@ -251,7 +252,7 @@ const PermissionOverrides: FC<
                     headers: { Authorization: auth.token }
                   }
                 )
-                queryCache.setQueryData<ChannelResponse>(
+                queryClient.setQueryData<ChannelResponse>(
                   ['channel', channelID, auth.token],
                   (initial) => {
                     if (initial) {
@@ -292,7 +293,7 @@ const PermissionOverrides: FC<
                     headers: { Authorization: auth.token }
                   }
                 )
-                queryCache.setQueryData<ChannelResponse>(
+                queryClient.setQueryData<ChannelResponse>(
                   ['channel', channelID, auth.token],
                   (initial) => {
                     if (initial) {
@@ -607,7 +608,7 @@ export const EditChannel: FC = () => {
                   }
                 )
 
-                await queryCache.invalidateQueries([
+                await queryClient.invalidateQueries([
                   'channel',
                   channelID,
                   token

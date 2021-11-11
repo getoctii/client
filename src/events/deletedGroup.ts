@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
@@ -17,12 +17,12 @@ const useDeletedGroup = (eventSource: EventSourcePolyfill | null) => {
         community_id: string
       }
       log('Events', 'purple', 'DELETED_GROUP')
-      queryCache.setQueryData<string[]>(
+      queryClient.setQueryData<string[]>(
         ['groups', event.community_id, token],
         (initial) =>
           initial ? initial.filter((group) => group !== event.id) : []
       )
-      const communities = queryCache.getQueryData<MembersResponse>([
+      const communities = queryClient.getQueryData<MembersResponse>([
         'communities',
         id,
         token
@@ -31,13 +31,13 @@ const useDeletedGroup = (eventSource: EventSourcePolyfill | null) => {
         (m) => m.community.id === event.community_id
       )
       if (!!member?.id) {
-        const memberGroups = queryCache.getQueryData<MemberResponse>([
+        const memberGroups = queryClient.getQueryData<MemberResponse>([
           'member',
           member.id,
           token
         ])
         if (memberGroups?.groups?.some((g) => g === event.id)) {
-          await queryCache.invalidateQueries(['member', member.id, token])
+          await queryClient.invalidateQueries(['member', member.id, token])
         }
       }
     }

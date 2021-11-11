@@ -8,11 +8,12 @@ import styles from './NewResource.module.scss'
 import { useRouteMatch } from 'react-router-dom'
 import { getProduct, ResourceTypes } from '../../../remote'
 import { UI } from '../../../../state/ui'
-import { queryCache, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import * as Yup from 'yup'
 import Modal from '../../../../components/Modal'
 import { FC } from 'react'
+import queryClient from '../../../../utils/queryClient'
 
 const ResourceSchema = Yup.object().shape({
   name: Yup.string()
@@ -49,7 +50,7 @@ const NewResource: FC = () => {
             }
           )
           if (!resource) return
-          queryCache.setQueryData<string[]>(
+          queryClient.setQueryData<string[]>(
             ['resources', match?.params?.productID, token],
             (initial) => {
               if (initial) return [...initial, resource.id]

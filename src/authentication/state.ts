@@ -2,9 +2,9 @@ import { useMemo, useEffect, useState } from 'react'
 import decode from 'jwt-decode'
 import { createContainer } from '@innatical/innstate'
 import { clientGateway } from '../utils/constants'
-import { queryCache } from 'react-query'
 import { useSuspenseStorageItem } from '../utils/storage'
 import { Plugins } from '@capacitor/core'
+import queryClient from '../utils/queryClient'
 
 const useAuth = () => {
   const [token, setToken] = useSuspenseStorageItem<string | null>(
@@ -22,7 +22,7 @@ const useAuth = () => {
   useEffect(() => {
     if (payload?.exp && payload.exp <= Math.floor(Date.now() / 1000)) {
       Plugins.Storage.clear()
-      queryCache.clear()
+      queryClient.clear()
     }
   }, [payload, setToken])
 
@@ -42,7 +42,7 @@ const useAuth = () => {
         }
       )
 
-      await queryCache.invalidateQueries(['users', payload.sub])
+      await queryClient.invalidateQueries(['users', payload.sub])
 
       return 'success'
     }

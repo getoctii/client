@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { log } from '../utils/logging'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 
 const useLog = (eventSource: EventSourcePolyfill | null) => {
   useEffect(() => {
     if (!eventSource) return
     const handler = async () => {
       log('Events', 'purple', 'Connection error')
-      await queryCache.invalidateQueries()
+      await queryClient.invalidateQueries()
     }
 
     eventSource.addEventListener('error', handler)

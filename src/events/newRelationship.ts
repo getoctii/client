@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
 import { Auth } from '../authentication/state'
@@ -18,7 +18,7 @@ const useNewRelationship = (eventSource: EventSourcePolyfill | null) => {
       }
       log('Events', 'purple', 'NEW_RELATIONSHIP')
       if (event.type === RelationshipTypes.FRIEND) {
-        queryCache.setQueryData<RelationshipResponse[]>(
+        queryClient.setQueryData<RelationshipResponse[]>(
           ['relationships', id, token],
           (initial) =>
             initial?.filter(
@@ -33,7 +33,7 @@ const useNewRelationship = (eventSource: EventSourcePolyfill | null) => {
         )
       }
 
-      queryCache.setQueryData<RelationshipResponse[]>(
+      queryClient.setQueryData<RelationshipResponse[]>(
         ['relationships', id, token],
         (initial) => (initial ? [...initial, { ...event }] : [{ ...event }])
       )

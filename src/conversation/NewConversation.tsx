@@ -9,7 +9,7 @@ import {
   faSearch
 } from '@fortawesome/free-solid-svg-icons'
 import Button from '../components/Button'
-import { queryCache } from 'react-query'
+import queryClient from '../utils/queryClient'
 import { useHistory } from 'react-router-dom'
 import { ParticipantsResponse } from '../user/remote'
 import { createConversation, findUser, validate } from './remote'
@@ -35,7 +35,7 @@ const NewConversation: FC = () => {
               username,
               discriminator === 'inn' ? '0' : discriminator
             )
-            const cache = queryCache.getQueryData([
+            const cache = queryClient.getQueryData([
               'participants',
               id,
               token
