@@ -31,12 +31,13 @@ import Downloads from './marketing/Downloads'
 import Invite from './invite/Invite'
 import Admin from './admin/Admin'
 import { useQuery } from 'react-query'
-import { getCommunities, getParticipants } from './user/remote'
+import { getCommunities } from './user/remote'
 import OnBoarding from './marketing/OnBoarding'
 import { useSuspenseStorageItem } from './utils/storage'
 import Modal from './components/Modals'
 import { Permission } from './utils/permissions'
 import Hub from './hub/Hub'
+import { useCommunities, useConversations } from './user/state'
 const { PushNotifications } = Plugins
 
 const ContextMenuHandler: FC = () => {
@@ -110,27 +111,16 @@ const OnboardingHandler: FC<{
     'onboarding-complete',
     false
   )
-  const { data: communities } = useQuery(
-    ['communities', auth.id, auth.token],
-    getCommunities
-  )
-  const { data: participants } = useQuery(
-    ['participants', auth.id, auth.token],
-    getParticipants
-  )
-  const filteredParticipants = useMemo(
-    () =>
-      participants?.filter((part) => part.conversation.participants.length > 1),
-    [participants]
-  )
+  const communities = useCommunities()
+  const conversations = useConversations()
 
   const showOnBoarding = useMemo(() => {
     return (
       (communities?.length ?? 0) < 1 &&
-      (filteredParticipants?.length ?? 0) < 1 &&
+      (conversations?.length ?? 0) < 1 &&
       !onboardingComplete
     )
-  }, [communities?.length, filteredParticipants?.length, onboardingComplete])
+  }, [communities?.length, conversations?.length, onboardingComplete])
 
   useEffect(() => {
     onboardingStateChange(showOnBoarding)
@@ -263,7 +253,7 @@ export const Router: FC = memo(() => {
         <Context.Global />
         {!isMobile && auth.authenticated && <SidebarWrapper />}
         <MarketingRouter />
-        {/* {auth.authenticated && <AppRouter />} */}
+        {auth.authenticated && <AppRouter />}
         <Suspense fallback={<></>}>
           <AnimatePresence>
             <Modal key='modals' />

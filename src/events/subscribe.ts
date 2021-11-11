@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react'
 import { Auth } from '../authentication/state'
 import { CLIENT_GATEWAY_URL } from '../utils/constants'
 import { AppState, Plugins } from '@capacitor/core'
-import {
-  getCommunities,
-  getMentions,
-  getParticipants,
-  getUnreads
-} from '../user/remote'
+import { getCommunities, getMentions, getUnreads } from '../user/remote'
 import { isPlatform } from '@ionic/react'
 import queryClient from '../utils/queryClient'
 
@@ -29,10 +24,9 @@ const useSubscribe = () => {
 
       setEventSource(source)
 
-      queryClient.prefetchQuery(['communities', id, token], getCommunities)
-      queryClient.prefetchQuery(['participants', id, token], getParticipants)
-      queryClient.prefetchQuery(['unreads', id, token], getUnreads)
-      queryClient.prefetchQuery(['mentions', id, token], getMentions)
+      // queryClient.prefetchQuery(['communities', id, token], getCommunities)
+      // queryClient.prefetchQuery(['unreads', id, token], getUnreads)
+      // queryClient.prefetchQuery(['mentions', id, token], getMentions)
     }
 
     const stateChangeCb = (state: AppState) => {

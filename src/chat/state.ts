@@ -1,12 +1,26 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createContainer } from '@innatical/innstate'
 import { Auth } from '../authentication/state'
-import { postMessage, postEncryptedMessage } from './remote'
+import { postMessage, postEncryptedMessage, getChannel } from './remote'
 import { Keychain } from '../keychain/state'
+import { useQuery } from 'react-query'
 
 interface UploadDetails {
   status: 'uploading' | 'uploaded' | 'pending'
   file: File
+}
+
+export const useChannel = (channelID?: string) => {
+  const { token } = Auth.useContainer()
+  const { data: channel } = useQuery(
+    ['channel', channelID, token],
+    async () => getChannel(channelID!, token!),
+    {
+      enabled: !!token && !!channelID
+    }
+  )
+
+  return channel
 }
 
 const useChat = () => {
@@ -14,10 +28,8 @@ const useChat = () => {
   const [tracking, setTracking] = useState(true)
   const [autoRead, setAutoRead] = useState(false)
   const [channelID, setChannelID] = useState<string | undefined>()
-  const [
-    publicEncryptionKey,
-    setPublicEncryptionKey
-  ] = useState<CryptoKey | null>(null)
+  const [publicEncryptionKey, setPublicEncryptionKey] =
+    useState<CryptoKey | null>(null)
   const [publicSigningKey, setPublicSigningKey] = useState<CryptoKey | null>(
     null
   )

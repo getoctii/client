@@ -8,14 +8,15 @@ import {
 import Button from '../components/Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, useMemo } from 'react'
-import { useQuery } from 'react-query'
-import { fetchManyUsers, getParticipants } from '../user/remote'
+import { useQueries, useQuery } from 'react-query'
+import { fetchManyUsers, getUser } from '../user/remote'
 import { Auth } from '../authentication/state'
 import { UI } from '../state/ui'
 import { clientGateway } from '../utils/constants'
 import { Call } from '../state/call'
 import { useHistory } from 'react-router-dom'
 import { useAudio } from 'react-use'
+import { useConversationMembers } from '../conversation/state'
 
 const Ringing: FC<{ id: string }> = ({ id }) => {
   const [audio] = useAudio({
@@ -25,45 +26,31 @@ const Ringing: FC<{ id: string }> = ({ id }) => {
   })
   const auth = Auth.useContainer()
   const ui = UI.useContainer()
-  const { data: participants } = useQuery(
-    ['participants', auth.id, auth.token],
-    getParticipants
-  )
-
-  const participant = useMemo(
-    () =>
-      participants?.find((participant) => participant.conversation.id === id),
-    [participants, id]
-  )
-
-  const people = useMemo(
-    () =>
-      participant?.conversation.participants.filter(
-        (userID) => userID !== auth.id
-      ),
-    [participant, auth.id]
-  )
-
-  const { data: users } = useQuery(
-    ['users', people ?? [], auth.token],
-    fetchManyUsers
-  )
-
   const call = Call.useContainer()
   const history = useHistory()
+
+  const conversationMembers = useConversationMembers(id)
+  const users = useQueries(
+    (conversationMembers ?? []).map((member) => {
+      return {
+        queryKey: ['user', member.userID, auth.token],
+        queryFn: async () => getUser(member.userID, auth.token!)
+      }
+    })
+  )
 
   return (
     <Modal onDismiss={() => {}} icon={faPhone} title={'Incoming Call'}>
       {audio}
       <div className={styles.container}>
         {users?.length === 1 ? (
-          <img src={users[0].avatar} alt={users[0].username} />
+          <img src={users[0].data?.avatar} alt={users[0].data?.username} />
         ) : (
           <div className={styles.gc}>
             <FontAwesomeIcon icon={faUserFriends} size={'2x'} />
           </div>
         )}
-        <h1>{users?.map((i) => i.username).join(', ')}</h1>
+        <h1>{users?.map(({ data: user }) => user?.username).join(', ')}</h1>
         <div className={styles.buttons}>
           <Button
             type={'button'}
@@ -74,7 +61,7 @@ const Ringing: FC<{ id: string }> = ({ id }) => {
               }: {
                 data: { room_id: string; token: string; server: string }
               } = await clientGateway.post(
-                `/channels/${participant?.conversation.voice_channel_id}/join`,
+                `/channels//join`,
                 {},
                 {
                   headers: {
@@ -87,7 +74,7 @@ const Ringing: FC<{ id: string }> = ({ id }) => {
                 id: data.room_id,
                 server: data.server,
                 conversationID: id,
-                channelID: participant?.conversation.voice_channel_id
+                channelID: ''
               })
               call.play()
               ui.setModal(undefined)

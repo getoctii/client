@@ -1,13 +1,3 @@
-import {
-  decryptMessage,
-  encryptMessage,
-  exportEncryptedMessage,
-  importEncryptedMessage
-} from '@innatical/inncryption'
-import {
-  ExportedEncryptedMessage,
-  Keychain
-} from '@innatical/inncryption/dist/types'
 import axios from 'axios'
 import {
   ChannelPermissions,
@@ -29,9 +19,9 @@ export interface ChannelResponse {
   type: ChannelTypes
   order: number
   category_id?: string
-  community_id?: string
-  base_allow?: ChannelPermissions[]
-  base_deny?: ChannelPermissions[]
+  communityID?: string
+  baseAllow?: ChannelPermissions[]
+  baseDeny?: ChannelPermissions[]
   overrides?: {
     [groupID: string]: Override
   }
@@ -46,15 +36,15 @@ export interface MessageResponse {
   created_at: string
   updated_at: string
   content?: string
-  encrypted_content?: ExportedEncryptedMessage
-  self_encrypted_content?: ExportedEncryptedMessage
+  encrypted_content?: any
+  self_encrypted_content?: any
   rich_content?: {
     username: string
     avatar: string
   }
 }
 
-export const getChannel = async (_: string, channelID: string, token: string) =>
+export const getChannel = async (channelID: string, token: string) =>
   (
     await clientGateway.get<ChannelResponse>(`/channels/${channelID}`, {
       headers: {
@@ -89,29 +79,33 @@ export const postEncryptedMessage = async (
   channelID: string,
   content: string,
   token: string,
-  keychain: Keychain,
+  keychain: any,
   publicKey: CryptoKey
 ) => {
-  const selfEncryptedMessage = exportEncryptedMessage(
-    await encryptMessage(
-      keychain,
-      keychain.encryptionKeyPair.publicKey!,
-      content
-    )
-  )
-  const encryptedMessage = exportEncryptedMessage(
-    await encryptMessage(keychain, publicKey, content)
-  )
-  return (
-    await clientGateway.post(
-      `/channels/${channelID}/messages`,
-      {
-        encrypted_content: encryptedMessage,
-        self_encrypted_content: selfEncryptedMessage
-      },
-      { headers: { Authorization: token } }
-    )
-  ).data
+  // const selfEncryptedMessage = exportEncryptedMessage(
+  //   await encryptMessage(
+  //     keychain,
+  //     keychain.encryptionKeyPair.publicKey!,
+  //     content
+  //   )
+  // )
+  // const encryptedMessage = exportEncryptedMessage(
+  //   await encryptMessage(keychain, publicKey, content)
+  // )
+  // return (
+  //   await clientGateway.post(
+  //     `/channels/${channelID}/messages`,
+  //     {
+  //       encrypted_content: encryptedMessage,
+  //       self_encrypted_content: selfEncryptedMessage
+  //     },
+  //     { headers: { Authorization: token } }
+  //   )
+  // ).data
+  return {
+    encrypted_content: '',
+    self_encrypted_content: ''
+  }
 }
 
 export const uploadFile = async (file: File, token: string) => {
@@ -146,29 +140,33 @@ export const patchEncryptedMessage = async (
   messageID: string,
   content: string,
   token: string,
-  keychain: Keychain,
+  keychain: any,
   publicKey: CryptoKey
 ) => {
-  const selfEncryptedMessage = exportEncryptedMessage(
-    await encryptMessage(
-      keychain,
-      keychain.encryptionKeyPair.publicKey!,
-      content
-    )
-  )
-  const encryptedMessage = exportEncryptedMessage(
-    await encryptMessage(keychain, publicKey, content)
-  )
-  return (
-    await clientGateway.patch(
-      `/messages/${messageID}`,
-      {
-        encrypted_content: encryptedMessage,
-        self_encrypted_content: selfEncryptedMessage
-      },
-      { headers: { Authorization: token } }
-    )
-  ).data
+  // const selfEncryptedMessage = exportEncryptedMessage(
+  //   await encryptMessage(
+  //     keychain,
+  //     keychain.encryptionKeyPair.publicKey!,
+  //     content
+  //   )
+  // )
+  // const encryptedMessage = exportEncryptedMessage(
+  //   await encryptMessage(keychain, publicKey, content)
+  // )
+  // return (
+  //   await clientGateway.patch(
+  //     `/messages/${messageID}`,
+  //     {
+  //       encrypted_content: encryptedMessage,
+  //       self_encrypted_content: selfEncryptedMessage
+  //     },
+  //     { headers: { Authorization: token } }
+  //   )
+  // ).data
+  return {
+    encrypted_content: '',
+    self_encrypted_content: ''
+  }
 }
 
 export const getMessages = async (
@@ -189,26 +187,26 @@ export const getMessages = async (
 
 export const getMessageContent = async (
   _: string,
-  content?: string | ExportedEncryptedMessage | null,
+  content?: string | any | null,
   signing?: CryptoKey | null,
-  keychain?: Keychain | null
+  keychain?: any | null
 ) => {
   if (typeof content === 'string') {
     return content
   } else {
     if (!signing || !keychain || !content) return ''
     try {
-      const decrypted = await decryptMessage(
-        keychain,
-        signing,
-        importEncryptedMessage(content)
-      )
+      // const decrypted = await decryptMessage(
+      //   keychain,
+      //   signing,
+      //   importEncryptedMessage(content)
+      // )
 
-      if (decrypted.verified) {
-        return decrypted.message
-      } else {
-        return '*The sender could not be verified...*'
-      }
+      // if (decrypted.verified) {
+      //   return decrypted.message
+      // } else {
+      return '*The sender could not be verified...*'
+      // }
     } catch {
       return '*Message could not be decrypted*'
     }

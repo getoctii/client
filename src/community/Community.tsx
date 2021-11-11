@@ -26,6 +26,7 @@ import Product from './integrations/product/Product'
 import List from '../components/List'
 import { Placeholder } from '../components/Header'
 import VoiceChannel from './voice/VoiceChannel'
+import { useChannels, useCommunity } from './state'
 
 const NoPermission: FC<CommunityResponse> = ({ name }) => (
   <div className={styles.noPermission}>
@@ -43,7 +44,7 @@ const NoPermission: FC<CommunityResponse> = ({ name }) => (
 const Channel: FC = () => {
   const { id, channelID } = useParams<{ id: string; channelID: string }>()
   const auth = Auth.useContainer()
-  const { data: channels } = useQuery(['channels', id, auth.token], getChannels)
+  const channels = useChannels()
 
   const channel = useMemo(
     () => channels?.find((channel) => channel.id === channelID),
@@ -94,10 +95,7 @@ const EmptyCommunityHandler: FC<{
 }> = ({ emptyStateChange }) => {
   const { token } = Auth.useContainer()
   const match = useRouteMatch<{ id: string }>('/communities/:id')
-  const { data: channels } = useQuery(
-    ['channels', match?.params.id, token],
-    getChannels
-  )
+  const channels = useChannels()
 
   const showEmpty = useMemo(() => {
     return (
@@ -113,12 +111,8 @@ const EmptyCommunityHandler: FC<{
 }
 
 const CommunityChannelFallback: FC = () => {
-  const { token } = Auth.useContainer()
   const match = useRouteMatch<{ id: string }>('/communities/:id')
-  const { data: channels } = useQuery(
-    ['channels', match?.params.id, token],
-    getChannels
-  )
+  const channels = useChannels()
   const textChannels = useMemo(() => {
     return (channels ?? [])
       .filter((channel) => channel?.type === 1)
@@ -136,7 +130,6 @@ const CommunityChannelFallback: FC = () => {
 }
 
 const CommunityView: FC = () => {
-  const { token } = Auth.useContainer()
   const { path } = useRouteMatch()
   const match = useRouteMatch<{ id: string }>('/communities/:id')
   const matchTab = useRouteMatch<{ id: string; tab: string }>(
@@ -145,10 +138,7 @@ const CommunityView: FC = () => {
   const isMobile = useMedia('(max-width: 740px)')
   const { hasPermissions } = Permission.useContainer()
 
-  const { data: community } = useQuery(
-    ['community', match?.params.id, token],
-    getCommunity
-  )
+  const community = useCommunity()
   const [showEmpty, setShowEmpty] = useState(false)
 
   const emptyHandler = useCallback((state: boolean) => {

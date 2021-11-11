@@ -1,6 +1,6 @@
 import { FC, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './Channel.module.scss'
-import { useQuery } from 'react-query'
+import { useQueries, useQuery } from 'react-query'
 import {
   ChannelPermissions,
   clientGateway,
@@ -29,12 +29,13 @@ import Button from '../components/Button'
 import { ChannelResponse, getChannel } from './remote'
 import Messages from './Messages'
 import { fetchManyUsers, getKeychain, getUser } from '../user/remote'
-import { Chat } from './state'
+import { Chat, useChannel } from './state'
 import { Permission } from '../utils/permissions'
 import AddParticipant from './AddParticipant'
-import { importPublicKey } from '@innatical/inncryption'
 import { VoiceCard } from '../community/voice/VoiceChannel'
 import { Call } from '../state/call'
+import { useUser } from '../user/state'
+import { ConversationMember } from '../conversation/remote'
 
 const TypingIndicator: FC<{
   channelID: string
@@ -66,36 +67,40 @@ const TypingIndicator: FC<{
 }
 
 const PrivateName: FC<{ id?: string }> = ({ id }) => {
-  const { token } = Auth.useContainer()
-  const user = useQuery(['users', id, token], getUser)
+  const user = useUser(id)
   return (
     <div className={styles.title}>
-      {user.data?.username}#
-      {user.data?.discriminator === 0
+      {user?.username}#
+      {user?.discriminator === 0
         ? 'inn'
-        : user.data?.discriminator.toString().padStart(4, '0')}
-      <p className={styles.status}>{user.data?.status}</p>
+        : user?.discriminator.toString().padStart(4, '0')}
+      <p className={styles.status}>{user?.status}</p>
     </div>
   )
 }
 
 const Header: FC<{
-  participants?: string[]
+  members?: ConversationMember[]
   type: InternalChannelTypes
   channel?: ChannelResponse
-}> = ({ participants, type, channel }) => {
+}> = ({ members, type, channel }) => {
   const { token } = Auth.useContainer()
-  const { data: users } = useQuery(
-    ['users', participants ?? [], token],
-    fetchManyUsers
+
+  const users = useQueries(
+    (members ?? []).map((member) => {
+      return {
+        queryKey: ['user', member, token],
+        queryFn: async () => getUser(member.userID, token!)
+      }
+    })
   )
 
   return (
     <div className={styles.title}>
       {type === InternalChannelTypes.PrivateChannel ? (
-        <PrivateName id={participants?.[0]} />
+        <PrivateName id={members?.[0].userID} />
       ) : type === InternalChannelTypes.GroupChannel ? (
-        users?.map((i) => i.username).join(', ')
+        users?.map((i) => i.data?.username).join(', ')
       ) : (
         channel?.name
       )}
@@ -262,14 +267,14 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
 const ChannelView: FC<{
   type: InternalChannelTypes
   channelID: string
-  participants?: string[]
+  members?: ConversationMember[]
   communityID?: string
   conversationID?: string
   voiceChannelID?: string
 }> = ({
   type,
   channelID,
-  participants,
+  members,
   communityID,
   conversationID,
   voiceChannelID
@@ -295,14 +300,8 @@ const ChannelView: FC<{
   const isMobile = useMedia('(max-width: 740px)')
   const history = useHistory()
 
-  const { data: channel } = useQuery(['channel', channelID, token], getChannel)
-  const { data: voiceChannel } = useQuery(
-    ['channel', voiceChannelID, token],
-    getChannel,
-    {
-      enabled: !!voiceChannelID
-    }
-  )
+  const channel = useChannel(channelID)
+
   const { hasChannelPermissions } = Permission.useContainer()
   const [bond] = useDropArea({
     onFiles: (files) => {
@@ -312,37 +311,6 @@ const ChannelView: FC<{
       })
     }
   })
-
-  const { data: otherKeychain } = useQuery(
-    [
-      'keychain',
-      type === InternalChannelTypes.PrivateChannel ? participants?.[0] : null,
-      token
-    ],
-    getKeychain
-  )
-
-  const { data: publicKey } = useQuery(
-    ['publicKey', otherKeychain?.signing.publicKey],
-    async (_: string, key: number[]) => {
-      if (!key) return undefined
-      return await importPublicKey(key, 'signing')
-    }
-  )
-
-  useEffect(() => {
-    ;(async () => {
-      if (!otherKeychain || !publicKey) return
-      setPublicEncryptionKey(
-        await importPublicKey(otherKeychain.encryption.publicKey, 'encryption')
-      )
-      setPublicSigningKey(publicKey)
-    })()
-
-    return () => {
-      setPublicEncryptionKey(null)
-    }
-  }, [otherKeychain, setPublicEncryptionKey, setPublicSigningKey, publicKey])
 
   const { setRoom, play, room } = Call.useContainer()
 
@@ -366,7 +334,7 @@ const ChannelView: FC<{
                 onClick={() => {
                   if (isMobile) {
                     if (type === InternalChannelTypes.CommunityChannel) {
-                      history.push(`/communities/${channel?.community_id}`)
+                      history.push(`/communities/${channel?.communityID}`)
                     } else {
                       history.push('/')
                     }
@@ -395,14 +363,10 @@ const ChannelView: FC<{
               </div>
             )}
             <Suspense fallback={<></>}>
-              <Header
-                type={type}
-                participants={participants}
-                channel={channel}
-              />
+              <Header type={type} members={members} channel={channel} />
             </Suspense>
             <div className={styles.buttonGroup}>
-              {voiceChannel && room?.channelID !== voiceChannel.id ? (
+              {/* {voiceChannel && room?.channelID !== voiceChannel.id ? (
                 <Button
                   type='button'
                   onClick={async () => {
@@ -434,7 +398,7 @@ const ChannelView: FC<{
                 </Button>
               ) : (
                 <></>
-              )}
+              )} */}
               {type === InternalChannelTypes.PrivateChannel ||
               type === InternalChannelTypes.GroupChannel ? (
                 <Button
@@ -459,15 +423,15 @@ const ChannelView: FC<{
                     ? conversationID
                     : undefined
                 }
-                participant={participants?.[0]}
+                participant={members?.[0].userID}
               />
             )}
           </div>
-          {voiceChannel && (voiceChannel.voice_users?.length ?? 0) > 0 ? (
+          {/* {voiceChannel && (voiceChannel.voice_users?.length ?? 0) > 0 ? (
             <CallView channel={voiceChannel} conversationID={conversationID!} />
           ) : (
             <></>
-          )}
+          )} */}
         </div>
         <Suspense fallback={<Messages.Placeholder />}>
           {channel ? (
@@ -485,7 +449,7 @@ const ChannelView: FC<{
                     channel
                   )
                 : true,
-            participants,
+            members,
             channelID,
             typingIndicator: typingUsers?.length > 0,
             communityID

@@ -1,13 +1,14 @@
 import { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'react-query'
 import styles from './Mentions.module.scss'
-import { fetchManyUsers, getParticipants, UserResponse } from '../user/remote'
+import { fetchManyUsers, UserResponse } from '../user/remote'
 import { Auth } from '../authentication/state'
 import { clientGateway } from '../utils/constants'
 import { useDebounce, useMedia } from 'react-use'
 import { ChannelResponse, getChannels, getMembers } from '../community/remote'
 import { useParams, useRouteMatch } from 'react-router-dom'
 import { ErrorBoundary } from 'react-error-boundary'
+import { useConversation, useConversationMembers } from '../conversation/state'
 
 type onMention = (id: string, type: 'user' | 'channel') => void
 
@@ -96,20 +97,14 @@ const Conversation: FC<{
   onFiltered: (users: UserResponse[]) => void
 }> = ({ search, onMention, selected, onFiltered }) => {
   const { token, id } = Auth.useContainer()
-  const participants = useQuery(['participants', id, token], getParticipants)
   const match = useRouteMatch<{ id: string }>('/conversations/:id')
-  const conversation = useMemo(
-    () =>
-      participants.data?.find((p) => p.conversation.id === match?.params.id),
-    [participants, match?.params.id]
-  )
-  if (!conversation) return <></>
+  const conversationMembers = useConversationMembers(match?.params.id)
   return (
     <ErrorBoundary fallback={<></>}>
       <MentionsPopup
-        usersIDs={conversation.conversation.participants?.filter(
-          (p) => p !== id
-        )}
+        usersIDs={conversationMembers
+          ?.filter((member) => member.userID !== id)
+          .map((m) => m.userID)}
         selected={selected}
         search={search}
         onMention={onMention}
@@ -214,9 +209,10 @@ const Users: FC<{
         : defaultMembers.data?.slice(0, 9),
     [defaultMembers, isMobile]
   )
-  const truncatedFilteredMembers = useMemo(() => filteredMembers?.slice(0, 9), [
-    filteredMembers
-  ])
+  const truncatedFilteredMembers = useMemo(
+    () => filteredMembers?.slice(0, 9),
+    [filteredMembers]
+  )
 
   return (
     <MentionsPopup

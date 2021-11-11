@@ -1,11 +1,6 @@
 import { clientGateway } from '../utils/constants'
 import { isTag } from '../utils/validations'
 
-export interface ConversationResponse {
-  id: string
-  channel_id: string
-}
-
 export type FindResponse = {
   id: string
   avatar: string
@@ -22,12 +17,99 @@ export const validate = (values: formData) => {
   return errors
 }
 
+enum ConversationType {
+  DM = 'DM',
+  GROUP = 'GROUP'
+}
+
+export interface Conversation {
+  id: string
+  type: ConversationType
+  channelID: string
+}
+
+export const getConversation = async (
+  conversationID: string,
+  token: string
+) => {
+  return (
+    await clientGateway.get<Conversation>(`/conversations/${conversationID}`, {
+      headers: { Authorization: token }
+    })
+  ).data
+}
+
+enum ConversationMemberPermission {
+  MEMBER = 'MEMBER',
+  ADMINISTRATOR = 'ADMINISTRATOR',
+  OWNER = 'OWNER'
+}
+
+export interface ConversationMember {
+  permission: ConversationMemberPermission
+  userID: string
+}
+
+export const getConversationMembers = async (
+  conversationID: string,
+  token: string
+) => {
+  return (
+    await clientGateway.get<ConversationMember[]>(
+      `/conversations/${conversationID}/members`,
+      {
+        headers: { Authorization: token }
+      }
+    )
+  ).data
+}
+
 export const createConversation = async (
   token: string,
-  values: { recipient: string }
+  values: { type: ConversationType; recipient?: string; recipients?: string[] }
 ) =>
   (
-    await clientGateway.post<ConversationResponse>('/conversations', values, {
+    await clientGateway.post<{
+      id: string
+    }>('/conversations', values, {
+      headers: { Authorization: token }
+    })
+  ).data
+
+export const addConversationMember = async (
+  conversationID: string,
+  memberID: string,
+  token: string
+) =>
+  (
+    await clientGateway.put<{
+      id: string
+    }>(`/conversations/${conversationID}/members/${memberID}`, {
+      headers: { Authorization: token }
+    })
+  ).data
+
+export const removeConversationMember = async (
+  conversationID: string,
+  memberID: string,
+  token: string
+) =>
+  (
+    await clientGateway.delete<{
+      id: string
+    }>(`/conversations/${conversationID}/members/${memberID}`, {
+      headers: { Authorization: token }
+    })
+  ).data
+
+export const leaveConversation = async (
+  conversationID: string,
+  token: string
+) =>
+  (
+    await clientGateway.post<{
+      id: string
+    }>(`/conversations/${conversationID}/leave`, {
       headers: { Authorization: token }
     })
   ).data

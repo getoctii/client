@@ -13,9 +13,11 @@ import { Call } from '../state/call'
 import styles from './Current.module.scss'
 import { getChannel } from '../chat/remote'
 import { Auth } from '../authentication/state'
-import { useQuery } from 'react-query'
+import { useQueries, useQuery } from 'react-query'
 import { useHistory } from 'react-router-dom'
-import { fetchManyUsers, getParticipants } from '../user/remote'
+import { fetchManyUsers, getUser } from '../user/remote'
+import { useChannel } from '../chat/state'
+import { useConversationMembers } from '../conversation/state'
 
 const Current: FC = () => {
   const { token, id } = Auth.useContainer()
@@ -57,43 +59,16 @@ const Current: FC = () => {
   )
 
   const history = useHistory()
+  const channel = useChannel(room?.channelID)
 
-  const { data: channel } = useQuery(
-    ['channel', room?.channelID, token],
-    getChannel,
-    {
-      enabled: !!room?.channelID
-    }
-  )
-
-  const { data: participants } = useQuery(
-    ['participants', id, token],
-    getParticipants,
-    {
-      enabled: !!room?.conversationID
-    }
-  )
-
-  const participant = useMemo(
-    () =>
-      participants?.find(
-        (participant) => participant.conversation.id === room?.conversationID
-      ),
-    [participants, room]
-  )
-
-  const people = useMemo(
-    () =>
-      participant?.conversation.participants.filter((userID) => userID !== id),
-    [participant, id]
-  )
-
-  const { data: users } = useQuery(
-    ['users', people ?? [], token],
-    fetchManyUsers
-    // {
-    //   enabled: !!people
-    // }
+  const conversationMembers = useConversationMembers(room?.conversationID)
+  const users = useQueries(
+    (conversationMembers ?? []).map((member) => {
+      return {
+        queryKey: ['user', member.userID, token],
+        queryFn: async () => getUser(member.userID, token!)
+      }
+    })
   )
 
   return (
@@ -105,13 +80,14 @@ const Current: FC = () => {
             history.push(`/conversations/${room.conversationID}`)
           } else {
             history.push(
-              `/communities/${channel?.community_id}/channels/${channel?.id}`
+              `/communities/${channel?.communityID}/channels/${channel?.id}`
             )
           }
         }}
       >
         {users && users.length > 0
-          ? 'Call w/' + users?.map((i) => i.username).join(', ')
+          ? 'Call w/' +
+            users?.map(({ data: user }) => user?.username).join(', ')
           : '#' + channel?.name}
       </h3>
       <p>

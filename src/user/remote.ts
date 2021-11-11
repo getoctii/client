@@ -24,7 +24,7 @@ export enum State {
   online = 'online'
 }
 
-export type Participant = {
+interface Conversation {
   id: string
   conversation: {
     id: string
@@ -43,8 +43,6 @@ interface PurchaseResponse {
   description: string
   latest_version?: number
 }
-
-export type ParticipantsResponse = Participant[]
 
 export type UserResponse = {
   id: string
@@ -129,20 +127,13 @@ export const getCommunities = async (
     })
   ).data
 
-export const getParticipants = async (
-  _: string,
-  userID: string,
-  token: string
-) =>
+export const getConversations = async (token: string) =>
   (
-    await clientGateway.get<ParticipantsResponse>(
-      `/users/${userID}/participants`,
-      {
-        headers: {
-          Authorization: token
-        }
+    await clientGateway.get<string[]>(`/users/me/conversations`, {
+      headers: {
+        Authorization: token
       }
-    )
+    })
   ).data
 
 export const getUnreads = async (_: string, userID: string, token: string) =>
