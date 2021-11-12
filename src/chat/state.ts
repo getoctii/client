@@ -29,8 +29,8 @@ const useChat = () => {
   const [autoRead, setAutoRead] = useState(false)
   const [channelID, setChannelID] = useState<string | undefined>()
   const [publicEncryptionKey, setPublicEncryptionKey] =
-    useState<CryptoKey | null>(null)
-  const [publicSigningKey, setPublicSigningKey] = useState<CryptoKey | null>(
+    useState<JsonWebKey | null>(null)
+  const [publicSigningKey, setPublicSigningKey] = useState<JsonWebKey | null>(
     null
   )
   const [uploadDetails, setUploadDetails] = useState<UploadDetails | null>(null)

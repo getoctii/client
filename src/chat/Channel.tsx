@@ -37,6 +37,7 @@ import { VoiceCard } from '../community/voice/VoiceChannel'
 import { Call } from '../state/call'
 import { useUser } from '../user/state'
 import { ConversationMember } from '../conversation/remote'
+import { EncryptionPair } from '@innatical/inncryption'
 
 const TypingIndicator: FC<{
   channelID: string
@@ -315,10 +316,23 @@ const ChannelView: FC<{
 
   const { setRoom, play, room } = Call.useContainer()
 
+  // Maybe do a better thing than this...
   useEffect(() => {
-    if (channel?.type === ChannelTypes.TEXT) {
+    if (conversationID && members && token) {
+      const otherMember = members.find((m) => m.userID !== id)
+      ;(async () => {
+        const user = await getUser(otherMember!.userID, token)
+        const keychain = user.keychain.publicKeychain
+        setPublicEncryptionKey(keychain.encryption)
+        setPublicSigningKey(keychain.signing)
+      })()
+
+      return () => {
+        setPublicEncryptionKey(null)
+        setPublicSigningKey(null)
+      }
     }
-  }, [channel])
+  }, [channel, members, id])
 
   return (
     <Suspense fallback={<ChannelPlaceholder />}>

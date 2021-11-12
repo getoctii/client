@@ -214,7 +214,7 @@ const MessagesView: FC<{ channelID: string }> = ({ channelID }) => {
               key={message.id}
               primary={isPrimary(message, index)}
               id={message.id}
-              type={message.type}
+              // type={message.type}
               authorID={message.authorID}
               createdAt={message.createdAt}
               content={

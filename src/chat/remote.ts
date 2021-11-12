@@ -1,4 +1,4 @@
-import { EncryptedMessage } from '@innatical/inncryption'
+import { EncryptedMessage, Keychain } from '@innatical/inncryption'
 import axios from 'axios'
 import {
   ChannelPermissions,
@@ -74,33 +74,21 @@ export const postEncryptedMessage = async (
   channelID: string,
   content: string,
   token: string,
-  keychain: any,
-  publicKey: CryptoKey
+  keychain: Keychain,
+  publicKey: JsonWebKey
 ) => {
-  // const selfEncryptedMessage = exportEncryptedMessage(
-  //   await encryptMessage(
-  //     keychain,
-  //     keychain.encryptionKeyPair.publicKey!,
-  //     content
-  //   )
-  // )
-  // const encryptedMessage = exportEncryptedMessage(
-  //   await encryptMessage(keychain, publicKey, content)
-  // )
-  // return (
-  //   await clientGateway.post(
-  //     `/channels/${channelID}/messages`,
-  //     {
-  //       encrypted_content: encryptedMessage,
-  //       self_encrypted_content: selfEncryptedMessage
-  //     },
-  //     { headers: { Authorization: token } }
-  //   )
-  // ).data
-  return {
-    encrypted_content: '',
-    self_encrypted_content: ''
-  }
+  const sessionKey = await keychain.encryption.sessionKey(publicKey)
+  const encryptedMessage = await sessionKey.encrypt(
+    await keychain.signing.sign({ content })
+  )
+
+  return (
+    await clientGateway.post(
+      `/channels/${channelID}/messages`,
+      { payload: encryptedMessage },
+      { headers: { Authorization: token } }
+    )
+  ).data
 }
 
 export const uploadFile = async (file: File, token: string) => {
