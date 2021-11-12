@@ -2,27 +2,27 @@ import { useEffect, useState } from 'react'
 import { Auth } from '../authentication/state'
 import { CLIENT_GATEWAY_URL } from '../utils/constants'
 import { AppState, Plugins } from '@capacitor/core'
-import { getCommunities, getMentions, getUnreads } from '../user/remote'
 import { isPlatform } from '@ionic/react'
-import queryClient from '../utils/queryClient'
+import { io, Socket } from 'socket.io-client'
 
 const { App, BackgroundTask } = Plugins
 
 const useSubscribe = () => {
   const { token, id } = Auth.useContainer()
-  const [eventSource, setEventSource] = useState<EventSource | null>(null)
+  const [eventSocket, setEventSocket] = useState<Socket | null>(null)
   useEffect(() => {
     if (!token) return
-    let evtSource: EventSource | null
+    let socket: Socket | null
 
     const createEventSource = () => {
-      const source = new EventSource(
-        `${CLIENT_GATEWAY_URL}/events/subscribe/${id}?authorization=${token}`
-      )
+      const s = io(CLIENT_GATEWAY_URL, {
+        auth: {
+          token
+        }
+      })
 
-      evtSource = source
-
-      setEventSource(source)
+      socket = s
+      setEventSocket(s)
 
       // queryClient.prefetchQuery(['communities', id, token], getCommunities)
       // queryClient.prefetchQuery(['unreads', id, token], getUnreads)
@@ -33,7 +33,7 @@ const useSubscribe = () => {
       if (!isPlatform('capacitor')) return
       if (!state.isActive) {
         const taskID = BackgroundTask.beforeExit(() => {
-          evtSource?.close()
+          socket?.close()
           BackgroundTask.finish({ taskId: taskID })
         })
       } else {
@@ -47,11 +47,11 @@ const useSubscribe = () => {
 
     return () => {
       listener.remove()
-      evtSource?.close()
+      socket?.close()
     }
   }, [token, id])
 
-  return [eventSource]
+  return [eventSocket]
 }
 
 export default useSubscribe

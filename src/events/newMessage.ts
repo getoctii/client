@@ -10,7 +10,7 @@ import { Auth } from '../authentication/state'
 import {
   getKeychain,
   getUser,
-  ParticipantsResponse,
+  // ParticipantsResponse,
   State,
   Unreads,
   UserResponse
@@ -21,32 +21,34 @@ import { parseMarkdown } from '@innatical/markdown'
 import { useSuspenseStorageItem } from '../utils/storage'
 import { MessageResponse } from '../chat/remote'
 import { Keychain } from '../keychain/state'
-import {
-  decryptMessage,
-  importEncryptedMessage,
-  importPublicKey
-} from '@innatical/inncryption'
-import { ExportedEncryptedMessage } from '@innatical/inncryption/dist/types'
+// import {
+//   decryptMessage,
+//   importEncryptedMessage,
+//   importPublicKey
+// } from '@innatical/inncryption'
+// import { ExportedEncryptedMessage } from '@innatical/inncryption/dist/types'
+import { Socket } from 'socket.io-client'
+import { useCurrentUser } from '../user/state'
 
-interface Message {
-  self_encrypted_content: ExportedEncryptedMessage
-  encrypted_content: ExportedEncryptedMessage
-  id: string
-  channel_id: string
-  author: {
-    id: string
-    username: string
-    avatar: string
-    discriminator: number
-  }
-  type: MessageTypes
-  created_at: string
-  updated_at: string
-  content: string
-  community_id?: string
-  community_name?: string
-  channel_name?: string
-}
+// interface Message {
+//   self_encrypted_content: ExportedEncryptedMessage
+//   encrypted_content: ExportedEncryptedMessage
+//   id: string
+//   channel_id: string
+//   author: {
+//     id: string
+//     username: string
+//     avatar: string
+//     discriminator: number
+//   }
+//   type: MessageTypes
+//   created_at: string
+//   updated_at: string
+//   content: string
+//   community_id?: string
+//   community_name?: string
+//   channel_name?: string
+// }
 
 declare global {
   interface Window {
@@ -56,7 +58,7 @@ declare global {
   }
 }
 
-const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
+const useNewMessage = (socket: Socket | null) => {
   const { autoRead, channelID } = Chat.useContainerSelector(
     ({ autoRead, channelID }) => ({
       autoRead,
@@ -70,239 +72,225 @@ const useNewMessage = (eventSource: EventSourcePolyfill | null) => {
     []
   )
   const [mutedChannels] = useSuspenseStorageItem<string[]>('muted-channels', [])
-  const user = useQuery(['users', id, token], getUser)
+  const user = useCurrentUser()
   const { keychain } = Keychain.useContainer()
   useEffect(() => {
-    if (!eventSource) return
-    const handler = async (e: MessageEvent) => {
-      const event = JSON.parse(e.data) as Message
-      log('Events', 'purple', 'NEW_MESSAGE')
+    if (!socket) return
+    const handler = async (channelID: string, message: MessageResponse) => {
+      log('Events', 'purple', 'newMessage')
 
-      queryClient.setQueryData<MessageResponse>(['message', event.id, token], {
-        ...event,
-        author_id: event.author.id
-      })
-
-      const participants = queryClient.getQueryData<ParticipantsResponse>([
-        'participants',
-        id,
-        token
-      ])
-
-      const otherKeychain = await queryClient.fetchQuery(
-        ['keychain', event.author.id, token],
-        getKeychain,
+      queryClient.setQueryData<MessageResponse>(
+        ['message', message.id, token],
         {
-          staleTime: Infinity
+          ...message
         }
       )
 
-      const publicKey = await queryClient.fetchQuery(
-        ['publicKey', otherKeychain?.signing.publicKey],
-        async (_: string, key: number[]) => {
-          if (!key) return undefined
-          return await importPublicKey(key, 'signing')
-        },
-        {
-          staleTime: Infinity
-        }
-      )
+      // const participants = queryClient.getQueryData<ParticipantsResponse>([
+      //   'participants',
+      //   id,
+      //   token
+      // ])
 
-      const content = await queryClient.fetchQuery(
-        [
-          'messageContent',
-          event?.content ??
-            (event?.author.id === id
-              ? event.self_encrypted_content
-              : event?.encrypted_content),
-          publicKey,
-          keychain
-        ],
-        async () => {
-          const content =
-            event?.content ??
-            (event?.author.id === id
-              ? event.self_encrypted_content
-              : event?.encrypted_content)
-          if (typeof content === 'string') {
-            return content
-          } else {
-            if (!publicKey || !keychain || !content) return ''
-            try {
-              const decrypted = await decryptMessage(
-                keychain,
-                publicKey,
-                importEncryptedMessage(content)
-              )
+      // const otherKeychain = await queryClient.fetchQuery(
+      //   ['keychain', message.authorID, token],
+      //   getKeychain,
+      //   {
+      //     staleTime: Infinity
+      //   }
+      // )
 
-              if (decrypted.verified) {
-                return decrypted.message
-              } else {
-                return '*The sender could not be verified...*'
-              }
-            } catch {
-              return '*Message could not be decrypted*'
-            }
-          }
-        }
-      )
+      // const publicKey = await queryClient.fetchQuery(
+      //   ['publicKey', otherKeychain?.signing.publicKey],
+      //   async (_: string, key: number[]) => {
+      //     if (!key) return undefined
+      //     return await importPublicKey(key, 'signing')
+      //   },
+      //   {
+      //     staleTime: Infinity
+      //   }
+      // )
 
-      const initial = queryClient.getQueryData<MessageResponse[][]>([
-        'messages',
-        event.channel_id,
-        token
-      ])
+      // const content = await queryClient.fetchQuery(
+      //   [
+      //     'messageContent',
+      //     event?.content ??
+      //       (event?.author.id === id
+      //         ? event.self_encrypted_content
+      //         : event?.encrypted_content),
+      //     publicKey,
+      //     keychain
+      //   ],
+      //   async () => {
+      //     const content =
+      //       event?.content ??
+      //       (event?.author.id === id
+      //         ? event.self_encrypted_content
+      //         : event?.encrypted_content)
+      //     if (typeof content === 'string') {
+      //       return content
+      //     } else {
+      //       if (!publicKey || !keychain || !content) return ''
+      //       try {
+      //         const decrypted = await decryptMessage(
+      //           keychain,
+      //           publicKey,
+      //           importEncryptedMessage(content)
+      //         )
 
-      if (initial instanceof Array) {
-        queryClient.setQueryData<MessageResponse[][]>(
-          ['messages', event.channel_id, token],
-          initial[0].length < 25
-            ? [
-                [
-                  {
-                    ...event,
-                    author_id: event.author.id
-                  },
-                  ...initial[0]
-                ],
-                ...initial.slice(1)
-              ]
-            : [
-                [
-                  {
-                    ...event,
-                    author_id: event.author.id
-                  }
-                ],
-                ...initial
-              ]
-        )
-      }
+      //         if (decrypted.verified) {
+      //           return decrypted.message
+      //         } else {
+      //           return '*The sender could not be verified...*'
+      //         }
+      //       } catch {
+      //         return '*Message could not be decrypted*'
+      //       }
+      //     }
+      //   }
+      // )
 
-      if (participants instanceof Array) {
-        queryClient.setQueryData<ParticipantsResponse>(
-          ['participants', id, token],
-          participants.map((participant) =>
-            participant?.conversation?.channel_id === event.channel_id
-              ? {
-                  ...participant,
-                  conversation: {
-                    ...participant.conversation,
-                    last_message_id: event.id,
-                    last_message_date: event.created_at
-                  }
-                }
-              : participant
-          )
-        )
-      }
+      const initial = queryClient.getQueryData<
+        { pages: MessageResponse[][] } | undefined
+      >(['messages', channelID, token])
 
-      queryClient.setQueryData<Unreads>(['unreads', id, token], (initial) => {
-        if (initial) {
-          return {
+      if (initial) {
+        queryClient.setQueryData<{ pages: MessageResponse[][] }>(
+          ['messages', channelID, token],
+          {
             ...initial,
-            [event.channel_id]: {
-              ...(initial[event.channel_id] ?? {}),
-              last_message_id: event.id,
-              read:
-                id === event.author.id ||
-                (autoRead && event.channel_id === channelID)
-                  ? event.id
-                  : initial[event.channel_id]?.read
-            }
+            pages:
+              initial.pages[0].length < 25
+                ? [[message, ...initial.pages[0]], ...initial.pages.slice(1)]
+                : [[message], ...initial.pages]
           }
-        } else {
-          return {
-            [event.channel_id]: {
-              last_message_id: event.id,
-              read:
-                id === event.author.id ||
-                (autoRead && event.channel_id === channelID)
-                  ? event.id
-                  : ''
-            }
-          }
-        }
-      })
-
-      if (
-        event.author.id !== id &&
-        !mutedCommunities?.includes(event.community_id ?? '') &&
-        !mutedChannels?.includes(event.channel_id) &&
-        user.data?.state !== State.dnd
-      ) {
-        const output = parseMarkdown(content, {
-          bold: (str) => str,
-          italic: (str) => str,
-          underlined: (str) => str,
-          strikethough: (str) => str,
-          link: (str) => str,
-          codeblock: (str) => str,
-          custom: [
-            [
-              /<@([A-Za-z0-9-]+?)>/g,
-              (str) => {
-                const mention = queryClient.getQueryData<UserResponse>([
-                  'users',
-                  str,
-                  token
-                ])
-                return `@${mention?.username || 'someone'}`
-              }
-            ]
-          ]
-        }).join('')
-        if (window.inntronNotify) {
-          try {
-            await window.inntronNotify(
-              `${
-                event.community_name
-                  ? event.community_name
-                  : event.author.username
-              }${event.channel_name ? ` #${event.channel_name}` : ''}`,
-              `${
-                event.community_name ? `${event.author.username}: ` : ''
-              }${output}`
-            )
-          } catch (error) {
-            console.error(error)
-          }
-        } else if (!isPlatform('capacitor')) {
-          try {
-            const { granted } =
-              await Plugins.LocalNotifications.requestPermission()
-            if (granted) {
-              await Plugins.LocalNotifications.schedule({
-                notifications: [
-                  {
-                    title: `${
-                      event.community_name
-                        ? event.community_name
-                        : event.author.username
-                    }${event.channel_name ? ` #${event.channel_name}` : ''}`,
-                    body: `${
-                      event.community_name ? `${event.author.username}: ` : ''
-                    }${output}`,
-                    id: 1
-                  }
-                ]
-              })
-            }
-          } catch (error) {
-            console.error(error)
-          }
-        }
+        )
       }
-      stopTyping(event.channel_id, event.author.id)
+
+      // if (participants instanceof Array) {
+      //   queryClient.setQueryData<ParticipantsResponse>(
+      //     ['participants', id, token],
+      //     participants.map((participant) =>
+      //       participant?.conversation?.channel_id === channelID
+      //         ? {
+      //             ...participant,
+      //             conversation: {
+      //               ...participant.conversation,
+      //               last_message_id: event.id,
+      //               last_message_date: event.created_at
+      //             }
+      //           }
+      //         : participant
+      //     )
+      //   )
+      // }
+
+      // queryClient.setQueryData<Unreads>(['unreads', id, token], (initial) => {
+      //   if (initial) {
+      //     return {
+      //       ...initial,
+      //       [event.channel_id]: {
+      //         ...(initial[event.channel_id] ?? {}),
+      //         last_message_id: event.id,
+      //         read:
+      //           id === event.author.id ||
+      //           (autoRead && event.channel_id === channelID)
+      //             ? event.id
+      //             : initial[event.channel_id]?.read
+      //       }
+      //     }
+      //   } else {
+      //     return {
+      //       [event.channel_id]: {
+      //         last_message_id: event.id,
+      //         read:
+      //           id === event.author.id ||
+      //           (autoRead && event.channel_id === channelID)
+      //             ? event.id
+      //             : ''
+      //       }
+      //     }
+      //   }
+      // })
+
+      // if (
+      //   event.author.id !== id &&
+      //   !mutedCommunities?.includes(event.community_id ?? '') &&
+      //   !mutedChannels?.includes(event.channel_id) &&
+      //   user.data?.state !== State.dnd
+      // ) {
+      //   const output = parseMarkdown(content, {
+      //     bold: (str) => str,
+      //     italic: (str) => str,
+      //     underlined: (str) => str,
+      //     strikethough: (str) => str,
+      //     link: (str) => str,
+      //     codeblock: (str) => str,
+      //     custom: [
+      //       [
+      //         /<@([A-Za-z0-9-]+?)>/g,
+      //         (str) => {
+      //           const mention = queryClient.getQueryData<UserResponse>([
+      //             'users',
+      //             str,
+      //             token
+      //           ])
+      //           return `@${mention?.username || 'someone'}`
+      //         }
+      //       ]
+      //     ]
+      //   }).join('')
+      //   if (window.inntronNotify) {
+      //     try {
+      //       await window.inntronNotify(
+      //         `${
+      //           event.community_name
+      //             ? event.community_name
+      //             : event.author.username
+      //         }${event.channel_name ? ` #${event.channel_name}` : ''}`,
+      //         `${
+      //           event.community_name ? `${event.author.username}: ` : ''
+      //         }${output}`
+      //       )
+      //     } catch (error) {
+      //       console.error(error)
+      //     }
+      //   } else if (!isPlatform('capacitor')) {
+      //     try {
+      //       const { granted } =
+      //         await Plugins.LocalNotifications.requestPermission()
+      //       if (granted) {
+      //         await Plugins.LocalNotifications.schedule({
+      //           notifications: [
+      //             {
+      //               title: `${
+      //                 event.community_name
+      //                   ? event.community_name
+      //                   : event.author.username
+      //               }${event.channel_name ? ` #${event.channel_name}` : ''}`,
+      //               body: `${
+      //                 event.community_name ? `${event.author.username}: ` : ''
+      //               }${output}`,
+      //               id: 1
+      //             }
+      //           ]
+      //         })
+      //       }
+      //     } catch (error) {
+      //       console.error(error)
+      //     }
+      //   }
+      // }
+      // stopTyping(event.channel_id, event.author.id)
     }
 
-    eventSource.addEventListener(Events.NEW_MESSAGE, handler)
+    socket.on(Events.NEW_MESSAGE, handler)
 
     return () => {
-      eventSource.removeEventListener(Events.NEW_MESSAGE, handler)
+      socket.off(Events.NEW_MESSAGE, handler)
     }
   }, [
-    eventSource,
+    socket,
     mutedCommunities,
     mutedChannels,
     id,

@@ -7,12 +7,10 @@ import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
 import { Waypoint } from 'react-waypoint'
 import { getMessages, MessageResponse } from './remote'
-import { Chat, useChannel } from './state'
+import { Chat } from './state'
 import { isPlatform } from '@ionic/react'
 import { Plugins } from '@capacitor/core'
 import { Keychain } from '../keychain/state'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 
 const { Keyboard } = Plugins
 

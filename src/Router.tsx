@@ -282,6 +282,7 @@ const AppLayout = () => {
           <ContextMenuHandler key='contextmenu' />
         </AnimatePresence>
       </Suspense>
+      <EventSource />
     </>
   )
 }

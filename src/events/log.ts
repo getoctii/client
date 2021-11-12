@@ -2,34 +2,35 @@ import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { log } from '../utils/logging'
 import queryClient from '../utils/queryClient'
+import { Socket } from 'socket.io-client'
 
-const useLog = (eventSource: EventSourcePolyfill | null) => {
+const useLog = (socket: Socket | null) => {
   useEffect(() => {
-    if (!eventSource) return
-    const handler = async () => {
-      log('Events', 'purple', 'Connection error')
+    if (!socket) return
+    const handler = async (e: Error) => {
+      log('Events', 'purple', 'Connection error: ' + e.message)
       await queryClient.invalidateQueries()
     }
 
-    eventSource.addEventListener('error', handler)
+    socket.io.on('error', handler)
 
     return () => {
-      eventSource.removeEventListener('error', handler)
+      socket.io.off('error', handler)
     }
-  }, [eventSource])
+  }, [socket])
 
   useEffect(() => {
-    if (!eventSource) return
+    if (!socket) return
     const handler = () => {
-      log('Events', 'purple', 'Connected to event service')
+      log('Events', 'purple', 'Connected to socket')
     }
 
-    eventSource.addEventListener('open', handler)
+    socket.on('connect', handler)
 
     return () => {
-      eventSource.removeEventListener('open', handler)
+      socket.off('connect', handler)
     }
-  }, [eventSource])
+  }, [socket])
 }
 
 export default useLog

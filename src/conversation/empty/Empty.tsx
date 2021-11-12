@@ -22,7 +22,7 @@ const FriendSuggestion: FC<{ id: string }> = ({ id }) => {
           recipient: id,
           type: ConversationType.DM
         })
-        if (result.id) navigate({ to: `/conversations/${result.id}` })
+        if (result.id) navigate({ to: `/app/conversations/${result.id}` })
       }}
     >
       <Icon avatar={user?.avatar} state={user?.state} />
