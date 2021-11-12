@@ -19,7 +19,7 @@ import { log } from '../utils/logging'
 import { Chat } from '../chat/state'
 import { parseMarkdown } from '@innatical/markdown'
 import { useSuspenseStorageItem } from '../utils/storage'
-import { MessageResponse } from '../chat/remote'
+import { ChannelResponse, MessageResponse } from '../chat/remote'
 import { Keychain } from '../keychain/state'
 // import {
 //   decryptMessage,
@@ -150,20 +150,33 @@ const useNewMessage = (socket: Socket | null) => {
       //   }
       // )
 
-      const initial = queryClient.getQueryData<
+      const messages = queryClient.getQueryData<
         { pages: MessageResponse[][] } | undefined
       >(['messages', channelID, token])
 
-      if (initial) {
+      if (messages) {
         queryClient.setQueryData<{ pages: MessageResponse[][] }>(
           ['messages', channelID, token],
           {
-            ...initial,
+            ...messages,
             pages:
-              initial.pages[0].length < 25
-                ? [[message, ...initial.pages[0]], ...initial.pages.slice(1)]
-                : [[message], ...initial.pages]
+              messages.pages[0].length < 25
+                ? [[message, ...messages.pages[0]], ...messages.pages.slice(1)]
+                : [[message], ...messages.pages]
           }
+        )
+      }
+
+      const channel = queryClient.getQueryData<ChannelResponse>([
+        'channel',
+        channelID,
+        token
+      ])
+
+      if (channel) {
+        queryClient.setQueryData<ChannelResponse>(
+          ['messages', channelID, token],
+          { ...channel, lastMessageID: message.id }
         )
       }
 

@@ -28,6 +28,7 @@ export interface ChannelResponse {
   }
   voice_users?: string[]
   webhook_code?: string
+  lastMessageID?: string
 }
 
 export interface MessageResponse {
