@@ -2,10 +2,8 @@ import { memo, Suspense, useCallback, useMemo } from 'react'
 import styles from './Sidebar.module.scss'
 import { UI } from '../state/ui'
 import { Auth } from '../authentication/state'
-import { useQuery } from 'react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInbox, faPlus, faTh } from '@fortawesome/free-solid-svg-icons'
-import { useHistory, useRouteMatch } from 'react-router-dom'
 import Button from '../components/Button'
 import { DragDropContext, Droppable, Draggable } from '@react-forked/dnd'
 import { useMedia } from 'react-use'
@@ -16,12 +14,13 @@ import {
   MembersResponse,
   State
 } from '../user/remote'
-import { getCommunity } from '../community/remote'
 import { ModalTypes } from '../utils/constants'
 import { useSuspenseStorageItem } from '../utils/storage'
 import { useCommunities, useUser } from '../user/state'
 import { FC } from 'react'
 import { useCommunity } from '../community/state'
+import { useMatchRoute, useNavigate } from 'react-location'
+import Avatar from '../components/Avatar'
 
 const reorder = (
   list: MembersResponse,
@@ -45,11 +44,9 @@ const Community: FC<{
   index: number
 }> = memo(({ community, index }) => {
   const { token, id } = Auth.useContainer()
-  const match = useRouteMatch<{
-    tab?: string
-    id?: string
-  }>('/:tab/:id')
-  const history = useHistory()
+  const matchRoute = useMatchRoute()
+  const navigate = useNavigate()
+
   const communityFull = useCommunity()
   // const unreads = useQuery(['unreads', id, token], getUnreads)
   // const mentions = useQuery(['mentions', id, token], getMentions)
@@ -72,8 +69,7 @@ const Community: FC<{
         key={community.id}
         style={provided.draggableProps.style}
         className={
-          match?.params.tab === 'communities' &&
-          match.params.id === community.id
+          matchRoute({ to: `/app/communities/${community.id}` })
             ? `${styles.icon} ${styles.selected}`
             : styles.icon
         }
@@ -81,12 +77,8 @@ const Community: FC<{
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         onClick={() => {
-          if (
-            match?.params.tab === 'communities' &&
-            match.params.id === community.id
-          )
-            return
-          return history.push(`/communities/${community.id}`)
+          if (matchRoute({ to: `/app/communities/${community.id}` })) return
+          return navigate({ to: `/app/communities/${community.id}` })
         }}
       >
         <img src={community.icon} alt={community.name} />
@@ -107,7 +99,7 @@ const Community: FC<{
           ))} */}
       </div>
     ),
-    [community, match, communityFull, history]
+    [community, communityFull, history]
   )
 
   return (
@@ -189,9 +181,9 @@ const Communities: FC = () => {
 const Sidebar: FC = () => {
   const ui = UI.useContainer()
   const auth = Auth.useContainer()
-  const history = useHistory()
   const isMobile = useMedia('(max-width: 740px)')
-  const matchTab = useRouteMatch<{ tab: string }>('/:tab')
+  const matchRoute = useMatchRoute()
+  const navigate = useNavigate()
   const user = useUser(auth.id ?? undefined)
 
   // const scrollRef = useRef<HTMLDivElement>(null)
@@ -227,7 +219,6 @@ const Sidebar: FC = () => {
   // }, [currentScrollPosition, setScrollPosition])
   return (
     <div className={styles.sidebar}>
-      <div className={styles.spacer} />
       {/* This doesnt fucking work
             Hours Wasted: 3 
         */}
@@ -243,17 +234,18 @@ const Sidebar: FC = () => {
             <Button
               type='button'
               className={`${styles.avatar} ${
-                matchTab?.params.tab === 'settings' ? styles.selected : ''
+                matchRoute({ to: '/app/settings' }) ? styles.selected : ''
               }`}
             >
-              <img
+              <Avatar username={user?.username} avatar={user?.avatar} />
+              {/* <img
                 src={user?.avatar}
                 alt={user?.username}
-                onClick={() => history.push('/settings')}
-              />
+                onClick={() => navigate({ to: '/app/settings' })}
+              /> */}
               <div
                 className={styles.overlay}
-                onClick={() => history.push('/settings')}
+                onClick={() => navigate({ to: '/app/settings' })}
               />
               {user?.state && (
                 <div
@@ -286,22 +278,22 @@ const Sidebar: FC = () => {
         )}
         <Button
           className={`${styles.hub} ${
-            matchTab?.params.tab === 'hub' ? styles.selected : ''
+            matchRoute({ to: '/app/hub' }) ? styles.selected : ''
           }`}
           type='button'
           onClick={() => {
-            history.push('/hub')
+            navigate({ to: '/app/hub' })
           }}
         >
           <FontAwesomeIcon className={styles.symbol} icon={faTh} size='2x' />
         </Button>
         <Button
           className={`${styles.messages} ${
-            matchTab?.params.tab === 'conversations' ? styles.selected : ''
+            matchRoute({ to: '/app/conversations' }) ? styles.selected : ''
           }`}
           type='button'
           onClick={() => {
-            history.push('/')
+            navigate({ to: '/app' })
           }}
         >
           <FontAwesomeIcon className={styles.symbol} icon={faInbox} size='2x' />
@@ -336,18 +328,23 @@ const Sidebar: FC = () => {
           <div className={styles.pinnedWrapper}>
             <Button
               className={`${styles.avatar} ${
-                matchTab?.params.tab === 'settings' ? styles.selected : ''
+                matchRoute({ to: '/app/settings' }) ? styles.selected : ''
               }`}
               type='button'
             >
-              <img
+              <Avatar
+                username={user?.username}
+                avatar={user?.avatar}
+                size='sidebar'
+              />
+              {/* <img
                 src={user?.avatar}
                 alt={user?.username}
                 onClick={() => {
-                  history.push('/settings')
+                  navigate({ to: '/app/settings' })
                 }}
-              />
-              {matchTab?.params.tab !== 'settings' && user?.state && (
+              /> */}
+              {matchRoute({ to: '/app/settings' }) && user?.state && (
                 <div
                   className={`${styles.badge} ${
                     user.state === State.online

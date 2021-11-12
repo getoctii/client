@@ -15,6 +15,7 @@ import {
 import { UI } from '../../state/ui'
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import Modal from '../../components/Modal'
+import axios from 'axios'
 
 type formData = { tag: string }
 
@@ -51,21 +52,28 @@ const AddFriend: FC = () => {
               username,
               discriminator === 'inn' ? '0' : discriminator
             )
-            await clientGateway.post(
-              `/relationships/${user.id}`,
-              {},
+            await clientGateway.put(
+              `/users/me/relationships/${user.id}`,
+              {
+                type: 'OUTGOING'
+              },
               {
                 headers: { Authorization: token }
               }
             )
             setFieldError('tag', 'No input')
             resetForm()
-          } catch (e: any) {
-            if (
-              e.response.data.errors.includes('UserNotFound') ||
-              e.response.data.errors.includes('RecipientNotFound')
-            )
-              return setErrors({ tag: 'User not found' })
+          } catch (e) {
+            if (axios.isAxiosError(e)) {
+              switch (e.response?.data.error) {
+                case 'UserNotFound':
+                  setErrors({ tag: 'User not found' })
+                  break
+                case 'InvalidUser':
+                  setErrors({ tag: 'Invalid user' })
+                  break
+              }
+            }
           } finally {
             setSubmitting(false)
           }

@@ -126,9 +126,15 @@
         h2 {
           margin-bottom: 0.5rem;
           font-size: 1.25rem;
+          font-weight: 600;
         }
+
         p {
           margin-bottom: 1.8rem;
+        }
+
+        sup {
+          vertical-align: super;
         }
 
         text-align: center;

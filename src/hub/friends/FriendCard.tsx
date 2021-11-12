@@ -4,51 +4,49 @@ import { Auth } from '../../authentication/state'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUserTimes, faUserCheck } from '@fortawesome/free-solid-svg-icons'
 import Icon from '../../user/Icon'
-import { RelationshipResponse, RelationshipTypes } from './remote'
 import { useUser } from '../../user/state'
-import { Relationships } from '../../friends/relationships'
+import {
+  deleteRelationship,
+  putRelationship,
+  RelationshipType
+} from '../../user/remote'
 
-const FriendCardView: FC<RelationshipResponse> = ({
-  user_id,
-  recipient_id,
-  type
-}) => {
-  const { id } = Auth.useContainer()
-  const user = useUser(user_id)
-  const recipient = useUser(recipient_id)
-  const { newRelationship, deleteRelationship } =
-    Relationships.useContainerSelector(
-      ({ newRelationship, deleteRelationship }) => ({
-        newRelationship,
-        deleteRelationship
-      })
-    )
+const FriendCardView: FC<{
+  userID: string
+  type: RelationshipType
+}> = ({ userID, type }) => {
+  const { token } = Auth.useContainer()
+  const user = useUser(userID)
+  // const { newRelationship, deleteRelationship } =
+  //   Relationships.useContainerSelector(
+  //     ({ newRelationship, deleteRelationship }) => ({
+  //       newRelationship,
+  //       deleteRelationship
+  //     })
+  //   )
   return (
     <div className={styles.card}>
       <Icon
         className={styles.icon}
-        avatar={id === user_id ? recipient?.avatar : user?.avatar}
-        state={id === user_id ? recipient?.state : user?.state}
+        username={user?.username}
+        avatar={user?.avatar}
+        state={user?.state}
       />
       <h4>
-        {id === user_id ? recipient?.username : user?.username}#
-        {id === user_id
-          ? recipient?.discriminator === 0
-            ? 'inn'
-            : recipient?.discriminator.toString().padStart(4, '0')
-          : user?.discriminator === 0
+        {user?.username}#
+        {user?.discriminator === 0
           ? 'inn'
           : user?.discriminator.toString().padStart(4, '0')}
       </h4>
       <div className={styles.details}>
-        {type === RelationshipTypes.INCOMING_FRIEND_REQUEST ? (
+        {type === RelationshipType.INCOMING ? (
           <>
             <FontAwesomeIcon
               className={styles.primary}
               icon={faUserCheck}
               fixedWidth
               onClick={async () => {
-                await newRelationship(user_id === id ? recipient_id : user_id)
+                await putRelationship(userID, RelationshipType.OUTGOING, token!)
               }}
             />
             <FontAwesomeIcon
@@ -56,20 +54,18 @@ const FriendCardView: FC<RelationshipResponse> = ({
               icon={faUserTimes}
               fixedWidth
               onClick={async () => {
-                await deleteRelationship(
-                  user_id === id ? recipient_id : user_id
-                )
+                await deleteRelationship(userID, token!)
               }}
             />
           </>
-        ) : type === RelationshipTypes.FRIEND ||
-          type === RelationshipTypes.OUTGOING_FRIEND_REQUEST ? (
+        ) : type === RelationshipType.FRIEND ||
+          type === RelationshipType.OUTGOING ? (
           <FontAwesomeIcon
             className={styles.danger}
             icon={faUserTimes}
             fixedWidth
             onClick={async () => {
-              await deleteRelationship(user_id === id ? recipient_id : user_id)
+              await deleteRelationship(userID, token!)
             }}
           />
         ) : (

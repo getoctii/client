@@ -1,7 +1,8 @@
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, ReactNode } from 'react'
-import { useHistory, useRouteMatch } from 'react-router-dom'
+import { useMatchRoute, useNavigate } from 'react-location'
+// import { useHistory, useRouteMatch } from 'react-router-dom'
 import styles from './Sideview.module.scss'
 
 const Sideview: FC<{
@@ -14,12 +15,13 @@ const Sideview: FC<{
   }[]
   children?: ReactNode
 }> = ({ name, tabs, children }) => {
-  const history = useHistory()
-  const match = useRouteMatch<{ page: string }>('/:tab/:page')
+  const navigate = useNavigate()
+  const matchRoute = useMatchRoute()
+  //'/:tab/:page'
 
   return (
     <div className={styles.sideview}>
-      <h2>{name}</h2>
+      <h1>{name}</h1>
       <div className={styles.list}>
         {tabs.map((tab) => (
           <div
@@ -33,11 +35,11 @@ const Sideview: FC<{
                 ? styles.danger
                 : styles.warning
             } ${
-              match?.params.page === tab.name.toLowerCase()
+              matchRoute({ to: `${tab.name.toLowerCase()}` })
                 ? styles.selected
                 : ''
             }`}
-            onClick={() => history.push(tab.link)}
+            onClick={() => navigate({ to: tab.link })}
           >
             <div className={styles.icon}>
               <FontAwesomeIcon icon={tab.icon} fixedWidth />

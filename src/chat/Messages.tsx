@@ -1,36 +1,24 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  FC,
-  Suspense
-} from 'react'
+import { useEffect, useRef, useCallback, useMemo, FC, Suspense } from 'react'
 import styles from './Messages.module.scss'
-import { useInfiniteQuery, useQuery } from 'react-query'
-import { clientGateway } from '../utils/constants'
+import { useInfiniteQuery } from 'react-query'
 import { Auth } from '../authentication/state'
 import Message from './Message'
 import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
 import { Waypoint } from 'react-waypoint'
-import { ChannelResponse, getMessages, MessageResponse } from './remote'
-import { useDebounce } from 'react-use'
-import { getUnreads, Mentions } from '../user/remote'
-import { Chat } from './state'
+import { getMessages, MessageResponse } from './remote'
+import { Chat, useChannel } from './state'
 import { isPlatform } from '@ionic/react'
 import { Plugins } from '@capacitor/core'
 import { Keychain } from '../keychain/state'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
-import queryClient from '../utils/queryClient'
 
 const { Keyboard } = Plugins
 
 dayjs.extend(dayjsUTC)
 
-const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
+const MessagesView: FC<{ channelID: string }> = ({ channelID }) => {
   const {
     tracking,
     setTracking,
@@ -55,36 +43,40 @@ const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
       setChannelID
     })
   )
-
-  const { keychain, hasKeychain } = Keychain.useContainer()
+  const { keychain } = Keychain.useContainer()
 
   useEffect(() => {
-    setChannelID(channel.id)
+    setChannelID(channelID)
     setAutoRead(true)
     setTracking(true)
-  }, [setAutoRead, setTracking, setChannelID, channel.id])
+  }, [setAutoRead, setTracking, setChannelID, channelID])
 
   const { token, id } = Auth.useContainer()
-  const { data, canFetchMore, fetchMore, isFetchingMore } = useInfiniteQuery<
-    MessageResponse[],
-    any
-  >(['messages', channel.id, token], getMessages, {
-    getFetchMore: (last) => {
-      return last.length < 25 ? undefined : last[last.length - 1].id
-    }
-  })
+  console.log(channelID)
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery<MessageResponse[], any>(
+      ['messages', channelID, token],
+      async ({ pageParam }) =>
+        (await getMessages(channelID, token!, pageParam)).reverse(),
+      {
+        getNextPageParam: (last) => {
+          return last.length < 25 ? undefined : last[last.length - 1].id
+        }
+      }
+    )
 
-  const messages = useMemo(() => data?.flat(), [data])
+  const messages = useMemo(() => data?.pages?.flat(), [data])
 
   const isPrimary = useCallback(
     (message: MessageResponse, index: number) => {
       return !(
         messages?.[index + 1] &&
-        message.author_id === messages?.[index + 1]?.author_id &&
-        message.type === messages?.[index + 1]?.type &&
-        !!message.content === !!messages?.[index + 1]?.content &&
-        dayjs.utc(message?.created_at)?.valueOf() -
-          dayjs.utc(messages?.[index - 1]?.created_at)?.valueOf() <
+        message.authorID === messages?.[index + 1]?.authorID &&
+        // message.type === messages?.[index + 1]?.type &&
+        'content' in message.payload ===
+          'content' in messages?.[index + 1].payload &&
+        dayjs.utc(message?.createdAt)?.valueOf() -
+          dayjs.utc(messages?.[index - 1]?.createdAt)?.valueOf() <
           300000
       )
     },
@@ -119,90 +111,90 @@ const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
     trackingRef.current = tracking
   }, [tracking])
 
-  const unreads = useQuery(['unreads', id, token], getUnreads)
+  // const unreads = useQuery(['unreads', id, token], getUnreads)
 
-  const setAsRead = useCallback(async () => {
-    if (
-      tracking &&
-      messages &&
-      unreads.data &&
-      unreads.data[channel.id] &&
-      messages[0]?.id !== unreads.data[channel.id].read
-    ) {
-      await clientGateway.post(
-        `/channels/${channel.id}/read`,
-        {},
-        {
-          headers: {
-            Authorization: token
-          }
-        }
-      )
-      // TODO: Maybe we want to push a gateway event instead?
-      queryClient.setQueryData(['unreads', id, token], (initial: any) => ({
-        ...initial,
-        [channel.id]: {
-          ...initial[channel.id],
-          read: messages[0]?.id
-        }
-      }))
+  // const setAsRead = useCallback(async () => {
+  //   if (
+  //     tracking &&
+  //     messages &&
+  //     unreads.data &&
+  //     unreads.data[channel.id] &&
+  //     messages[0]?.id !== unreads.data[channel.id].read
+  //   ) {
+  //     await clientGateway.post(
+  //       `/channels/${channel.id}/read`,
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: token
+  //         }
+  //       }
+  //     )
+  //     // TODO: Maybe we want to push a gateway event instead?
+  //     queryClient.setQueryData(['unreads', id, token], (initial: any) => ({
+  //       ...initial,
+  //       [channel.id]: {
+  //         ...initial[channel.id],
+  //         read: messages[0]?.id
+  //       }
+  //     }))
 
-      const initialMentions = queryClient.getQueryData<Mentions>([
-        'mentions',
-        id,
-        token
-      ])
+  //     const initialMentions = queryClient.getQueryData<Mentions>([
+  //       'mentions',
+  //       id,
+  //       token
+  //     ])
 
-      if (initialMentions) {
-        queryClient.setQueryData(['mentions', id, token], {
-          ...initialMentions,
-          [channel.id]: initialMentions[channel.id]?.map((m) => ({
-            ...m,
-            read: true
-          }))
-        })
-      }
-    }
-  }, [tracking, messages, channel, token, unreads, id])
+  //     if (initialMentions) {
+  //       queryClient.setQueryData(['mentions', id, token], {
+  //         ...initialMentions,
+  //         [channel.id]: initialMentions[channel.id]?.map((m) => ({
+  //           ...m,
+  //           read: true
+  //         }))
+  //       })
+  //     }
+  //   }
+  // }, [tracking, messages, channel, token, unreads, id])
 
-  const setAsReadHack = useRef(setAsRead)
+  // const setAsReadHack = useRef(setAsRead)
 
-  useEffect(() => {
-    setAsReadHack.current = setAsRead
-  }, [setAsRead])
-  useEffect(
-    () => () => {
-      setAsReadHack.current()
-    },
-    []
-  )
-  useDebounce(
-    async () => {
-      if (autoRead) await setAsRead()
-    },
-    500,
-    [setAsRead, autoRead]
-  )
+  // useEffect(() => {
+  //   setAsReadHack.current = setAsRead
+  // }, [setAsRead])
+  // useEffect(
+  //   () => () => {
+  //     setAsReadHack.current()
+  //   },
+  //   []
+  // )
+  // useDebounce(
+  //   async () => {
+  //     if (autoRead) await setAsRead()
+  //   },
+  //   500,
+  //   [setAsRead, autoRead]
+  // )
 
   const length = useMemo(() => Math.floor(Math.random() * 10) + 8, [])
 
-  if (!keychain)
-    return (
-      <div key={channel.id} className={styles.noKeychain}>
-        {!hasKeychain ? (
-          <>
-            <FontAwesomeIcon icon={faExclamationTriangle} size='2x' />
-            <h1>No Keychain Found</h1>
-            <h2>Please generate one in settings</h2>
-          </>
-        ) : (
-          <></>
-        )}
-      </div>
-    )
+  // if (!keychain)
+  //   return (
+  //     <div key={channelID} className={styles.noKeychain}>
+  //       {!hasKeychain ? (
+  //         <>
+  //           <FontAwesomeIcon icon={faExclamationTriangle} size='2x' />
+  //           <h1>No Keychain Found</h1>
+  //           <h2>Please generate one in settings</h2>
+  //         </>
+  //       ) : (
+  //         <></>
+  //       )}
+  //     </div>
+  //   )
 
   return (
-    <div key={channel.id} className={styles.messages} ref={ref}>
+    <div key={channelID} className={styles.messages} ref={ref}>
       <div key='buffer' className={styles.buffer} />
       <Waypoint
         topOffset={5}
@@ -212,36 +204,37 @@ const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
       {messages?.map((message, index) =>
         message ? (
           <Suspense key={message.id} fallback={<Message.Placeholder />}>
-            {unreads.data &&
+            {/* {unreads.data &&
               unreads.data[channel.id]?.read === message.id &&
               unreads.data[channel.id]?.read !== messages[0]?.id && (
                 <div key={`read-${message.id}`} className={styles.indicator}>
                   <hr />
                   <span>Last Read</span>
                 </div>
-              )}
+              )} */}
             <Message.View
               key={message.id}
               primary={isPrimary(message, index)}
               id={message.id}
               type={message.type}
-              authorID={message.author_id}
-              createdAt={message.created_at}
+              authorID={message.authorID}
+              createdAt={message.createdAt}
               content={
-                message.content ??
-                (message.author_id === id
+                'content' in message.payload
+                  ? message.payload.content
+                  : message.author_id === id
                   ? message.self_encrypted_content
-                  : message.encrypted_content)
+                  : message.encrypted_content
               }
-              updatedAt={message.updated_at}
-              richContent={message.rich_content}
+              updatedAt={message.updatedAt}
+              // richContent={message.rich_content}
             />
           </Suspense>
         ) : (
           <></>
         )
       )}
-      {!canFetchMore ? (
+      {!hasNextPage ? (
         <div key='header' className={styles.top}>
           <h3>
             Woah, you reached the top of the chat. Here's a cookie{' '}
@@ -253,15 +246,15 @@ const MessagesView: FC<{ channel: ChannelResponse }> = ({ channel }) => {
       ) : (
         <></>
       )}
-      {isFetchingMore === 'next' &&
+      {isFetchingNextPage &&
         Array(length)
           .fill(0)
           .map((_, index) => <Message.Placeholder key={index} />)}
-      {isFetchingMore !== 'next' && canFetchMore ? (
+      {isFetchingNextPage && hasNextPage ? (
         <div className={styles.waypoint}>
           <Waypoint
             onEnter={async () => {
-              await fetchMore()
+              await fetchNextPage()
             }}
             bottomOffset={30}
           >

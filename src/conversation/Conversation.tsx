@@ -16,18 +16,22 @@ import { Permission } from '../utils/permissions'
 import { PrivateRoute } from '../authentication/PrivateRoute'
 import { useConversation, useConversationMembers } from './state'
 import { useConversations } from '../user/state'
+import { useMatch } from 'react-location'
 
-const ConversationView: FC = () => {
-  const match = useRouteMatch<{ id: string }>('/conversations/:id')
+export const ConversationView: FC = () => {
+  const {
+    params: { id: conversationID }
+  } = useMatch()
   const { id, token } = Auth.useContainer()
-  const conversation = useConversation(match?.params.id)
-  const members = useConversationMembers(match?.params.id)
+  const conversation = useConversation(conversationID)
+  const members = useConversationMembers(conversationID)
   const people = useMemo(
     () => members.filter((member) => member.userID !== id),
     [members, id]
   )
 
   if (!conversation) return <></>
+
   return (
     <Suspense fallback={<Chat.Placeholder />}>
       <Helmet>
@@ -41,7 +45,7 @@ const ConversationView: FC = () => {
               : InternalChannelTypes.PrivateChannel
           }
           channelID={conversation.channelID}
-          conversationID={match?.params.id}
+          conversationID={conversationID}
           members={people}
           key={conversation.channelID}
           voiceChannelID={''}

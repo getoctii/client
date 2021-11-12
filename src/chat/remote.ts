@@ -1,3 +1,4 @@
+import { EncryptedMessage } from '@innatical/inncryption'
 import axios from 'axios'
 import {
   ChannelPermissions,
@@ -31,17 +32,10 @@ export interface ChannelResponse {
 
 export interface MessageResponse {
   id: string
-  author_id: string
-  type: MessageTypes
-  created_at: string
-  updated_at: string
-  content?: string
-  encrypted_content?: any
-  self_encrypted_content?: any
-  rich_content?: {
-    username: string
-    avatar: string
-  }
+  createdAt: string
+  updatedAt: string
+  authorID: string
+  payload: EncryptedMessage | { content: string }
 }
 
 export const getChannel = async (channelID: string, token: string) =>
@@ -70,7 +64,7 @@ export const postMessage = async (
   (
     await clientGateway.post(
       `/channels/${channelID}/messages`,
-      { content },
+      { payload: { content } },
       { headers: { Authorization: token } }
     )
   ).data
@@ -170,7 +164,6 @@ export const patchEncryptedMessage = async (
 }
 
 export const getMessages = async (
-  _: string,
   channelID: string,
   token: string,
   lastMessageID: string
@@ -180,7 +173,7 @@ export const getMessages = async (
       `/channels/${channelID}/messages`,
       {
         headers: { Authorization: token },
-        params: { last_message_id: lastMessageID }
+        params: { lastID: lastMessageID }
       }
     )
   ).data

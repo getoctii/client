@@ -17,7 +17,7 @@ export const validate = (values: formData) => {
   return errors
 }
 
-enum ConversationType {
+export enum ConversationType {
   DM = 'DM',
   GROUP = 'GROUP'
 }
@@ -66,7 +66,9 @@ export const getConversationMembers = async (
 
 export const createConversation = async (
   token: string,
-  values: { type: ConversationType; recipient?: string; recipients?: string[] }
+  values:
+    | { type: ConversationType.DM; recipient?: string }
+    | { type: ConversationType.GROUP; recipients?: string[] }
 ) =>
   (
     await clientGateway.post<{

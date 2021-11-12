@@ -9,7 +9,7 @@ export const useCommunity = () => {
     id: '',
     name: '',
     icon: '',
-    large: false,
-    channels: []
+    channels: [],
+    ownerID: ''
   }
 }

@@ -12,6 +12,9 @@ import { createContainer } from '@innatical/innstate'
 import { useRouteMatch } from 'react-router-dom'
 import { getCommunities } from '../user/remote'
 import { ChannelResponse } from '../chat/remote'
+import { useCommunities } from '../user/state'
+import { useCommunity } from '../community/state'
+import { useMatch, useMatchRoute } from 'react-location'
 
 export const getHighestOrder = (groups: GroupResponse[]) => {
   const groupOrders = groups.map((group) => group?.order)
@@ -20,41 +23,34 @@ export const getHighestOrder = (groups: GroupResponse[]) => {
 }
 
 export const useHasPermission = () => {
-  const match = useRouteMatch<{ id: string }>('/communities/:id')
+  const {
+    params: { id }
+  } = useMatch()
+  // const match = useRouteMatch<{ id: string }>('/communities/:id')
+  const matchRoute = useMatchRoute()
   const auth = Auth.useContainer()
-  const { data: community } = useQuery(
-    ['community', match?.params.id, auth.token],
-    getCommunity,
-    {
-      enabled: !!auth.token && !!match?.params.id
-    }
-  )
+  // const { data: community } = useQuery(
+  //   ['community', match?.params.id, auth.token],
+  //   getCommunity,
+  //   {
+  //     enabled: !!auth.token && !!match?.params.id
+  //   }
+  // )
+  const community = useCommunity()
   const { data: groupIDs } = useQuery(
-    ['groups', match?.params.id, auth.token],
-    getGroups,
+    ['groups', id, auth.token],
+    async () => getGroups('', id, auth.token!),
     {
-      enabled: !!auth.token && !!match?.params.id
+      enabled: !!auth.token && !!id
     }
   )
-  const { data: communities } = useQuery(
-    ['communities', auth.id, auth.token],
-    getCommunities,
-    {
-      enabled: !!auth.token && !!auth.id
-    }
-  )
+  const communities = useCommunities()
+
   const { data: member } = useQuery(
-    [
-      'member',
-      communities?.find((c) => c.community.id === match?.params.id)?.id,
-      auth.token
-    ],
-    getMember,
+    ['member', auth.id, auth.token],
+    async () => getMember('', auth.id!, auth.token!),
     {
-      enabled:
-        !!auth.token &&
-        !!match?.params.id &&
-        communities?.find((c) => c.community.id === match?.params.id)
+      enabled: !!auth.token && !!id && !!auth.id
     }
   )
 
@@ -69,7 +65,7 @@ export const useHasPermission = () => {
                 permission === Permissions.OWNER))
         ) ||
         permissions.some((p) => community?.base_permissions?.includes(p)) ||
-        community?.owner_id === auth.id
+        community?.ownerID === auth.id
       )
     },
     [community, auth.id, member?.permissions]
@@ -80,12 +76,12 @@ export const useHasPermission = () => {
       if (
         member?.permissions?.includes(Permissions.ADMINISTRATOR) ||
         member?.permissions?.includes(Permissions.OWNER) ||
-        community?.owner_id === auth.id
+        community?.ownerID === auth.id
       )
         return true
-      const overrideGroup = Object.entries(
-        channel?.overrides ?? {}
-      ).find(([groupID]) => member?.groups?.includes(groupID))
+      const overrideGroup = Object.entries(channel?.overrides ?? {}).find(
+        ([groupID]) => member?.groups?.includes(groupID)
+      )
       if (overrideGroup) {
         if (
           (overrideGroup[1].allow ?? []).some((permission) =>
@@ -103,13 +99,13 @@ export const useHasPermission = () => {
       }
 
       if (
-        (channel?.base_allow ?? []).some((permission) =>
+        (channel?.baseAllow ?? []).some((permission) =>
           permissions.includes(permission)
         )
       )
         return true
       if (
-        (channel?.base_deny ?? []).some((permission) =>
+        (channel?.baseDeny ?? []).some((permission) =>
           permissions.includes(permission)
         )
       )
@@ -122,19 +118,19 @@ export const useHasPermission = () => {
       member?.groups,
       hasPermissions,
       member?.permissions,
-      community?.owner_id,
+      community?.ownerID,
       auth.id
     ]
   )
 
   const protectedGroups = useMemo(() => {
-    return community?.owner_id !== auth.id
+    return community?.ownerID !== auth.id
       ? (groupIDs ?? []).filter((group, index) => {
           if (!groupIDs) return false
           return groupIDs.length - index >= (member?.highest_order ?? 0)
         })
       : []
-  }, [groupIDs, member?.highest_order, auth.id, community?.owner_id])
+  }, [groupIDs, member?.highest_order, auth.id, community?.ownerID])
   return {
     community,
     hasChannelPermissions,

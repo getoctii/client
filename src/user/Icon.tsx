@@ -1,25 +1,17 @@
 import { motion } from 'framer-motion'
 import { FC } from 'react'
+import Avatar from '../components/Avatar'
 import styles from './Icon.module.scss'
 import { State } from './remote'
 
 const Icon: FC<{
   className?: string
+  username?: string
   avatar?: string
   state?: State
-}> = ({ className, avatar, state }) => {
+}> = ({ className, username, avatar, state }) => {
   return (
-    <motion.div
-      className={`${styles.icon} ${className}`}
-      initial={{
-        opacity: 0
-      }}
-      animate={{
-        opacity: 1,
-        transition: { y: { stiffness: 1000, velocity: -100 } }
-      }}
-      style={{ backgroundImage: `url('${avatar}')` }}
-    >
+    <Avatar size='friend' username={username} avatar={avatar}>
       {state && (
         <div
           className={`${styles.badge} ${
@@ -35,7 +27,7 @@ const Icon: FC<{
           }`}
         />
       )}
-    </motion.div>
+    </Avatar>
   )
 }
 

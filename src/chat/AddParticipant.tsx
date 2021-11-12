@@ -14,7 +14,6 @@ import { UI } from '../state/ui'
 import { clientGateway } from '../utils/constants'
 import styles from './AddParticipant.module.scss'
 import { useQuery } from 'react-query'
-import { getRelationships, RelationshipTypes } from '../hub/friends/remote'
 
 const AddParticipant: FC<{
   groupID?: string

@@ -3,6 +3,7 @@ import styles from './Channel.module.scss'
 import { useQueries, useQuery } from 'react-query'
 import {
   ChannelPermissions,
+  ChannelTypes,
   clientGateway,
   InternalChannelTypes
 } from '../utils/constants'
@@ -302,7 +303,7 @@ const ChannelView: FC<{
 
   const channel = useChannel(channelID)
 
-  const { hasChannelPermissions } = Permission.useContainer()
+  // const { hasChannelPermissions } = Permission.useContainer()
   const [bond] = useDropArea({
     onFiles: (files) => {
       setUploadDetails({
@@ -313,6 +314,11 @@ const ChannelView: FC<{
   })
 
   const { setRoom, play, room } = Call.useContainer()
+
+  useEffect(() => {
+    if (channel?.type === ChannelTypes.TEXT) {
+    }
+  }, [channel])
 
   return (
     <Suspense fallback={<ChannelPlaceholder />}>
@@ -434,21 +440,15 @@ const ChannelView: FC<{
           )} */}
         </div>
         <Suspense fallback={<Messages.Placeholder />}>
-          {channel ? (
-            <Messages.View channel={channel} />
+          {channelID ? (
+            <Messages.View channelID={channelID} />
           ) : (
             <Messages.Placeholder />
           )}
         </Suspense>
         <Box.View
           {...{
-            hasPermission:
-              type === InternalChannelTypes.CommunityChannel && channel
-                ? hasChannelPermissions(
-                    [ChannelPermissions.SEND_MESSAGES],
-                    channel
-                  )
-                : true,
+            hasPermission: true,
             members,
             channelID,
             typingIndicator: typingUsers?.length > 0,

@@ -16,7 +16,7 @@
     z-index: 3;
     flex-direction: column;
     width: 100%;
-    background-color: var(--neko-channels-background);
+    background-color: transparent;
 
     .heading {
       display: flex;
@@ -226,7 +226,6 @@
     justify-content: center;
     margin-left: auto;
     margin-right: auto;
-
 
     &.vertical {
       flex-direction: column;

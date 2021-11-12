@@ -29,7 +29,6 @@ import { HelmetProvider } from 'react-helmet-async'
 import smoothscroll from 'smoothscroll-polyfill'
 import Integration from './integrations/state'
 import { Keychain } from './keychain/state'
-import { Relationships } from './friends/relationships'
 import { AppState, Plugins } from '@capacitor/core'
 import queryClient from './utils/queryClient'
 smoothscroll.polyfill()
@@ -96,11 +95,9 @@ ReactDOM.render(
                           <Chat.Provider>
                             <Integration.Provider>
                               <Theme.Provider>
-                                <Relationships.Provider>
-                                  <ScrollPosition.Provider>
-                                    <Router />
-                                  </ScrollPosition.Provider>
-                                </Relationships.Provider>
+                                <ScrollPosition.Provider>
+                                  <Router />
+                                </ScrollPosition.Provider>
                               </Theme.Provider>
                             </Integration.Provider>
                           </Chat.Provider>

@@ -1,6 +1,11 @@
 import { useQuery } from 'react-query'
 import { Auth } from '../authentication/state'
-import { getConversations, getCurrentUser, getUser } from './remote'
+import {
+  getConversations,
+  getCurrentUser,
+  getRelationships,
+  getUser
+} from './remote'
 
 export const useCurrentUser = () => {
   const { token } = Auth.useContainer()
@@ -25,6 +30,18 @@ export const useUser = (userID?: string) => {
   )
 
   return user
+}
+
+export const useRelationships = () => {
+  const { token } = Auth.useContainer()
+  const { data: relationships } = useQuery(
+    ['relationships', token],
+    async () => getRelationships(token!),
+    {
+      enabled: !!token
+    }
+  )
+  return relationships
 }
 
 export const useCommunities = () => {

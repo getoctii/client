@@ -1,14 +1,15 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik'
-import styles from './shared.module.scss'
+import styles from './styles.module.scss'
 import { login } from '../remote'
 import { BarLoader } from 'react-spinners'
 import { Auth } from '../state'
 import * as Yup from 'yup'
 import { FC } from 'react'
-import { Keychain } from '../../keychain/state'
 import { UI } from '../../state/ui'
 import { ModalTypes } from '../../utils/constants'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
+import { Heading, Wrapper } from './styles'
+import { Link, useNavigate } from 'react-location'
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email'),
@@ -18,8 +19,8 @@ const LoginSchema = Yup.object().shape({
 })
 
 export const Login: FC = () => {
+  const navigate = useNavigate()
   const auth = Auth.useContainer()
-  const { setKeychainPassword } = Keychain.useContainer()
   const ui = UI.useContainer()
 
   return (
@@ -43,7 +44,7 @@ export const Login: FC = () => {
           })
           if (response) {
             auth.setToken(response.token)
-            setKeychainPassword(values.password)
+            navigate({ to: '/app' })
           }
         } catch (e) {
           if (axios.isAxiosError(e)) {
@@ -73,42 +74,47 @@ export const Login: FC = () => {
       }}
     >
       {({ isSubmitting }) => (
-        <Form>
-          <label htmlFor='email' className={styles.label}>
-            Email
-          </label>
-          <Field
-            className={styles.input}
-            id='email'
-            name='email'
-            type='email'
-            enterKeyHint='next'
-          />
-          <ErrorMessage component='p' className={styles.error} name='email' />
+        <Wrapper>
+          <Form>
+            <Heading>Octii</Heading>
+            <p>The chat platform of the future</p>
+            <label htmlFor='email' className={styles.label}>
+              Email
+            </label>
+            <Field
+              className={styles.input}
+              id='email'
+              name='email'
+              type='email'
+              enterKeyHint='next'
+            />
+            <ErrorMessage component='p' className={styles.error} name='email' />
 
-          <label htmlFor='password' className={styles.label}>
-            Password
-          </label>
-          <Field
-            className={styles.input}
-            id='password'
-            name='password'
-            type='password'
-          />
-          <ErrorMessage
-            component='p'
-            className={styles.error}
-            name='password'
-          />
-          {/*TODO: Currently at #ffffff for testing, add theming support*/}
-          <button
-            className={styles.button}
-            type='submit'
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? <BarLoader color='#ffffff' /> : 'Login'}
-          </button>
-        </Form>
+            <label htmlFor='password' className={styles.label}>
+              Password
+            </label>
+            <Field
+              className={styles.input}
+              id='password'
+              name='password'
+              type='password'
+            />
+            <ErrorMessage
+              component='p'
+              className={styles.error}
+              name='password'
+            />
+            {/*TODO: Currently at #ffffff for testing, add theming support*/}
+            <button
+              className={styles.button}
+              type='submit'
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? <BarLoader color='#ffffff' /> : 'Login'}
+            </button>
+            <Link to={'/register'}>Not Registered?</Link>
+          </Form>
+        </Wrapper>
       )}
     </Formik>
   )

@@ -19,19 +19,20 @@ import { ScrollPosition } from '../state/scroll'
 import StatusBar from '../components/StatusBar'
 import { useConversations } from '../user/state'
 import { useConversation } from './state'
+import { useMatch } from 'react-location'
 
 dayjs.extend(dayjsUTC)
 
 const ConversationCardWrapper: FC<{ index: number; conversationID: string }> =
   ({ conversationID, index }) => {
-    const match = useRouteMatch<{ id: string }>('/conversations/:id')
+    const {
+      params: { id }
+    } = useMatch()
     const conversation = useConversation(conversationID)
     return (
       <div key={conversationID}>
         {index !== 0 && (
-          <hr
-            className={match?.params.id === conversationID ? styles.hidden : ''}
-          />
+          <hr className={id === conversationID ? styles.hidden : ''} />
         )}
         <Suspense fallback={<ConversationCard.Placeholder />}>
           <ConversationCard.View

@@ -30,6 +30,7 @@ import { useSuspenseStorageItem } from '../utils/storage'
 import Commands from '../chat/Commands'
 import { Auth } from '../authentication/state'
 import { clientGateway } from '../utils/constants'
+import { useMatch } from 'react-location'
 
 const Leaf: FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
   return leaf.underline ? (
@@ -134,9 +135,9 @@ const EditorView: FC<{
   channelMentions,
   draftKey
 }) => {
-  const match = useRouteMatch<{ id: string; tab2: string }>(
-    '/communities/:id/:tab?/:tab2?'
-  )
+  const {
+    params: { id: communityID }
+  } = useMatch()
   const isMobile = useMedia('(max-width: 740px)')
   const [typing, setTyping] = useState<boolean>(false)
   useEffect(() => {
@@ -160,10 +161,9 @@ const EditorView: FC<{
     setDraft(value)
   }, [value])
 
-  const [target, setTarget] =
-    useState<
-      { range: Range; type: 'user' | 'channel' | 'command' } | undefined
-    >()
+  const [target, setTarget] = useState<
+    { range: Range; type: 'user' | 'channel' | 'command' } | undefined
+  >()
   const [search, setSearch] = useState('')
   useEffect(() => {
     if (!onTyping) return
@@ -298,12 +298,14 @@ const EditorView: FC<{
     [editor, target]
   )
 
-  const [usersFiltered, setUsersFiltered] = useState<UserResponse[]>([])
+  const [usersFiltered, setUsersFiltered] = useState<
+    (UserResponse | undefined)[]
+  >([])
   const [channelsFiltered] = useState<ChannelResponse[]>([])
   const [commandsFiltered, setCommandsFiltered] = useState<
     (CommandResponse & { resourceID: string })[]
   >([])
-  const onUsersFiltered = useCallback((users: UserResponse[]) => {
+  const onUsersFiltered = useCallback((users: (UserResponse | undefined)[]) => {
     setUsersFiltered(users)
   }, [])
 
@@ -352,7 +354,7 @@ const EditorView: FC<{
   const onCommand = useCallback(
     async (resourceOD: string, name: string) => {
       await clientGateway.post(
-        `/channels/${match?.params.tab2}/execute`,
+        `/channels//execute`,
         {
           resource_id: resourceOD,
           name,
@@ -373,14 +375,14 @@ const EditorView: FC<{
       {target && (
         <div className={mentionsClassName}>
           <Suspense fallback={<></>}>
-            {!match?.params && target.type === 'user' ? (
+            {!communityID && target.type === 'user' ? (
               <Mentions.Conversation
                 search={search}
                 selected={selected}
                 onMention={onMention}
                 onFiltered={onUsersFiltered}
               />
-            ) : match?.params.id ? (
+            ) : communityID ? (
               target.type === 'user' ? (
                 <Mentions.Community.Users
                   search={search}
@@ -518,7 +520,8 @@ const EditorView: FC<{
                   } else if (target && userMentions) {
                     event.preventDefault()
                     if (usersFiltered?.[selected]?.id && target.type === 'user')
-                      onMention(usersFiltered[selected].id, target.type)
+                      if (!!usersFiltered[selected])
+                        onMention(usersFiltered[selected]!.id, target.type)
                     if (
                       channelsFiltered?.[selected]?.id &&
                       target.type === 'channel'

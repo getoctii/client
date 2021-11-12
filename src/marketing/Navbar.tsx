@@ -1,11 +1,10 @@
-import { useHistory } from 'react-router-dom'
 import { Auth } from '../authentication/state'
 import styles from './Navbar.module.scss'
 import { useCurrentUser } from '../user/state'
 import { FC } from 'react'
+import { Link } from 'react-location'
 
 const Navbar: FC = () => {
-  const history = useHistory()
   const auth = Auth.useContainer()
   const user = useCurrentUser()
   console.log(auth)
@@ -16,10 +15,12 @@ const Navbar: FC = () => {
           <img alt='Octii' src='/logo.svg' />
         </picture>
       </div>
-      <h1 onClick={() => history.push('/home')}>Octii</h1>
-      <button onClick={() => history.push('/authenticate/login')}>
+      <Link to='/home' className={styles.title}>
+        Octii
+      </Link>
+      <Link to='/login' className={styles.button}>
         {user?.username ?? 'Login'}
-      </button>
+      </Link>
     </div>
   )
 }

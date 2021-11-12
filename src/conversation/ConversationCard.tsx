@@ -11,7 +11,6 @@ import { useMutation, useQueries } from 'react-query'
 import { clientGateway } from '../utils/constants'
 import styles from './ConversationCard.module.scss'
 import { Auth } from '../authentication/state'
-import { useHistory, useRouteMatch } from 'react-router-dom'
 import { getUser, State } from '../user/remote'
 import { Clipboard } from '@capacitor/core'
 import Context from '../components/Context'
@@ -19,17 +18,23 @@ import { ContextMenuItems } from '../state/ui'
 import { useSuspenseStorageItem } from '../utils/storage'
 import { Keychain } from '../keychain/state'
 import { useChannel } from '../chat/state'
-import { useConversationMembers } from './state'
+import { useConversation, useConversationMembers } from './state'
+import { useMatch, useNavigate } from 'react-location'
+import { ConversationType } from './remote'
+import Avatar from '../components/Avatar'
 
 const ConversationCardView: FC<{
   conversationID: string
   lastMessageID?: string
   channelID?: string
 }> = memo(({ conversationID, lastMessageID, channelID }) => {
-  const match = useRouteMatch<{ id: string }>('/conversations/:id')
+  const {
+    params: { id }
+  } = useMatch()
+  const conversation = useConversation(conversationID)
   const conversationMembers = useConversationMembers(conversationID)
-  const history = useHistory()
-  const { token, id } = Auth.useContainer()
+  const navigate = useNavigate()
+  const { token, id: userID } = Auth.useContainer()
   const channel = useChannel(channelID)
   const leaveConversation = useMutation(
     async () =>
@@ -176,7 +181,7 @@ const ConversationCardView: FC<{
         (conversationMembers?.length ?? 1) === 1 ? faTrashAlt : faSignOutAlt,
       danger: true,
       onClick: (event) => {
-        if (match?.params.id === conversationID) history.push('/')
+        if (id === conversationID) navigate({ to: '/app/conversations' })
         event?.stopPropagation()
         leaveConversation.mutate()
       }
@@ -187,7 +192,7 @@ const ConversationCardView: FC<{
     conversationID,
     history,
     leaveConversation,
-    match?.params.id,
+    id,
     token,
     // unreads.data,
     channelID,
@@ -250,6 +255,51 @@ const ConversationCardView: FC<{
       }
     })
   )
+
+  const conversationName = useMemo(() => {
+    if (conversation?.type === ConversationType.DM)
+      return users.filter(({ data: user }) => user?.id !== userID)[0]?.data
+        ?.username
+    else return users?.map(({ data: user }) => user?.username).join(', ')
+  }, [conversation, users])
+
+  const conversationIcon = useMemo(() => {
+    if (conversation?.type === ConversationType.DM) {
+      const user = users.filter(({ data: user }) => user?.id !== userID)[0]
+        ?.data
+
+      return (
+        <>
+          <Avatar
+            size='conversation'
+            username={user?.username ?? ''}
+            avatar={user?.avatar}
+          />
+          {users?.[0].data?.state && (
+            <div
+              className={`${styles.badge} ${
+                user?.state === State.online
+                  ? styles.online
+                  : user?.state === State.dnd
+                  ? styles.dnd
+                  : user?.state === State.idle
+                  ? styles.idle
+                  : user?.state === State.offline
+                  ? styles.offline
+                  : ''
+              } ${id === conversationID ? styles.selectedBadge : ''}`}
+            />
+          )}
+        </>
+      )
+    } else
+      return (
+        <div className={styles.groupIcon}>
+          <FontAwesomeIcon icon={faUserFriends} />
+        </div>
+      )
+  }, [conversation, users])
+
   return (
     <Context.Wrapper
       title={users?.map(({ data: user }) => user?.username).join(', ') || ''}
@@ -262,51 +312,19 @@ const ConversationCardView: FC<{
     >
       <div
         className={`${styles.card} ${
-          match?.params.id === conversationID ? styles.selected : ''
+          id === conversationID ? styles.selected : ''
         }`}
         onClick={() => {
-          if (match?.params.id === conversationID) return
-          history.push(`/conversations/${conversationID}`)
+          if (id === conversationID) return
+          navigate({ to: `/app/conversations/${conversationID}` })
           setLastConversation(conversationID)
         }}
       >
         <div className={styles.avatar} key='avatar'>
-          {(conversationMembers?.length ?? 1) === 1 ? (
-            <>
-              <img
-                src={users?.[0].data?.avatar}
-                alt={users?.[0].data?.username}
-              />
-              {users?.[0].data?.state && (
-                <div
-                  className={`${styles.badge} ${
-                    users?.[0].data?.state === State.online
-                      ? styles.online
-                      : users?.[0].data?.state === State.dnd
-                      ? styles.dnd
-                      : users?.[0].data?.state === State.idle
-                      ? styles.idle
-                      : users?.[0].data?.state === State.offline
-                      ? styles.offline
-                      : ''
-                  } ${
-                    match?.params.id === conversationID
-                      ? styles.selectedBadge
-                      : ''
-                  }`}
-                />
-              )}
-            </>
-          ) : (
-            <div className={styles.groupIcon}>
-              <FontAwesomeIcon icon={faUserFriends} />
-            </div>
-          )}
+          {conversationIcon}
         </div>
         <div className={styles.user} key='user'>
-          <h4>
-            {users?.map(({ data: user }, index) => user?.username).join(', ')}
-          </h4>
+          <h4>{conversationName}</h4>
           {/* {output && (
             <p>
               {message?.author_id === id

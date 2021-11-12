@@ -1,7 +1,7 @@
 import { FC, memo, useEffect, useMemo, useState } from 'react'
-import { useQuery } from 'react-query'
+import { useQueries, useQuery } from 'react-query'
 import styles from './Mentions.module.scss'
-import { fetchManyUsers, UserResponse } from '../user/remote'
+import { fetchManyUsers, getUser, UserResponse } from '../user/remote'
 import { Auth } from '../authentication/state'
 import { clientGateway } from '../utils/constants'
 import { useDebounce, useMedia } from 'react-use'
@@ -9,6 +9,7 @@ import { ChannelResponse, getChannels, getMembers } from '../community/remote'
 import { useParams, useRouteMatch } from 'react-router-dom'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useConversation, useConversationMembers } from '../conversation/state'
+import { useChannels } from '../community/state'
 
 type onMention = (id: string, type: 'user' | 'channel') => void
 
@@ -55,15 +56,25 @@ const MentionsPopup: FC<{
   search?: string
   onMention: onMention
   selected: number
-  onFiltered: (users: UserResponse[]) => void
+  onFiltered: (users: (UserResponse | undefined)[]) => void
 }> = ({ usersIDs, search, selected, onMention, onFiltered }) => {
   const { token } = Auth.useContainer()
-  const { data: users } = useQuery(['users', usersIDs, token], fetchManyUsers)
+
+  const users = useQueries(
+    (usersIDs ?? []).map((userID) => {
+      return {
+        queryKey: ['user', userID, token],
+        queryFn: async () => getUser(userID, token!)
+      }
+    })
+  )
   const results = useMemo(
     () =>
       search && search !== ''
-        ? users?.filter((user) => user.username.includes(search))
-        : users,
+        ? users
+            ?.filter(({ data: user }) => user?.username.includes(search))
+            .map(({ data: user }) => user)
+        : users.map(({ data: user }) => user),
     [users, search]
   )
   useEffect(() => {
@@ -77,9 +88,9 @@ const MentionsPopup: FC<{
       }}
     >
       <div className={styles.mentions}>
-        {users?.map((user, index) => (
+        {users?.map(({ data: user }, index) => (
           <User
-            key={user.id}
+            key={user?.id}
             user={user}
             onMention={onMention}
             selected={index === selected}
@@ -94,7 +105,7 @@ const Conversation: FC<{
   search: string
   onMention: onMention
   selected: number
-  onFiltered: (users: UserResponse[]) => void
+  onFiltered: (users: (UserResponse | undefined)[]) => void
 }> = ({ search, onMention, selected, onFiltered }) => {
   const { token, id } = Auth.useContainer()
   const match = useRouteMatch<{ id: string }>('/conversations/:id')
@@ -145,10 +156,7 @@ const Channels: FC<{
 }> = memo(({ search, onMention, selected }) => {
   const params = useParams<{ id: string }>()
   const { token } = Auth.useContainer()
-  const { data: communityChannels } = useQuery(
-    ['channels', params.id, token],
-    getChannels
-  )
+  const communityChannels = useChannels()
   const channels = useMemo(
     () =>
       search !== ''
@@ -184,7 +192,7 @@ const Users: FC<{
   search: string
   onMention: onMention
   selected: number
-  onFiltered: (users: UserResponse[]) => void
+  onFiltered: (users: (UserResponse | undefined)[]) => void
 }> = memo(({ search, onMention, selected, onFiltered }) => {
   const params = useParams<{ id: string }>()
   const { token, id } = Auth.useContainer()
@@ -193,9 +201,11 @@ const Users: FC<{
   useDebounce(() => setDebouncedSearch(search), 300, [search])
   const { data: members } = useQuery(
     ['members', params.id, debouncedSearch, token],
-    searchCommunityMembers
+    async () => searchCommunityMembers('', params.id, debouncedSearch, token!)
   )
-  const defaultMembers = useQuery(['members', params.id, token], getMembers)
+  const defaultMembers = useQuery(['members', params.id, token], async () =>
+    getMembers('', params.id, token!, '')
+  )
 
   const filteredMembers = useMemo(
     () => members?.filter((member) => member.id !== id),

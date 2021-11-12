@@ -85,6 +85,13 @@ export interface Mentions {
   }[]
 }
 
+export interface Relationships {
+  friends: string[]
+  outgoing: string[]
+  incoming: string[]
+  blocked: string[]
+}
+
 export type MembersResponse = Member[]
 
 export const getUser = async (userID: string, token: string) =>
@@ -108,6 +115,50 @@ export const getCurrentUser = async (token: string) =>
 export const getPurchases = async (_: string, userID: string, token: string) =>
   (
     await clientGateway.get<PurchaseResponse[]>(`/users/${userID}/purchases`, {
+      headers: {
+        Authorization: token
+      }
+    })
+  ).data
+
+export const getRelationships = async (token: string) =>
+  (
+    await clientGateway.get<Relationships>('/users/me/relationships', {
+      headers: {
+        Authorization: token
+      }
+    })
+  ).data
+
+export enum RelationshipType {
+  INCOMING = 'INCOMING',
+  OUTGOING = 'OUTGOING',
+  FRIEND = 'FRIEND',
+  BLOCKED = 'BLOCKED'
+}
+
+export const putRelationship = async (
+  id: string,
+  type: RelationshipType,
+  token: string
+) =>
+  (
+    await clientGateway.put(
+      `/users/me/relationships/${id}`,
+      {
+        type
+      },
+      {
+        headers: {
+          Authorization: token
+        }
+      }
+    )
+  ).data
+
+export const deleteRelationship = async (id: string, token: string) =>
+  (
+    await clientGateway.delete(`/users/me/relationships/${id}`, {
       headers: {
         Authorization: token
       }

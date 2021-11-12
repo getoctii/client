@@ -27,7 +27,6 @@ form {
 }
 
 .button {
-  margin-top: auto;
   border: 0;
   outline: none;
   border-radius: 8px;
@@ -43,6 +42,7 @@ form {
   font-size: 1.25rem;
   font-weight: 700;
   width: 100%;
+  margin-top: 1.2rem;
 }
 
 .name {
@@ -54,14 +54,4 @@ form {
   margin-top: 0.25rem;
   margin-bottom: 0;
   color: var(--neko-text-danger);
-}
-
-@media (max-height: 667px) {
-  form {
-    height: auto;
-  }
-
-  .button {
-    margin-top: 1.25rem;
-  }
 }
