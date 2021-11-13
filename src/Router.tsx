@@ -320,12 +320,21 @@ const HubLayout = () => {
   )
 }
 
+const Index = () => {
+  const { authenticated } = Auth.useContainer()
+  return authenticated ? <Navigate to={'/app'} /> : <Navigate to={'/home'} />
+}
+
 export const Router: FC = memo(() => {
   return (
     <div id='main'>
       <BrowserRouter
         location={reactLocation}
         routes={[
+          {
+            path: '/',
+            element: <Index />
+          },
           {
             path: 'home',
             element: <Home />
