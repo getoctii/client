@@ -11,12 +11,16 @@ import { Chat } from './state'
 import { isPlatform } from '@ionic/react'
 import { Plugins } from '@capacitor/core'
 import { Keychain } from '../keychain/state'
+import { JsonWebKeyPublicChain, SymmetricKey } from '@innatical/inncryption'
 
 const { Keyboard } = Plugins
 
 dayjs.extend(dayjsUTC)
 
-const MessagesView: FC<{ channelID: string }> = ({ channelID }) => {
+const MessagesView: FC<{ channelID: string; sessionKey?: SymmetricKey }> = ({
+  channelID,
+  sessionKey
+}) => {
   const {
     tracking,
     setTracking,
@@ -50,7 +54,6 @@ const MessagesView: FC<{ channelID: string }> = ({ channelID }) => {
   }, [setAutoRead, setTracking, setChannelID, channelID])
 
   const { token, id } = Auth.useContainer()
-  console.log(channelID)
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery<MessageResponse[], any>(
       ['messages', channelID, token],
@@ -190,7 +193,7 @@ const MessagesView: FC<{ channelID: string }> = ({ channelID }) => {
   //       )}
   //     </div>
   //   )
-
+  console.log(messages)
   return (
     <div key={channelID} className={styles.messages} ref={ref}>
       <div key='buffer' className={styles.buffer} />
@@ -220,11 +223,10 @@ const MessagesView: FC<{ channelID: string }> = ({ channelID }) => {
               content={
                 'content' in message.payload
                   ? message.payload.content
-                  : message.author_id === id
-                  ? message.self_encrypted_content
-                  : message.encrypted_content
+                  : message.payload
               }
               updatedAt={message.updatedAt}
+              sessionKey={sessionKey}
               // richContent={message.rich_content}
             />
           </Suspense>

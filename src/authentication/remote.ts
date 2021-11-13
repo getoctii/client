@@ -31,12 +31,15 @@ export const login = async (
   )
 
   const signed = await keychain.signing.sign(challenge.challenge)
-  return (
-    await clientGateway.post<{ token: string }>('/users/login', {
-      email: values.email,
-      signedChallenge: signed
-    })
-  ).data
+  return {
+    token: (
+      await clientGateway.post<{ token: string }>('/users/login', {
+        email: values.email,
+        signedChallenge: signed
+      })
+    ).data?.token,
+    keychain
+  }
 }
 
 export const register = async (values: {
@@ -48,13 +51,16 @@ export const register = async (values: {
   const salt = SymmetricKey.generateSalt()
   const key = await SymmetricKey.generateFromPassword(values.password, salt)
 
-  return (
-    await clientGateway.post<{ token: string }>('/users/register', {
-      email: values.email,
-      username: values.username,
-      encryptedKeychain: await key.encrypt(await keychain.toJWKChain()),
-      publicKeychain: await keychain.toJWKPublicChain(),
-      salt
-    })
-  ).data
+  return {
+    token: (
+      await clientGateway.post<{ token: string }>('/users/register', {
+        email: values.email,
+        username: values.username,
+        encryptedKeychain: await key.encrypt(await keychain.toJWKChain()),
+        publicKeychain: await keychain.toJWKPublicChain(),
+        salt
+      })
+    ).data?.token,
+    keychain
+  }
 }

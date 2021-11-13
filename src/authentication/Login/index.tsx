@@ -10,6 +10,7 @@ import { ModalTypes } from '../../utils/constants'
 import axios from 'axios'
 import { Heading, Wrapper } from './styles'
 import { Link, useNavigate } from 'react-location'
+import { Keychain } from '../../keychain/state'
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email'),
@@ -20,6 +21,7 @@ const LoginSchema = Yup.object().shape({
 
 export const Login: FC = () => {
   const navigate = useNavigate()
+  const { setKeychain } = Keychain.useContainer()
   const auth = Auth.useContainer()
   const ui = UI.useContainer()
 
@@ -44,6 +46,7 @@ export const Login: FC = () => {
           })
           if (response) {
             auth.setToken(response.token)
+            setKeychain(response.keychain)
             navigate({ to: '/app' })
           }
         } catch (e) {

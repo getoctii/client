@@ -18,10 +18,10 @@ export const fetchManyUsers = (_: string, ids: string[], token: string) => {
 }
 
 export enum State {
-  offline = 'offline',
-  idle = 'idle',
-  dnd = 'dnd',
-  online = 'online'
+  OFFLINE = 'OFFLINE',
+  IDLE = 'IDLE',
+  DND = 'DND',
+  ONLINE = 'ONLINE'
 }
 
 interface Conversation {

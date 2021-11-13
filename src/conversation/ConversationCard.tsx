@@ -19,7 +19,7 @@ import { useSuspenseStorageItem } from '../utils/storage'
 import { Keychain } from '../keychain/state'
 import { useChannel } from '../chat/state'
 import { useConversation, useConversationMembers } from './state'
-import { useMatch, useNavigate } from 'react-location'
+import { useMatch, useMatchRoute, useNavigate } from 'react-location'
 import { ConversationType } from './remote'
 import Avatar from '../components/Avatar'
 
@@ -31,6 +31,7 @@ const ConversationCardView: FC<{
   const {
     params: { id }
   } = useMatch()
+  const matchRoute = useMatchRoute()
   const conversation = useConversation(conversationID)
   const conversationMembers = useConversationMembers(conversationID)
   const navigate = useNavigate()
@@ -181,7 +182,8 @@ const ConversationCardView: FC<{
         (conversationMembers?.length ?? 1) === 1 ? faTrashAlt : faSignOutAlt,
       danger: true,
       onClick: (event) => {
-        if (id === conversationID) navigate({ to: '/app/conversations' })
+        if (matchRoute({ to: `/app/conversations/${conversationID}` }))
+          navigate({ to: '/app/conversations' })
         event?.stopPropagation()
         leaveConversation.mutate()
       }
@@ -278,16 +280,20 @@ const ConversationCardView: FC<{
           {users?.[0].data?.state && (
             <div
               className={`${styles.badge} ${
-                user?.state === State.online
+                user?.state === State.ONLINE
                   ? styles.online
-                  : user?.state === State.dnd
+                  : user?.state === State.DND
                   ? styles.dnd
-                  : user?.state === State.idle
+                  : user?.state === State.IDLE
                   ? styles.idle
-                  : user?.state === State.offline
+                  : user?.state === State.OFFLINE
                   ? styles.offline
                   : ''
-              } ${id === conversationID ? styles.selectedBadge : ''}`}
+              } ${
+                matchRoute({ to: `/app/conversations/${conversationID}` })
+                  ? styles.selectedBadge
+                  : ''
+              }`}
             />
           )}
         </>
@@ -299,7 +305,7 @@ const ConversationCardView: FC<{
         </div>
       )
   }, [conversation, users])
-
+  console.log(id)
   return (
     <Context.Wrapper
       title={users?.map(({ data: user }) => user?.username).join(', ') || ''}
@@ -312,10 +318,12 @@ const ConversationCardView: FC<{
     >
       <div
         className={`${styles.card} ${
-          id === conversationID ? styles.selected : ''
+          matchRoute({ to: `/app/conversations/${conversationID}` })
+            ? styles.selected
+            : ''
         }`}
         onClick={() => {
-          if (id === conversationID) return
+          if (matchRoute({ to: `/app/conversations/${conversationID}` })) return
           navigate({ to: `/app/conversations/${conversationID}` })
           setLastConversation(conversationID)
         }}

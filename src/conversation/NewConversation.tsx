@@ -11,8 +11,13 @@ import {
 import Button from '../components/Button'
 import queryClient from '../utils/queryClient'
 import { useHistory } from 'react-router-dom'
-import { ParticipantsResponse } from '../user/remote'
-import { createConversation, findUser, validate } from './remote'
+import {
+  ConversationMember,
+  ConversationType,
+  createConversation,
+  findUser,
+  validate
+} from './remote'
 
 const NewConversation: FC = () => {
   const { id, token } = Auth.useContainer()
@@ -35,23 +40,23 @@ const NewConversation: FC = () => {
               username,
               discriminator === 'inn' ? '0' : discriminator
             )
-            const cache = queryClient.getQueryData([
-              'participants',
-              id,
-              token
-            ]) as ParticipantsResponse
-            const participant = cache?.find((participant) =>
-              participant.conversation.participants.includes(user.id)
+            const cache = queryClient.getQueriesData<ConversationMember[]>(
+              'conversationMembers'
             )
-            if (!cache || !participant) {
+            console.log(cache)
+            const member = cache?.find((m) =>
+              m[1].find((u) => u.userID === user.id)
+            )
+            if (!cache || !member) {
               const result = await createConversation(token!, {
-                recipient: user.id
+                recipient: user.id,
+                type: ConversationType.DM
               })
               if (result.id) history.push(`/conversations/${result.id}`)
               resetForm()
               setErrors({ tag: 'No input' })
             } else {
-              history.push(`/conversations/${participant.conversation.id}`)
+              history.push(`/conversations/${member[0]}`)
               resetForm()
               setErrors({ tag: 'No input' })
             }

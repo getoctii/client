@@ -8,6 +8,7 @@ import * as Yup from 'yup'
 import axios from 'axios'
 import { Heading, Wrapper } from './styles'
 import { Link, useNavigate } from 'react-location'
+import { Keychain } from '../../keychain/state'
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email'),
@@ -22,6 +23,7 @@ const RegisterSchema = Yup.object().shape({
 
 export const Register: FC = () => {
   const auth = Auth.useContainer()
+  const { setKeychain } = Keychain.useContainer()
   const navigate = useNavigate()
   return (
     <Formik
@@ -42,6 +44,7 @@ export const Register: FC = () => {
           const response = await register(values)
           if (response) {
             auth.setToken(response.token)
+            setKeychain(response.keychain)
             navigate({ to: '/app' })
           }
         } catch (e) {

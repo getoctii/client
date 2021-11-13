@@ -18,6 +18,7 @@ import Editor from '../components/Editor'
 import { createEditor, Editor as SlateEditor, Transforms } from 'slate'
 import { withHistory } from 'slate-history'
 import { withReact } from 'slate-react'
+import { SymmetricKey } from '@innatical/inncryption'
 
 const adjectives = [
   ' amazing',
@@ -36,7 +37,8 @@ const adjectives = [
 const BoxView: FC<{
   channelID: string
   hasPermission: boolean
-}> = ({ channelID, hasPermission }) => {
+  sessionKey?: SymmetricKey
+}> = ({ channelID, hasPermission, sessionKey }) => {
   const { sendMessage, uploadDetails, setUploadDetails } =
     Chat.useContainerSelector(
       ({ sendMessage, uploadDetails, setUploadDetails }) => ({
@@ -71,7 +73,7 @@ const BoxView: FC<{
                 })
                 if (!token) return
                 const url = await uploadFile(file, token)
-                await sendMessage(url)
+                await sendMessage(url, sessionKey)
                 setUploadDetails(null)
               }}
             />
@@ -121,13 +123,13 @@ const BoxView: FC<{
                   })
                   const file = await uploadFile(uploadDetails.file, token)
                   if (content !== '') {
-                    await sendMessage(`${content}\n${file}`)
+                    await sendMessage(`${content}\n${file}`, sessionKey)
                   } else {
-                    await sendMessage(file)
+                    await sendMessage(file, sessionKey)
                   }
                   setUploadDetails(null)
                 } else {
-                  await sendMessage(content)
+                  await sendMessage(content, sessionKey)
                 }
               }
             }}

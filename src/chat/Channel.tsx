@@ -21,7 +21,8 @@ import {
   faTimes,
   faUserPlus,
   faVolumeUp,
-  faVolumeMute
+  faVolumeMute,
+  faAt
 } from '@fortawesome/free-solid-svg-icons'
 import { useHistory, useParams } from 'react-router-dom'
 import Box from './Box'
@@ -35,9 +36,11 @@ import { Permission } from '../utils/permissions'
 import AddParticipant from './AddParticipant'
 import { VoiceCard } from '../community/voice/VoiceChannel'
 import { Call } from '../state/call'
-import { useUser } from '../user/state'
-import { ConversationMember } from '../conversation/remote'
+import { useCurrentUser, useUser } from '../user/state'
+import { ConversationMember, ConversationType } from '../conversation/remote'
 import { EncryptionPair } from '@innatical/inncryption'
+import { useConversation } from '../conversation/state'
+import { Keychain } from '../keychain/state'
 
 const TypingIndicator: FC<{
   channelID: string
@@ -281,15 +284,12 @@ const ChannelView: FC<{
   conversationID,
   voiceChannelID
 }) => {
-  const { setUploadDetails, setPublicEncryptionKey, setPublicSigningKey } =
-    Chat.useContainerSelector(
-      ({ setUploadDetails, setPublicEncryptionKey, setPublicSigningKey }) => ({
-        setUploadDetails,
-        setPublicEncryptionKey,
-        setPublicSigningKey
-      })
-    )
-
+  const { setUploadDetails } = Chat.useContainerSelector(
+    ({ setUploadDetails }) => ({
+      setUploadDetails
+    })
+  )
+  const { keychain } = Keychain.useContainer()
   const { token, id } = Auth.useContainer()
   const { typing } = Typing.useContainer()
   const typingUsers = useMemo(
@@ -316,23 +316,28 @@ const ChannelView: FC<{
 
   const { setRoom, play, room } = Call.useContainer()
 
-  // Maybe do a better thing than this...
-  useEffect(() => {
-    if (conversationID && members && token) {
-      const otherMember = members.find((m) => m.userID !== id)
-      ;(async () => {
-        const user = await getUser(otherMember!.userID, token)
-        const keychain = user.keychain.publicKeychain
-        setPublicEncryptionKey(keychain.encryption)
-        setPublicSigningKey(keychain.signing)
-      })()
-
-      return () => {
-        setPublicEncryptionKey(null)
-        setPublicSigningKey(null)
-      }
+  const conversation = useConversation(conversationID)
+  const { data: otherDMUser } = useQuery(
+    ['users', members?.find((m) => m.userID !== id)?.userID, token],
+    () => getUser(members!.find((m) => m.userID !== id)!.userID, token!),
+    {
+      enabled:
+        conversation?.type === ConversationType.DM &&
+        !!token &&
+        !!members?.find((m) => m.userID !== id)
     }
-  }, [channel, members, id])
+  )
+
+  const { data: sessionKey } = useQuery(
+    ['sessionKey', otherDMUser?.keychain.publicKeychain.encryption],
+    () =>
+      keychain!.encryption.sessionKey(
+        otherDMUser!.keychain.publicKeychain.encryption
+      ),
+    {
+      enabled: !!otherDMUser
+    }
+  )
 
   return (
     <Suspense fallback={<ChannelPlaceholder />}>
@@ -343,7 +348,7 @@ const ChannelView: FC<{
               <div
                 className={styles.icon}
                 style={
-                  channel?.color !== '#0081FF'
+                  channel?.color
                     ? {
                         backgroundColor: channel?.color
                       }
@@ -370,7 +375,7 @@ const ChannelView: FC<{
               <div
                 className={styles.icon}
                 style={
-                  channel?.color !== '#0081FF'
+                  channel?.color
                     ? {
                         backgroundColor: channel?.color
                       }
@@ -379,7 +384,7 @@ const ChannelView: FC<{
                       }
                 }
               >
-                <FontAwesomeIcon icon={faHashtag} />
+                <FontAwesomeIcon icon={conversationID ? faAt : faHashtag} />
               </div>
             )}
             <Suspense fallback={<></>}>
@@ -455,13 +460,14 @@ const ChannelView: FC<{
         </div>
         <Suspense fallback={<Messages.Placeholder />}>
           {channelID ? (
-            <Messages.View channelID={channelID} />
+            <Messages.View channelID={channelID} sessionKey={sessionKey} />
           ) : (
             <Messages.Placeholder />
           )}
         </Suspense>
         <Box.View
           {...{
+            sessionKey,
             hasPermission: true,
             members,
             channelID,

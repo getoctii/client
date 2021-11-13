@@ -1,4 +1,8 @@
-import { EncryptedMessage, Keychain } from '@innatical/inncryption'
+import {
+  EncryptedMessage,
+  Keychain,
+  SymmetricKey
+} from '@innatical/inncryption'
 import axios from 'axios'
 import {
   ChannelPermissions,
@@ -6,6 +10,7 @@ import {
   clientGateway,
   MessageTypes
 } from '../utils/constants'
+import queryClient from '../utils/queryClient'
 
 export interface Override {
   allow: ChannelPermissions[]
@@ -75,11 +80,15 @@ export const postEncryptedMessage = async (
   content: string,
   token: string,
   keychain: Keychain,
-  publicKey: JsonWebKey
+  sessionKey: SymmetricKey
 ) => {
-  const sessionKey = await keychain.encryption.sessionKey(publicKey)
   const encryptedMessage = await sessionKey.encrypt(
     await keychain.signing.sign({ content })
+  )
+
+  queryClient.setQueryData(
+    ['messageContent', encryptedMessage, sessionKey, keychain],
+    content
   )
 
   return (
@@ -124,7 +133,7 @@ export const patchEncryptedMessage = async (
   content: string,
   token: string,
   keychain: any,
-  publicKey: CryptoKey
+  publicKey: JsonWebKey
 ) => {
   // const selfEncryptedMessage = exportEncryptedMessage(
   //   await encryptMessage(

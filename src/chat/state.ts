@@ -4,6 +4,8 @@ import { Auth } from '../authentication/state'
 import { postMessage, postEncryptedMessage, getChannel } from './remote'
 import { Keychain } from '../keychain/state'
 import { useQuery } from 'react-query'
+import { useCurrentUser } from '../user/state'
+import { SymmetricKey } from '@innatical/inncryption'
 
 interface UploadDetails {
   status: 'uploading' | 'uploaded' | 'pending'
@@ -25,14 +27,11 @@ export const useChannel = (channelID?: string) => {
 
 const useChat = () => {
   const { token } = Auth.useContainer()
+  const user = useCurrentUser()
   const [tracking, setTracking] = useState(true)
   const [autoRead, setAutoRead] = useState(false)
   const [channelID, setChannelID] = useState<string | undefined>()
-  const [publicEncryptionKey, setPublicEncryptionKey] =
-    useState<JsonWebKey | null>(null)
-  const [publicSigningKey, setPublicSigningKey] = useState<JsonWebKey | null>(
-    null
-  )
+
   const [uploadDetails, setUploadDetails] = useState<UploadDetails | null>(null)
   const [editingMessageID, setEditingMessageID] = useState<string | undefined>(
     undefined
@@ -40,20 +39,21 @@ const useChat = () => {
   const [participants, setParticipants] = useState<string[]>([])
   const { keychain } = Keychain.useContainer()
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, sessionKey?: SymmetricKey) => {
       if (!token || !channelID) return
-      if (publicEncryptionKey)
+      console.log(keychain)
+      if (user?.keychain.publicKeychain)
         await postEncryptedMessage(
           channelID,
           content,
           token,
           keychain!,
-          publicEncryptionKey
+          sessionKey!
         )
       else await postMessage(channelID, content, token)
       if (tracking) setAutoRead(true)
     },
-    [token, setAutoRead, tracking, channelID, keychain, publicEncryptionKey]
+    [token, setAutoRead, tracking, channelID, keychain]
   )
 
   useEffect(() => {
@@ -73,11 +73,7 @@ const useChat = () => {
     editingMessageID,
     setEditingMessageID,
     participants,
-    setParticipants,
-    publicEncryptionKey,
-    setPublicEncryptionKey,
-    publicSigningKey,
-    setPublicSigningKey
+    setParticipants
   }
 }
 

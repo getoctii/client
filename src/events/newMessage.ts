@@ -154,6 +154,15 @@ const useNewMessage = (socket: Socket | null) => {
         { pages: MessageResponse[][] } | undefined
       >(['messages', channelID, token])
 
+      // console.log('$$$', messages)
+      // console.log('$$$$', {
+      //   ...messages,
+      //   pages:
+      //     messages.pages[0].length < 25
+      //       ? [[message, ...messages.pages[0]], ...messages.pages.slice(1)]
+      //       : [[message], ...messages.pages]
+      // })
+
       if (messages) {
         queryClient.setQueryData<{ pages: MessageResponse[][] }>(
           ['messages', channelID, token],
@@ -175,7 +184,7 @@ const useNewMessage = (socket: Socket | null) => {
 
       if (channel) {
         queryClient.setQueryData<ChannelResponse>(
-          ['messages', channelID, token],
+          ['channel', channelID, token],
           { ...channel, lastMessageID: message.id }
         )
       }
