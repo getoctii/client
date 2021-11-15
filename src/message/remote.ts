@@ -1,5 +1,5 @@
 // import { ExportedEncryptedMessage } from '@innatical/inncryption/dist/types'
-import { MessageResponse } from '../chat/remote'
+import { MessageResponse } from '../views/chat/remote'
 import { clientGateway, MessageTypes } from '../utils/constants'
 
 // export interface MessageResponse {

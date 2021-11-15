@@ -4,25 +4,20 @@ import {
   faSignOutAlt,
   faStopCircle,
   faTimesCircle
-} from '@fortawesome/free-solid-svg-icons'
+} from '@fortawesome/pro-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC } from 'react'
-import { useQuery } from 'react-query'
 import queryClient from '../utils/queryClient'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { clientGateway } from '../utils/constants'
 import { UI } from '../state/ui'
 import { State } from '../user/remote'
-import Button from './Button'
+import { Button, Input } from '@/components/Form'
 import styles from './Status.module.scss'
-import { getUser } from '../user/remote'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
-import Input from './Input'
 import { BarLoader } from 'react-spinners'
 import * as Yup from 'yup'
-
-import { useHistory } from 'react-router-dom'
-import { Plugins } from '@capacitor/core'
+import { useCurrentUser } from '@/user/state'
 
 const updateStatus = async (id: string, state: State, token: string) => {
   await clientGateway.patch(
@@ -44,12 +39,9 @@ const StatusSchema = Yup.object().shape({
 })
 
 const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
-  const auth = Auth.useContainer()
-  const history = useHistory()
-
   const { id, token } = Auth.useContainer()
   const ui = UI.useContainer()
-  const user = useQuery(['users', id, token], getUser)
+  const user = useCurrentUser()
   return (
     <div className={styles.status}>
       <h1>
@@ -66,36 +58,36 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
         <Button
           type='button'
           className={`${styles.online} ${
-            user.data?.state == State.online ? styles.active : null
+            user?.state == State.ONLINE ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.online, token)}
+          onClick={() => id && token && updateStatus(id, State.ONLINE, token)}
         >
           <FontAwesomeIcon icon={faCircle} />
         </Button>
         <Button
           type='button'
           className={`${styles.idle} ${
-            user.data?.state == State.idle ? styles.active : null
+            user?.state == State.IDLE ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.idle, token)}
+          onClick={() => id && token && updateStatus(id, State.IDLE, token)}
         >
           <FontAwesomeIcon icon={faMoon} />
         </Button>
         <Button
           type='button'
           className={`${styles.dnd} ${
-            user.data?.state == State.dnd ? styles.active : null
+            user?.state == State.DND ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.dnd, token)}
+          onClick={() => id && token && updateStatus(id, State.DND, token)}
         >
           <FontAwesomeIcon icon={faStopCircle} />
         </Button>
         <Button
           type='button'
           className={`${styles.offline} ${
-            user.data?.state == State.offline ? styles.active : null
+            user?.state == State.OFFLINE ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.offline, token)}
+          onClick={() => id && token && updateStatus(id, State.OFFLINE, token)}
         >
           <FontAwesomeIcon icon={faSignOutAlt} />
         </Button>
@@ -103,7 +95,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
       <div>
         <Formik
           initialValues={{
-            status: user.data?.status ?? ''
+            status: user?.status ?? ''
           }}
           validationSchema={StatusSchema}
           onSubmit={async ({ status }, { setSubmitting }) => {

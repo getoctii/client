@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { ParticipantsResponse } from '../user/remote'
 import queryClient from '../utils/queryClient'
 

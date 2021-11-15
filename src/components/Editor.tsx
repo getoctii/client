@@ -15,20 +15,20 @@ import underlineSyntax from '@innatical/micromark-extension-underline'
 import underlineFromMarkdown from '@innatical/mdast-util-underline/from-markdown'
 // @ts-ignore
 import underlineToMarkdown from '@innatical/mdast-util-underline/to-markdown'
-import Mentions from '../chat/Mentions'
+import Mentions from '../views/chat/Mentions'
 import { useRouteMatch } from 'react-router-dom'
-import Mention from '../chat/Mention'
+import Mention from '../views/chat/Mention'
 import {
   ChannelResponse,
   CommandResponse,
   IntegrationResponse
-} from '../community/remote'
+} from '../views/community/remote'
 import { isPlatform } from '@ionic/react'
 import styles from './Editor.module.scss'
 import { UI } from '../state/ui'
 import { useSuspenseStorageItem } from '../utils/storage'
-import Commands from '../chat/Commands'
-import { Auth } from '../authentication/state'
+import Commands from '../views/chat/Commands'
+import { Auth } from '../views/authentication/state'
 import { clientGateway } from '../utils/constants'
 import { useMatch } from 'react-location'
 

@@ -4,16 +4,16 @@ import {
   getGroups,
   getMember,
   GroupResponse
-} from '../community/remote'
-import { Auth } from '../authentication/state'
+} from '../views/community/remote'
+import { Auth } from '../views/authentication/state'
 import { useCallback, useMemo } from 'react'
 import { ChannelPermissions, Permissions } from './constants'
 import { createContainer } from '@innatical/innstate'
 import { useRouteMatch } from 'react-router-dom'
 import { getCommunities } from '../user/remote'
-import { ChannelResponse } from '../chat/remote'
+import { ChannelResponse } from '../views/chat/remote'
 import { useCommunities } from '../user/state'
-import { useCommunity } from '../community/state'
+import { useCommunity } from '../views/community/state'
 import { useMatch, useMatchRoute } from 'react-location'
 
 export const getHighestOrder = (groups: GroupResponse[]) => {
@@ -36,41 +36,45 @@ export const useHasPermission = () => {
   //     enabled: !!auth.token && !!match?.params.id
   //   }
   // )
-  const community = useCommunity()
-  const { data: groupIDs } = useQuery(
-    ['groups', id, auth.token],
-    async () => getGroups('', id, auth.token!),
-    {
-      enabled: !!auth.token && !!id
-    }
-  )
+  console.log(id)
+  const community = useCommunity(id)
+  const groupIDs: any[] = []
+  // const { data: groupIDs } = useQuery(
+  //   ['groups', id, auth.token],
+  //   async () => getGroups('', id, auth.token!),
+  //   {
+  //     enabled: !!auth.token && !!id
+  //   }
+  // )
   const communities = useCommunities()
 
-  const { data: member } = useQuery(
-    ['member', auth.id, auth.token],
-    async () => getMember('', auth.id!, auth.token!),
-    {
-      enabled: !!auth.token && !!id && !!auth.id
-    }
-  )
+  const member: any = {}
+  // const { data: member } = useQuery(
+  //   ['member', auth.id, auth.token],
+  //   async () => getMember('', auth.id!, auth.token!),
+  //   {
+  //     enabled: !!auth.token && !!id && !!auth.id
+  //   }
+  // )
 
-  const hasPermissions = useCallback(
-    (permissions: Permissions[], overrides?: boolean) => {
-      return (
-        !!member?.permissions.some(
-          (permission) =>
-            permissions.includes(permission) ||
-            (!overrides &&
-              (permission === Permissions.ADMINISTRATOR ||
-                permission === Permissions.OWNER))
-        ) ||
-        permissions.some((p) => community?.base_permissions?.includes(p)) ||
-        community?.ownerID === auth.id
-      )
-    },
-    [community, auth.id, member?.permissions]
-  )
+  // const hasPermissions = useCallback(
+  //   (permissions: Permissions[], overrides?: boolean) => {
+  //     return (
+  //       !!member?.permissions?.some(
+  //         (permission) =>
+  //           permissions.includes(permission) ||
+  //           (!overrides &&
+  //             (permission === Permissions.ADMINISTRATOR ||
+  //               permission === Permissions.OWNER))
+  //       ) ||
+  //       permissions.some((p) => community?.base_permissions?.includes(p)) ||
+  //       community?.ownerID === auth.id
+  //     )
+  //   },
+  //   [community, auth.id, member?.permissions]
+  // )
 
+  const hasPermissions = (any: any) => true
   const hasChannelPermissions = useCallback(
     (permissions: ChannelPermissions[], channel: ChannelResponse) => {
       if (

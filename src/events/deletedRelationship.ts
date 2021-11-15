@@ -3,8 +3,8 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../authentication/state'
-import { RelationshipResponse } from '../hub/friends/remote'
+import { Auth } from '../views/authentication/state'
+import { RelationshipResponse } from '../views/hub/friends/remote'
 
 const useDeletedRelationship = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()

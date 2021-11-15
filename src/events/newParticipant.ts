@@ -3,7 +3,7 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { ParticipantsResponse } from '../user/remote'
 
 const useNewParticipant = (eventSource: EventSourcePolyfill | null) => {

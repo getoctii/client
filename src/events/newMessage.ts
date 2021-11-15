@@ -6,7 +6,7 @@ import { isPlatform } from '@ionic/react'
 import Typing from '../state/typing'
 import { Plugins } from '@capacitor/core'
 import { Events, MessageTypes } from '../utils/constants'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import {
   getKeychain,
   getUser,
@@ -16,10 +16,10 @@ import {
   UserResponse
 } from '../user/remote'
 import { log } from '../utils/logging'
-import { Chat } from '../chat/state'
+import { Chat } from '../views/chat/state'
 import { parseMarkdown } from '@innatical/markdown'
 import { useSuspenseStorageItem } from '../utils/storage'
-import { ChannelResponse, MessageResponse } from '../chat/remote'
+import { ChannelResponse, MessageResponse } from '../views/chat/remote'
 import { Keychain } from '../keychain/state'
 // import {
 //   decryptMessage,

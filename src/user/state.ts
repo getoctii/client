@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import {
+  getCommunities,
   getConversations,
   getCurrentUser,
   getRelationships,
@@ -45,7 +46,15 @@ export const useRelationships = () => {
 }
 
 export const useCommunities = () => {
-  return []
+  const { token } = Auth.useContainer()
+  const { data: communities } = useQuery(
+    ['communities', token],
+    async () => getCommunities(token!),
+    {
+      enabled: !!token
+    }
+  )
+  return communities
 }
 
 export const useConversations = () => {

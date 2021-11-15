@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useQuery } from 'react-query'
 import { createContainer } from '@innatical/innstate'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { getPurchases } from '../user/remote'
 import {
   Plugins,

@@ -1,10 +1,10 @@
 import { memo, Suspense, useCallback, useMemo } from 'react'
 import styles from './Sidebar.module.scss'
 import { UI } from '../state/ui'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInbox, faPlus, faTh } from '@fortawesome/free-solid-svg-icons'
-import Button from '../components/Button'
+import { faInbox, faPlus, faGrid } from '@fortawesome/pro-solid-svg-icons'
+import { Button } from '@/components/Form'
 import { DragDropContext, Droppable, Draggable } from '@react-forked/dnd'
 import { useMedia } from 'react-use'
 import {
@@ -18,15 +18,15 @@ import { ModalTypes } from '../utils/constants'
 import { useSuspenseStorageItem } from '../utils/storage'
 import { useCommunities, useUser } from '../user/state'
 import { FC } from 'react'
-import { useCommunity } from '../community/state'
+import { useCommunity } from '../views/community/state'
 import { useMatchRoute, useNavigate } from 'react-location'
 import Avatar from '../components/Avatar'
 
 const reorder = (
-  list: MembersResponse,
+  list: string[],
   startIndex: number,
   endIndex: number
-): MembersResponse => {
+): string[] => {
   const result = Array.from(list)
   const [removed] = result.splice(startIndex, 1)
   result.splice(endIndex, 0, removed)
@@ -35,19 +35,14 @@ const reorder = (
 }
 
 const Community: FC<{
-  community: {
-    id: string
-    name: string
-    icon?: string
-    large: boolean
-  }
+  id: string
   index: number
-}> = memo(({ community, index }) => {
+}> = memo(({ id: communityID, index }) => {
   const { token, id } = Auth.useContainer()
   const matchRoute = useMatchRoute()
   const navigate = useNavigate()
 
-  const communityFull = useCommunity()
+  const community = useCommunity(communityID)
   // const unreads = useQuery(['unreads', id, token], getUnreads)
   // const mentions = useQuery(['mentions', id, token], getMentions)
 
@@ -66,10 +61,10 @@ const Community: FC<{
   const draggableChild = useCallback(
     (provided) => (
       <div
-        key={community.id}
+        key={communityID}
         style={provided.draggableProps.style}
         className={
-          matchRoute({ to: `/app/communities/${community.id}` })
+          matchRoute({ to: `/app/communities/${communityID}` })
             ? `${styles.icon} ${styles.selected}`
             : styles.icon
         }
@@ -77,11 +72,11 @@ const Community: FC<{
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         onClick={() => {
-          if (matchRoute({ to: `/app/communities/${community.id}` })) return
-          return navigate({ to: `/app/communities/${community.id}` })
+          if (matchRoute({ to: `/app/communities/${communityID}` })) return
+          return navigate({ to: `/app/communities/${communityID}` })
         }}
       >
-        <img src={community.icon} alt={community.name} />
+        <img src={community?.icon} alt={community?.name} />
         {/* {match?.params.id !== community.id &&
           (mentionsCount && mentionsCount > 0 ? (
             <div
@@ -99,11 +94,11 @@ const Community: FC<{
           ))} */}
       </div>
     ),
-    [community, communityFull, history]
+    [communityID, community, history]
   )
 
   return (
-    <Draggable draggableId={community.id} index={index}>
+    <Draggable draggableId={communityID} index={index}>
       {draggableChild}
     </Draggable>
   )
@@ -139,7 +134,7 @@ const Communities: FC = () => {
         result.source.index,
         result.destination.index
       )
-      setCommunitiesOrder(items.map((c) => c.community.id))
+      setCommunitiesOrder(items.map((c) => c))
     },
     [communities, setCommunitiesOrder]
   )
@@ -157,8 +152,8 @@ const Communities: FC = () => {
               (communitiesOrder?.indexOf(a) ?? 0) -
               (communitiesOrder?.indexOf(b) ?? 0)
           )
-          .map((member, index) => (
-            <Community key={member} community={member} index={index} />
+          .map((community, index) => (
+            <Community key={community} id={community} index={index} />
           ))}
         {provided.placeholder}
       </div>
@@ -250,13 +245,13 @@ const Sidebar: FC = () => {
               {user?.state && (
                 <div
                   className={`${styles.badge} ${
-                    user.state === State.online
+                    user.state === State.ONLINE
                       ? styles.online
-                      : user.state === State.dnd
+                      : user.state === State.DND
                       ? styles.dnd
-                      : user.state === State.idle
+                      : user.state === State.IDLE
                       ? styles.idle
-                      : user.state === State.offline
+                      : user.state === State.OFFLINE
                       ? styles.offline
                       : ''
                   }`}
@@ -285,7 +280,7 @@ const Sidebar: FC = () => {
             navigate({ to: '/app/hub' })
           }}
         >
-          <FontAwesomeIcon className={styles.symbol} icon={faTh} size='2x' />
+          <FontAwesomeIcon className={styles.symbol} icon={faGrid} size='2x' />
         </Button>
         <Button
           className={`${styles.messages} ${
@@ -347,13 +342,13 @@ const Sidebar: FC = () => {
               {matchRoute({ to: '/app/settings' }) && user?.state && (
                 <div
                   className={`${styles.badge} ${
-                    user.state === State.online
+                    user.state === State.ONLINE
                       ? styles.online
-                      : user.state === State.dnd
+                      : user.state === State.DND
                       ? styles.dnd
-                      : user.state === State.idle
+                      : user.state === State.IDLE
                       ? styles.idle
-                      : user.state === State.offline
+                      : user.state === State.OFFLINE
                       ? styles.offline
                       : ''
                   }`}

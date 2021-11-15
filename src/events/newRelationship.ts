@@ -3,8 +3,11 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../authentication/state'
-import { RelationshipResponse, RelationshipTypes } from '../hub/friends/remote'
+import { Auth } from '../views/authentication/state'
+import {
+  RelationshipResponse,
+  RelationshipTypes
+} from '../views/hub/friends/remote'
 
 const useNewRelationship = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()

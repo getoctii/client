@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ChannelPermissions, ChannelTypes, Events } from '../utils/constants'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { log } from '../utils/logging'
-import { ChannelResponse } from '../chat/remote'
+import { ChannelResponse } from '../views/chat/remote'
 import queryClient from '../utils/queryClient'
 
 const useUpdatedOverride = (eventSource: EventSourcePolyfill | null) => {

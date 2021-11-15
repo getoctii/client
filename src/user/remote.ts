@@ -165,13 +165,9 @@ export const deleteRelationship = async (id: string, token: string) =>
     })
   ).data
 
-export const getCommunities = async (
-  _: string,
-  userID: string,
-  token: string
-) =>
+export const getCommunities = async (token: string) =>
   (
-    await clientGateway.get<MembersResponse>(`/users/${userID}/members`, {
+    await clientGateway.get<string[]>(`/users/me/communities`, {
       headers: {
         Authorization: token
       }

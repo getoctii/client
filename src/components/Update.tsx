@@ -1,6 +1,6 @@
 import { useState, FC } from 'react'
 import { BarLoader } from 'react-spinners'
-import Button from './Button'
+import { Button } from '@/components/Form'
 import styles from './Update.module.scss'
 
 const Update: FC = () => {

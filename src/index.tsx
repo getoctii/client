@@ -6,14 +6,13 @@ import 'typeface-inter'
 // import * as serviceWorkerRegistration from './utils/serviceWorkerRegistration'
 import { Router } from './Router'
 import { ReactQueryDevtools } from 'react-query-devtools'
-import { Auth } from './authentication/state'
+import { Auth } from './views/authentication/state'
 import {
   QueryClient,
   QueryClientProvider,
   QueryErrorResetBoundary
 } from 'react-query'
-import Loader from './components/Loader'
-import Error from './components/Error'
+import { Loader, Error } from '@/components/Feedback'
 import { UI } from './state/ui'
 import '@sentry/browser'
 import * as Sentry from '@sentry/react'
@@ -22,7 +21,7 @@ import Theme from './theme/hook'
 import Typing from './state/typing'
 import { ScrollPosition } from './state/scroll'
 import { Call } from './state/call'
-import { Chat } from './chat/state'
+import { Chat } from './views/chat/state'
 import { Integrations } from '@sentry/tracing'
 import { HelmetProvider } from 'react-helmet-async'
 // @ts-ignore

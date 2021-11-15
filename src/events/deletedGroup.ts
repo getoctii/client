@@ -3,8 +3,8 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../authentication/state'
-import { MemberResponse } from '../community/remote'
+import { Auth } from '../views/authentication/state'
+import { MemberResponse } from '../views/community/remote'
 import { MembersResponse } from '../user/remote'
 
 const useDeletedGroup = (eventSource: EventSourcePolyfill | null) => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 import { CLIENT_GATEWAY_URL } from '../utils/constants'
 import { AppState, Plugins } from '@capacitor/core'
 import { isPlatform } from '@ionic/react'

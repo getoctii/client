@@ -3,8 +3,8 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import { ChannelTypes, Events } from '../utils/constants'
 
 import { log } from '../utils/logging'
-import { Auth } from '../authentication/state'
-import { ChannelResponse } from '../community/remote'
+import { Auth } from '../views/authentication/state'
+import { ChannelResponse } from '../views/community/remote'
 import queryClient from '../utils/queryClient'
 
 const useUpdatedChannel = (eventSource: EventSourcePolyfill | null) => {

@@ -1,6 +1,6 @@
 import { createContainer } from '@innatical/innstate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Auth } from '../authentication/state'
+import { Auth } from '../views/authentication/state'
 
 declare global {
   interface MediaDevices {
@@ -55,22 +55,22 @@ const changeVideoCodec = (conection: RTCPeerConnection, mimeType: string) => {
 }
 
 const useCall = () => {
-  const [room, setRoom] =
-    useState<{
-      id: string
-      token: string
-      server: string
-      channelID?: string
-      conversationID?: string
-    } | null>()
+  const [room, setRoom] = useState<{
+    id: string
+    token: string
+    server: string
+    channelID?: string
+    conversationID?: string
+  } | null>()
   const [socket, setSocket] = useState<WebSocket | null>()
   const [connection, setConnection] = useState<RTCPeerConnection | null>()
   const connectionRef = useRef<RTCPeerConnection | null>()
   const [state, setConnectionState] = useState<RTCIceConnectionState | null>()
   const [localStream, setLocalSteam] = useState<MediaStream | null>()
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>()
-  const [remoteVideoTracks, setRemoteVideoTracks] =
-    useState<MediaStreamTrack[] | null>()
+  const [remoteVideoTracks, setRemoteVideoTracks] = useState<
+    MediaStreamTrack[] | null
+  >()
   const [audio] = useState(new Audio())
   const [muted, setMuted] = useState(false)
   const [deafened, setDeafened] = useState(false)

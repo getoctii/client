@@ -10,33 +10,33 @@ import {
 import { useLocation, useMedia } from 'react-use'
 // import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
 
-import { PrivateRoute } from './authentication/PrivateRoute'
-import Community from './community/Community'
+import { PrivateRoute } from './views/authentication/PrivateRoute'
+import Community from './views/community/Community'
 import { UI } from './state/ui'
-import Settings from './settings/Settings'
-import Conversation, { ConversationView } from './conversation/Conversation'
+import Settings from './views/settings/Settings'
+import Conversation, {
+  ConversationView
+} from './views/conversation/Conversation'
 import Sidebar from './sidebar/Sidebar'
 import { AnimatePresence } from 'framer-motion'
-import Loader from './components/Loader'
-import { Auth } from './authentication/state'
-import Home from './marketing/Home'
+import { Loader } from '@/components/Feedback'
+import { Auth } from './views/authentication/state'
+import { Home, Downloads, OnBoarding } from './views/Marketing'
 import { isPlatform } from '@ionic/react'
 import { Call } from './state/call'
-import Current from './call/Current'
+import Current from './views/call/Current'
 import EventSource from './events'
-import Context from './components/Context'
+import { ContextMenu } from '@/components/Overlay'
 import { Plugins } from '@capacitor/core'
 import { clientGateway } from './utils/constants'
-import Downloads from './marketing/Downloads'
-import Invite from './invite/Invite'
-import Admin from './admin/Admin'
+import Invite from './views/invite/Invite'
+import Admin from './views/admin/Admin'
 import { useQuery } from 'react-query'
 import { getCommunities } from './user/remote'
-import OnBoarding from './marketing/OnBoarding'
 import { useSuspenseStorageItem } from './utils/storage'
 import Modal from './components/Modals'
 import { Permission } from './utils/permissions'
-import Hub from './hub/Hub'
+import Hub from './views/hub/Hub'
 import { useCommunities, useConversations } from './user/state'
 import {
   Navigate,
@@ -44,15 +44,16 @@ import {
   ReactLocation,
   Router as BrowserRouter
 } from 'react-location'
-import { Login } from './authentication/Login'
-import { Register } from './authentication/Register'
-import { Conversations } from './conversation/Conversations'
-import Empty from './conversation/empty/Empty'
-import Sideview from './components/Sideview'
-import { faStoreAlt } from '@fortawesome/free-solid-svg-icons'
-import Friends from './hub/friends/Friends'
-import Store from './hub/store/Store'
-import Product from './hub/store/Product'
+import { Login } from './views/authentication/Login'
+import { Register } from './views/authentication/Register'
+import { Conversations } from './views/conversation/Conversations'
+import Empty from './views/conversation/empty/Empty'
+import { SideView } from '@/components/Layout'
+import { faStoreAlt } from '@fortawesome/pro-solid-svg-icons'
+import Friends from './views/hub/friends/Friends'
+import Store from './views/hub/store/Store'
+import Product from './views/hub/store/Product'
+import Channels from './views/community/sidebar/Sidebar'
 
 const { PushNotifications } = Plugins
 
@@ -63,7 +64,7 @@ const ContextMenuHandler: FC = () => {
 
   return uiStore.contextMenu ? (
     <Permission.Provider>
-      <Context.Menu {...uiStore.contextMenu} />
+      <ContextMenu.Menu {...uiStore.contextMenu} />
     </Permission.Provider>
   ) : (
     <></>
@@ -287,6 +288,15 @@ const AppLayout = () => {
   )
 }
 
+const CommunityLayout = () => {
+  return (
+    <Permission.Provider>
+      <Channels.View />
+      <Outlet />
+    </Permission.Provider>
+  )
+}
+
 const ConversationsLayout = () => {
   const conversations = useConversations()
 
@@ -303,7 +313,7 @@ const ConversationsLayout = () => {
 const HubLayout = () => {
   return (
     <>
-      <Sideview
+      <SideView
         name={'Hub'}
         tabs={[
           {
@@ -365,7 +375,22 @@ export const Router: FC = memo(() => {
                 children: [
                   {
                     path: ':id',
-                    element: <></>
+                    element: <CommunityLayout />,
+                    children: [
+                      {
+                        path: 'channels/:channelID',
+                        children: [
+                          {
+                            path: '/',
+                            element: <></>
+                          },
+                          {
+                            path: 'settings',
+                            element: <></>
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               },

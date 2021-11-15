@@ -3,71 +3,71 @@ import styles from './Modals.module.scss'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMedia } from 'react-use'
 import { ModalTypes } from '../utils/constants'
-import AddParticipant from '../chat/AddParticipant'
-import { Confirmation } from './Confirmation'
+import AddParticipant from '../views/chat/AddParticipant'
+import { Alert } from '@/components/Overlay'
 import { NewCommunity } from '../sidebar/NewCommunity'
-import NewConversation from '../conversation/NewConversation'
-import { NewGroup } from '../community/settings/groups/NewGroup'
-import File from '../chat/embeds/File'
-import NewChannel from '../community/NewChannel'
-import NewInvite from '../community/NewInvite'
-import ManageGroups from '../community/ManageGroups'
+import NewConversation from '../views/conversation/NewConversation'
+import { NewGroup } from '../views/community/settings/groups/NewGroup'
+import File from '../views/chat/embeds/File'
+import NewChannel from '../views/community/NewChannel'
+import NewInvite from '../views/community/NewInvite'
+import ManageGroups from '../views/community/ManageGroups'
 import { UI } from '../state/ui'
 import { Permission } from '../utils/permissions'
 import Update from './Update'
 import Status from './Status'
-import AddFriend from '../hub/friends/AddFriend'
-import NewProduct from '../community/integrations/NewProduct'
-import NewResource from '../community/integrations/product/pages/NewResource'
-import NewVersion from '../community/integrations/product/pages/NewVersion'
+import AddFriend from '../views/hub/friends/AddFriend'
+import NewProduct from '../views/community/integrations/NewProduct'
+import NewResource from '../views/community/integrations/product/pages/NewResource'
+import NewVersion from '../views/community/integrations/product/pages/NewVersion'
 import PreviewUser from '../user/PreviewUser'
 import GenerateKeychain from '../keychain/GenerateKeychain'
 import DecryptKeychain from '../keychain/DecryptKeychain'
-import MFAModal from '../authentication/MFAModal'
-import CodePrompt from '../authentication/CodePrompt'
-import Ringing from '../call/Ringing'
-import AddIntegration from '../community/AddIntegration'
+import MFAModal from '../views/authentication/MFAModal'
+import CodePrompt from '../views/authentication/CodePrompt'
+import Ringing from '../views/call/Ringing'
+import AddIntegration from '../views/community/AddIntegration'
 
 const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
   switch (name) {
     case ModalTypes.ADD_PARTICIPANT:
       return <AddParticipant {...props} />
     case ModalTypes.DELETE_MESSAGE:
-      return <Confirmation {...props} />
+      return <Alert {...props} />
     case ModalTypes.DEVELOPER_MODE:
-      return <Confirmation {...props} />
+      return <Alert {...props} />
     case ModalTypes.NEW_COMMUNITY:
-      return <NewCommunity />
+      return <NewCommunity {...props} />
     case ModalTypes.NEW_CONVERSATION:
-      return <NewConversation />
+      return <NewConversation {...props} />
     case ModalTypes.NEW_PERMISSION:
-      return <NewGroup />
+      return <NewGroup {...props} />
     case ModalTypes.PREVIEW_IMAGE:
       return <File.Preview {...props} />
     case ModalTypes.NEW_CHANNEL:
-      return <NewChannel />
+      return <NewChannel {...props} />
     case ModalTypes.NEW_INVITE:
-      return <NewInvite />
+      return <NewInvite {...props} />
     case ModalTypes.NEW_PRODUCT:
-      return <NewProduct />
+      return <NewProduct {...props} />
     case ModalTypes.DELETE_CHANNEL:
-      return <Confirmation {...props} />
+      return <Alert {...props} />
     case ModalTypes.MANAGE_MEMBER_GROUPS:
       return <ManageGroups {...props} />
     case ModalTypes.UPDATE:
-      return <Update />
+      return <Update {...props} />
     case ModalTypes.ADD_FRIEND:
-      return <AddFriend />
+      return <AddFriend {...props} />
     case ModalTypes.NEW_RESOURCE:
-      return <NewResource />
+      return <NewResource {...props} />
     case ModalTypes.NEW_VERSION:
-      return <NewVersion />
+      return <NewVersion {...props} />
     case ModalTypes.PREVIEW_USER:
       return <PreviewUser {...props} />
     case ModalTypes.GENERATE_KEYCHAIN:
-      return <GenerateKeychain />
+      return <GenerateKeychain {...props} />
     case ModalTypes.DECRYPT_KEYCHAIN:
-      return <DecryptKeychain />
+      return <DecryptKeychain {...props} />
     case ModalTypes.ENABLED_2FA:
       return <MFAModal {...props} />
     case ModalTypes.CODE_PROMPT:
@@ -75,7 +75,7 @@ const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
     case ModalTypes.RINGING:
       return <Ringing {...props} />
     case ModalTypes.ADD_INTEGRATION:
-      return <AddIntegration />
+      return <AddIntegration {...props} />
     default:
       return <></>
   }

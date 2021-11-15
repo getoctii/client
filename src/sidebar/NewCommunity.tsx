@@ -1,18 +1,17 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import { FC, useState } from 'react'
 import { BarLoader } from 'react-spinners'
-import Button from '../components/Button'
-import Input from '../components/Input'
+import { Button, Input } from '@/components/Form'
 import { clientGateway } from '../utils/constants'
 import styles from './NewCommunity.module.scss'
 import { UI } from '../state/ui'
-import { Auth } from '../authentication/state'
-import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
+import { Auth } from '../views/authentication/state'
+import { faChevronLeft } from '@fortawesome/pro-solid-svg-icons'
 import { useHistory } from 'react-router-dom'
-import IconPicker from '../components/IconPicker'
+import { IconPicker } from '@/components/Form'
 import * as Yup from 'yup'
-import Modal from '../components/Modal'
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons'
+import { Modal } from '@/components/Overlay'
+import { faTimesCircle } from '@fortawesome/pro-solid-svg-icons'
 
 const CommunitySchema = Yup.object().shape({
   name: Yup.string()
@@ -35,19 +34,14 @@ const CreateCommunity: FC<{ dismiss: Function }> = ({ dismiss }) => {
       validationSchema={CommunitySchema}
       onSubmit={async (values, { setSubmitting, setErrors, setFieldError }) => {
         if (!values?.name) return setFieldError('name', 'Required')
-        if (!values?.icon) return setFieldError('icon', 'Required')
         try {
           const { data: community } = await clientGateway.post<{
-            id: string
-            name: string
-            icon?: string
-            large: boolean
-            owner_id: string
+            id: String
           }>(
             '/communities',
             {
               name: values.name,
-              icon: values?.icon || ''
+              icon: values?.icon
             },
             {
               headers: { Authorization: token }
