@@ -2,16 +2,16 @@ import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../views/authentication/state'
-import { MessageResponse } from '../views/chat/remote'
+import { Auth } from '@/state/auth'
+import { MessageResponse } from '@/api/messages'
 import { ExportedEncryptedMessage } from '@innatical/inncryption/dist/types'
-import { getKeychain } from '../user/remote'
+import { getKeychain } from '@/api/users'
 import {
   decryptMessage,
   importEncryptedMessage,
   importPublicKey
 } from '@innatical/inncryption'
-import { Keychain } from '../keychain/state'
+import { Keychain } from '@/state/keychain'
 import queryClient from '../utils/queryClient'
 
 const useUpdatedMessage = (eventSource: EventSourcePolyfill | null) => {

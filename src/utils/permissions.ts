@@ -1,19 +1,11 @@
-import { useQuery } from 'react-query'
-import {
-  getCommunity,
-  getGroups,
-  getMember,
-  GroupResponse
-} from '../views/community/remote'
-import { Auth } from '../views/authentication/state'
+import { GroupResponse } from '@/api/communities'
+import { Auth } from '@/state/auth'
 import { useCallback, useMemo } from 'react'
 import { ChannelPermissions, Permissions } from './constants'
 import { createContainer } from '@innatical/innstate'
-import { useRouteMatch } from 'react-router-dom'
-import { getCommunities } from '../user/remote'
-import { ChannelResponse } from '../views/chat/remote'
-import { useCommunities } from '../user/state'
-import { useCommunity } from '../views/community/state'
+import { ChannelResponse } from '@/api/messages'
+import { useCommunities } from '@/hooks/users'
+import { useCommunity } from '@/hooks/communities'
 import { useMatch, useMatchRoute } from 'react-location'
 
 export const getHighestOrder = (groups: GroupResponse[]) => {

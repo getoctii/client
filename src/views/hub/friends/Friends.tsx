@@ -5,10 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUserClock } from '@fortawesome/pro-solid-svg-icons'
 import EmptyFriends from './EmptyFriends'
 import { faPlus } from '@fortawesome/pro-solid-svg-icons'
-import { UI } from '../../../state/ui'
-import { ModalTypes } from '../../../utils/constants'
-import { useRelationships } from '../../../user/state'
-import { RelationshipType } from '../../../user/remote'
+import { UI } from '@/state/ui'
+import { ModalTypes } from '@/utils/constants'
+import { useRelationships } from '@/hooks/users'
+import { RelationshipType } from '@/api/users'
 
 const Friends: FC = () => {
   const ui = UI.useContainer()

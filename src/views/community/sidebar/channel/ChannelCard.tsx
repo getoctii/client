@@ -1,14 +1,11 @@
 import { faHashtag, faVolumeUp } from '@fortawesome/pro-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { memo, Suspense, useCallback, useMemo, FC } from 'react'
-import { useHistory, useRouteMatch } from 'react-router-dom'
-import { Auth } from '../../../authentication/state'
+import { Auth } from '@/state/auth'
 import { Clipboard } from '@capacitor/core'
 import { ContextMenu } from '@/components/Overlay'
 import styles from './ChannelCard.module.scss'
-import { useMutation, useQuery } from 'react-query'
-import { getChannel } from '../../../chat/remote'
-import { getMentions, getUnreads } from '../../../../user/remote'
+import { useMutation } from 'react-query'
 import { useSuspenseStorageItem } from '../../../../utils/storage'
 import { UI } from '../../../../state/ui'
 import {
@@ -33,7 +30,7 @@ import {
 import { AlertType } from '@/components/Overlay/Alert/Alert'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Call } from '../../../../state/call'
-import { useChannel } from '../../../chat/state'
+import { useChannel } from '@/hooks/messages'
 import { useMatch, useNavigate } from 'react-location'
 
 const ChannelCardDraggable: FC<{ id: string; index: number }> = memo(

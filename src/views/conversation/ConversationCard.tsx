@@ -1,4 +1,4 @@
-import { FC, useMemo, useCallback, Suspense, memo } from 'react'
+import { FC, useMemo, useCallback, memo } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faChevronRight,
@@ -10,17 +10,17 @@ import {
 import { useMutation, useQueries } from 'react-query'
 import { clientGateway } from '../../utils/constants'
 import styles from './ConversationCard.module.scss'
-import { Auth } from '../authentication/state'
-import { getUser, State } from '../../user/remote'
+import { Auth } from '@/state/auth'
+import { getUser, State } from '@/api/users'
 import { Clipboard } from '@capacitor/core'
 import { ContextMenu } from '@/components/Overlay'
 import { ContextMenuItems } from '../../state/ui'
 import { useSuspenseStorageItem } from '../../utils/storage'
-import { Keychain } from '../../keychain/state'
-import { useChannel } from '../chat/state'
-import { useConversation, useConversationMembers } from './state'
+import { Keychain } from '@/state/keychain'
+import { useChannel } from '@/hooks/messages'
+import { useConversation, useConversationMembers } from '@/hooks/conversations'
 import { useMatch, useMatchRoute, useNavigate } from 'react-location'
-import { ConversationType } from './remote'
+import { ConversationType } from '@/api/conversations'
 import Avatar from '../../components/Avatar'
 
 const ConversationCardView: FC<{

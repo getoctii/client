@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { useQuery } from 'react-query'
 import { useRouteMatch } from 'react-router-dom'
-import { Auth } from '../authentication/state'
-import { CommandResponse, getIntegrations } from '../community/remote'
+import { Auth } from '@/state/auth'
+import { CommandResponse, getIntegrations } from '@/api/communities'
 import { clientGateway } from '../../utils/constants'
 import styles from './Commands.module.scss'
 

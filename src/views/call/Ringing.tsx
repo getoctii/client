@@ -7,16 +7,16 @@ import {
 } from '@fortawesome/pro-solid-svg-icons'
 import { Button } from '@/components/Form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FC, useMemo } from 'react'
-import { useQueries, useQuery } from 'react-query'
-import { fetchManyUsers, getUser } from '../../user/remote'
-import { Auth } from '../authentication/state'
+import { FC } from 'react'
+import { useQueries } from 'react-query'
+import { getUser } from '@/api/users'
+import { Auth } from '@/state/auth'
 import { UI } from '../../state/ui'
 import { clientGateway } from '../../utils/constants'
 import { Call } from '../../state/call'
 import { useHistory } from 'react-router-dom'
 import { useAudio } from 'react-use'
-import { useConversationMembers } from '../conversation/state'
+import { useConversationMembers } from '@/hooks/conversations'
 
 const Ringing: FC<{ id: string }> = ({ id }) => {
   const [audio] = useAudio({

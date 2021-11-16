@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react'
-import { Auth } from './state'
+import { Auth } from '@/state/auth'
 import { Route, Redirect } from 'react-router-dom'
 import { Suspense } from 'react'
 

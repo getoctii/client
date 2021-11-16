@@ -4,7 +4,7 @@ import Integrations from './Integrations'
 import { useState, FC } from 'react'
 import { useMutation } from 'react-query'
 import { useRouteMatch } from 'react-router-dom'
-import { Auth } from '../../authentication/state'
+import { Auth } from '@/state/auth'
 import styles from './Sidebar.module.scss'
 import Channels from './Channels'
 import {

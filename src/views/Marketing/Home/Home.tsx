@@ -8,7 +8,7 @@ import {
   faCheck,
   faExclamation
 } from '@fortawesome/pro-solid-svg-icons'
-import { Navbar, Footer } from '@/components/Marketing'
+import { Navbar, Footer } from '@/domain/Marketing'
 import { isEmail } from '@/utils/validations'
 import { clientGateway } from '@/utils/constants'
 import { motion } from 'framer-motion'

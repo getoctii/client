@@ -9,19 +9,15 @@ import {
 import { useCallback, useMemo, FC } from 'react'
 import ChannelCard from './ChannelCard'
 import styles from './CategoryCard.module.scss'
-import { Permission } from '../../../../utils/permissions'
-import {
-  clientGateway,
-  ModalTypes,
-  Permissions
-} from '../../../../utils/constants'
+import { Permission } from '@/utils/permissions'
+import { clientGateway, ModalTypes, Permissions } from '@/utils/constants'
 import { ContextMenu } from '@/components/Overlay'
 import { AlertType } from '@/components/Overlay/Alert/Alert'
 import { faCopy, faPen, faTrashAlt } from '@fortawesome/pro-solid-svg-icons'
 import { Clipboard } from '@capacitor/core'
-import { UI } from '../../../../state/ui'
+import { UI } from '@/state/ui'
 import { useMutation } from 'react-query'
-import { Auth } from '../../../authentication/state'
+import { Auth } from '@/state/auth'
 import { useHistory, useRouteMatch } from 'react-router-dom'
 
 export const CategoryChannelsDraggable: FC<{

@@ -1,14 +1,14 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC } from 'react'
-import { Auth } from '../../authentication/state'
+import { Auth } from '@/state/auth'
 import { Button } from '@/components/Form'
-import Icon from '../../../user/Icon'
+import { Icon } from '@/domain/User'
 import NewConversation from '../NewConversation'
-import { ConversationType, createConversation } from '../remote'
+import { ConversationType, createConversation } from '@/api/conversations'
 import styles from './Empty.module.scss'
 import { faPlusCircle } from '@fortawesome/pro-solid-svg-icons'
 import { useNavigate } from 'react-location'
-import { useRelationships, useUser } from '../../../user/state'
+import { useRelationships, useUser } from '@/hooks/users'
 
 const FriendSuggestion: FC<{ id: string }> = ({ id }) => {
   const { token } = Auth.useContainer()

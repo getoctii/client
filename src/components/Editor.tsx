@@ -3,7 +3,7 @@ import { useMedia, usePageLeave } from 'react-use'
 import { Element, Text, Transforms, Editor, Range, Node } from 'slate'
 import { HistoryEditor } from 'slate-history'
 import { RenderLeafProps, Slate, Editable, ReactEditor } from 'slate-react'
-import { UserResponse } from '../user/remote'
+import { UserResponse } from '@/api/users'
 import { serialize } from '../utils/slate'
 import unified from 'unified'
 import markdown from 'remark-parse'
@@ -16,19 +16,14 @@ import underlineFromMarkdown from '@innatical/mdast-util-underline/from-markdown
 // @ts-ignore
 import underlineToMarkdown from '@innatical/mdast-util-underline/to-markdown'
 import Mentions from '../views/chat/Mentions'
-import { useRouteMatch } from 'react-router-dom'
 import Mention from '../views/chat/Mention'
-import {
-  ChannelResponse,
-  CommandResponse,
-  IntegrationResponse
-} from '../views/community/remote'
+import { ChannelResponse, CommandResponse } from '@/api/communities'
 import { isPlatform } from '@ionic/react'
 import styles from './Editor.module.scss'
 import { UI } from '../state/ui'
 import { useSuspenseStorageItem } from '../utils/storage'
 import Commands from '../views/chat/Commands'
-import { Auth } from '../views/authentication/state'
+import { Auth } from '@/state/auth'
 import { clientGateway } from '../utils/constants'
 import { useMatch } from 'react-location'
 

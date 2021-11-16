@@ -2,20 +2,20 @@ import { FC, Suspense, useEffect, useMemo } from 'react'
 import styles from './Conversation.module.scss'
 import Chat from '../chat/Channel'
 import { Redirect, Switch, useHistory, useRouteMatch } from 'react-router-dom'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import { useQuery } from 'react-query'
 import { InternalChannelTypes } from '../../utils/constants'
 import { Conversations } from './Conversations'
 import { useLocation, useMedia } from 'react-use'
 import Empty from './empty/Empty'
-import Sidebar from '../../sidebar/Sidebar'
+import { SideBar } from '@/components/Layout'
 import dayjs from 'dayjs'
 import { useSuspenseStorageItem } from '../../utils/storage'
 import { Helmet } from 'react-helmet-async'
 import { Permission } from '../../utils/permissions'
 import { PrivateRoute } from '../authentication/PrivateRoute'
-import { useConversation, useConversationMembers } from './state'
-import { useConversations } from '../../user/state'
+import { useConversation, useConversationMembers } from '@/hooks/conversations'
+import { useConversations } from '@/hooks/users'
 import { useMatch } from 'react-location'
 
 export const ConversationView: FC = () => {
@@ -102,7 +102,7 @@ const ConversationProvider: FC = () => {
         </Permission.Provider>
       ) : isMobile ? (
         <>
-          <Sidebar />
+          <SideBar />
           <Conversations />
         </>
       ) : (
@@ -153,7 +153,7 @@ const Nested: FC = () => {
               exact
               component={() => (
                 <>
-                  <Sidebar />
+                  <SideBar />
                   <Conversations />
                 </>
               )}
@@ -176,7 +176,7 @@ const ConversationRouter: FC = () => {
         <PrivateRoute
           render={() => (
             <>
-              {isMobile && <Sidebar />}
+              {isMobile && <SideBar />}
               <Empty />
             </>
           )}

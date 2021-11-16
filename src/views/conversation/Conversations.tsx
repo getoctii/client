@@ -8,17 +8,16 @@ import {
   FC
 } from 'react'
 import styles from './Conversations.module.scss'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import ConversationCard from './ConversationCard'
-import { useRouteMatch } from 'react-router-dom'
 import { useMedia, useScroll } from 'react-use'
 import NewConversation from './NewConversation'
 import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
-import { ScrollPosition } from '../../state/scroll'
+import { ScrollPosition } from '@/state/scroll'
 import { StatusBar } from '@/components/Layout'
-import { useConversations } from '../../user/state'
-import { useConversation } from './state'
+import { useConversations } from '@/hooks/users'
+import { useConversation } from '@/hooks/conversations'
 import { useMatch } from 'react-location'
 
 dayjs.extend(dayjsUTC)

@@ -7,7 +7,7 @@ import { Permission } from '../../../utils/permissions'
 import { Permissions } from '../../../utils/constants'
 import { faWarehouse } from '@fortawesome/pro-solid-svg-icons'
 import { useNavigate } from 'react-location'
-import { CommunityFlag } from '../remote'
+import { CommunityFlag } from '@/api/communities'
 
 const IntegrationsView: FC = () => {
   const navigate = useNavigate()

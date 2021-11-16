@@ -5,9 +5,9 @@ import { matchPath, useHistory } from 'react-router-dom'
 import { Button } from '@/components/Form'
 import styles from './Invite.module.scss'
 import { useQuery } from 'react-query'
-import { getUseInvite } from '../../invite/remote'
-import { Auth } from '../../authentication/state'
-import { getCommunities } from '../../../user/remote'
+import { getUseInvite } from '@/api/invites'
+import { Auth } from '@/state/auth'
+import { getCommunities } from '@/api/users'
 import { clientGateway } from '../../../utils/constants'
 
 const isInvite = (url: string) =>

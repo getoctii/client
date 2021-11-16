@@ -14,7 +14,7 @@ import {
   faLink
 } from '@fortawesome/pro-solid-svg-icons'
 import { Plugins } from '@capacitor/core'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import { useMutation, useQuery } from 'react-query'
 import {
   clientGateway,
@@ -33,19 +33,19 @@ import {
 } from '@fortawesome/pro-solid-svg-icons'
 import { ErrorBoundary } from 'react-error-boundary'
 import { UI } from '../../state/ui'
-import { patchEncryptedMessage, patchMessage } from './remote'
+import { patchEncryptedMessage, patchMessage } from '@/api/messages'
 import Editor from '../../components/Editor'
-import { Chat } from './state'
+import { Chat } from '@/state/chat'
 import { withHistory } from 'slate-history'
 import { withReact } from 'slate-react'
 import { withMentions } from '../../utils/slate'
 import { createEditor } from 'slate'
 import Invite from './embeds/Invite'
 import Mention from './Mention'
-import { useCurrentUser, useUser } from '../../user/state'
+import { useCurrentUser, useUser } from '@/hooks/users'
 import File from './embeds/File'
-import { Keychain } from '../../keychain/state'
-import { getProduct, getResource } from '../community/remote'
+import { Keychain } from '@/state/keychain'
+import { getProduct, getResource } from '@/api/communities'
 import Avatar from '../../components/Avatar'
 import {
   EncryptedMessage,

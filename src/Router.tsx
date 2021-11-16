@@ -1,43 +1,23 @@
-import {
-  FC,
-  memo,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  useCallback
-} from 'react'
-import { useLocation, useMedia } from 'react-use'
-// import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
-
-import { PrivateRoute } from './views/authentication/PrivateRoute'
-import Community from './views/community/Community'
+import { FC, memo, Suspense, useMemo } from 'react'
+import { useMedia } from 'react-use'
 import { UI } from './state/ui'
-import Settings from './views/settings/Settings'
 import Conversation, {
   ConversationView
 } from './views/conversation/Conversation'
-import Sidebar from './sidebar/Sidebar'
+import { SideBar } from './components/Layout'
 import { AnimatePresence } from 'framer-motion'
-import { Loader } from '@/components/Feedback'
-import { Auth } from './views/authentication/state'
+import { Auth } from '@/state/auth'
 import { Home, Downloads, OnBoarding } from './views/Marketing'
-import { isPlatform } from '@ionic/react'
 import { Call } from './state/call'
 import Current from './views/call/Current'
 import EventSource from './events'
 import { ContextMenu } from '@/components/Overlay'
 import { Plugins } from '@capacitor/core'
-import { clientGateway } from './utils/constants'
-import Invite from './views/invite/Invite'
-import Admin from './views/admin/Admin'
-import { useQuery } from 'react-query'
-import { getCommunities } from './user/remote'
 import { useSuspenseStorageItem } from './utils/storage'
 import Modal from './components/Modals'
 import { Permission } from './utils/permissions'
 import Hub from './views/hub/Hub'
-import { useCommunities, useConversations } from './user/state'
+import { useCommunities, useConversations } from '@/hooks/users'
 import {
   Navigate,
   Outlet,
@@ -51,8 +31,6 @@ import Empty from './views/conversation/empty/Empty'
 import { SideView } from '@/components/Layout'
 import { faStoreAlt } from '@fortawesome/pro-solid-svg-icons'
 import Friends from './views/hub/friends/Friends'
-import Store from './views/hub/store/Store'
-import Product from './views/hub/store/Product'
 import Channels from './views/community/sidebar/Sidebar'
 
 const { PushNotifications } = Plugins
@@ -273,7 +251,7 @@ const AppLayout = () => {
         <OnBoarding />
       ) : (
         <>
-          <Sidebar />
+          <SideBar />
           <Outlet />
         </>
       )}

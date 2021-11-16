@@ -1,14 +1,14 @@
 import { FC } from 'react'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import styles from './styles.module.scss'
-import { register } from '../remote'
+import { register } from '@/api/auth'
 import { BarLoader } from 'react-spinners'
-import { Auth } from '../state'
+import { Auth } from '@/state/auth'
 import * as Yup from 'yup'
 import axios from 'axios'
 import { Heading, Wrapper } from './styles'
 import { Link, useNavigate } from 'react-location'
-import { Keychain } from '../../../keychain/state'
+import { Keychain } from '@/state/keychain'
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email'),

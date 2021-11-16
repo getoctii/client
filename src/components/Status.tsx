@@ -8,16 +8,16 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC } from 'react'
 import queryClient from '../utils/queryClient'
-import { Auth } from '../views/authentication/state'
+import { Auth } from '@/state/auth'
 import { clientGateway } from '../utils/constants'
 import { UI } from '../state/ui'
-import { State } from '../user/remote'
+import { State } from '@/api/users'
 import { Button, Input } from '@/components/Form'
 import styles from './Status.module.scss'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
 import { BarLoader } from 'react-spinners'
 import * as Yup from 'yup'
-import { useCurrentUser } from '@/user/state'
+import { useCurrentUser } from '@/hooks/users'
 
 const updateStatus = async (id: string, state: State, token: string) => {
   await clientGateway.patch(

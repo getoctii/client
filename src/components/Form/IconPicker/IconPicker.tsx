@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileUpload } from '@fortawesome/pro-solid-svg-icons'
 import axios from 'axios'
 import { faPoop } from '@fortawesome/pro-solid-svg-icons'
-import { Auth } from '@/views/authentication/state'
+import { Auth } from '@/state/auth'
 
 const IconPicker: FC<{
   alt: string

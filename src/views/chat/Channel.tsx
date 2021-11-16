@@ -7,7 +7,7 @@ import {
   clientGateway,
   InternalChannelTypes
 } from '../../utils/constants'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import { useDropArea, useMedia } from 'react-use'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -28,19 +28,19 @@ import { useHistory, useParams } from 'react-router-dom'
 import Box from './Box'
 import Typing from '../../state/typing'
 import { Button } from '@/components/Form'
-import { ChannelResponse, getChannel } from './remote'
 import Messages from './Messages'
-import { fetchManyUsers, getKeychain, getUser } from '../../user/remote'
-import { Chat, useChannel } from './state'
+import { getUser } from '@/api/users'
+import { ChannelResponse } from '@/api/messages'
+import { useChannel } from '@/hooks/messages'
+import { Chat } from '@/state/chat'
 import { Permission } from '../../utils/permissions'
 import AddParticipant from './AddParticipant'
 import { VoiceCard } from '../community/voice/VoiceChannel'
 import { Call } from '../../state/call'
-import { useCurrentUser, useUser } from '../../user/state'
-import { ConversationMember, ConversationType } from '../conversation/remote'
-import { EncryptionPair } from '@innatical/inncryption'
-import { useConversation } from '../conversation/state'
-import { Keychain } from '../../keychain/state'
+import { useCurrentUser, useUser } from '@/hooks/users'
+import { ConversationMember, ConversationType } from '@/api/conversations'
+import { useConversation } from '@/hooks/conversations'
+import { Keychain } from '@/state/keychain'
 
 const TypingIndicator: FC<{
   channelID: string

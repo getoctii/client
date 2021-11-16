@@ -1,15 +1,15 @@
 import { FC } from 'react'
 import styles from './FriendCard.module.scss'
-import { Auth } from '../../authentication/state'
+import { Auth } from '@/state/auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUserTimes, faUserCheck } from '@fortawesome/pro-solid-svg-icons'
-import Icon from '../../../user/Icon'
-import { useUser } from '../../../user/state'
+import { Icon } from '@/domain/User'
+import { useUser } from '@/hooks/users'
 import {
   deleteRelationship,
   putRelationship,
   RelationshipType
-} from '../../../user/remote'
+} from '@/api/users'
 
 const FriendCardView: FC<{
   userID: string

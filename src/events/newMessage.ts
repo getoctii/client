@@ -1,26 +1,13 @@
 import { useEffect } from 'react'
-import { EventSourcePolyfill } from 'event-source-polyfill'
-import { useQuery } from 'react-query'
 import queryClient from '../utils/queryClient'
-import { isPlatform } from '@ionic/react'
 import Typing from '../state/typing'
-import { Plugins } from '@capacitor/core'
-import { Events, MessageTypes } from '../utils/constants'
-import { Auth } from '../views/authentication/state'
-import {
-  getKeychain,
-  getUser,
-  // ParticipantsResponse,
-  State,
-  Unreads,
-  UserResponse
-} from '../user/remote'
+import { Events } from '../utils/constants'
+import { Auth } from '@/state/auth'
 import { log } from '../utils/logging'
-import { Chat } from '../views/chat/state'
-import { parseMarkdown } from '@innatical/markdown'
+import { Chat } from '@/state/chat'
 import { useSuspenseStorageItem } from '../utils/storage'
-import { ChannelResponse, MessageResponse } from '../views/chat/remote'
-import { Keychain } from '../keychain/state'
+import { ChannelResponse, MessageResponse } from '@/api/messages'
+import { Keychain } from '@/state/keychain'
 // import {
 //   decryptMessage,
 //   importEncryptedMessage,
@@ -28,7 +15,7 @@ import { Keychain } from '../keychain/state'
 // } from '@innatical/inncryption'
 // import { ExportedEncryptedMessage } from '@innatical/inncryption/dist/types'
 import { Socket } from 'socket.io-client'
-import { useCurrentUser } from '../user/state'
+import { useCurrentUser } from '@/hooks/users'
 
 // interface Message {
 //   self_encrypted_content: ExportedEncryptedMessage

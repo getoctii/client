@@ -3,9 +3,9 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../views/authentication/state'
+import { Auth } from '@/state/auth'
 import { useHistory } from 'react-router-dom'
-import { CommunityResponse } from '../views/community/remote'
+import { CommunityResponse } from '@/api/communities'
 
 const useDeletedMember = (eventSource: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()

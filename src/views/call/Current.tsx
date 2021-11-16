@@ -11,13 +11,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, useMemo } from 'react'
 import { Call } from '../../state/call'
 import styles from './Current.module.scss'
-import { getChannel } from '../chat/remote'
-import { Auth } from '../authentication/state'
-import { useQueries, useQuery } from 'react-query'
+import { Auth } from '@/state/auth'
+import { useQueries } from 'react-query'
 import { useHistory } from 'react-router-dom'
-import { fetchManyUsers, getUser } from '../../user/remote'
-import { useChannel } from '../chat/state'
-import { useConversationMembers } from '../conversation/state'
+import { getUser } from '@/api/users'
+import { useChannel } from '@/hooks/messages'
+import { useConversationMembers } from '@/hooks/conversations'
 
 const Current: FC = () => {
   const { token, id } = Auth.useContainer()

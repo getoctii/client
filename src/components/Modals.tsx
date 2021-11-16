@@ -5,28 +5,28 @@ import { useMedia } from 'react-use'
 import { ModalTypes } from '../utils/constants'
 import AddParticipant from '../views/chat/AddParticipant'
 import { Alert } from '@/components/Overlay'
-import { NewCommunity } from '../sidebar/NewCommunity'
+import { NewCommunity } from '@/modals/Community'
 import NewConversation from '../views/conversation/NewConversation'
-import { NewGroup } from '../views/community/settings/groups/NewGroup'
+import {
+  AddIntegration,
+  NewGroup,
+  NewChannel,
+  NewInvite,
+  ManageGroups,
+  NewProduct,
+  NewResource,
+  NewVersion
+} from '@/modals/Community'
 import File from '../views/chat/embeds/File'
-import NewChannel from '../views/community/NewChannel'
-import NewInvite from '../views/community/NewInvite'
-import ManageGroups from '../views/community/ManageGroups'
 import { UI } from '../state/ui'
 import { Permission } from '../utils/permissions'
 import Update from './Update'
 import Status from './Status'
 import AddFriend from '../views/hub/friends/AddFriend'
-import NewProduct from '../views/community/integrations/NewProduct'
-import NewResource from '../views/community/integrations/product/pages/NewResource'
-import NewVersion from '../views/community/integrations/product/pages/NewVersion'
-import PreviewUser from '../user/PreviewUser'
-import GenerateKeychain from '../keychain/GenerateKeychain'
-import DecryptKeychain from '../keychain/DecryptKeychain'
+import PreviewUser from '@/domain/User/PreviewUser'
 import MFAModal from '../views/authentication/MFAModal'
 import CodePrompt from '../views/authentication/CodePrompt'
 import Ringing from '../views/call/Ringing'
-import AddIntegration from '../views/community/AddIntegration'
 
 const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
   switch (name) {
@@ -64,10 +64,6 @@ const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
       return <NewVersion {...props} />
     case ModalTypes.PREVIEW_USER:
       return <PreviewUser {...props} />
-    case ModalTypes.GENERATE_KEYCHAIN:
-      return <GenerateKeychain {...props} />
-    case ModalTypes.DECRYPT_KEYCHAIN:
-      return <DecryptKeychain {...props} />
     case ModalTypes.ENABLED_2FA:
       return <MFAModal {...props} />
     case ModalTypes.CODE_PROMPT:

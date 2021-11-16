@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Navbar, Footer } from '@/components/Marketing'
+import { Navbar, Footer } from '@/domain/Marketing'
 import styles from './Downloads.module.scss'
 import { Button } from '@/components/Form'
 

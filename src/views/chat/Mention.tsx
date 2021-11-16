@@ -1,10 +1,10 @@
 import { FC } from 'react'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import { useQuery } from 'react-query'
 import styles from './Mention.module.scss'
-import { getChannel } from './remote'
+import { getChannel } from '@/api/messages'
 import { useHistory } from 'react-router-dom'
-import { useUser } from '../../user/state'
+import { useUser } from '@/hooks/users'
 
 const User: FC<{
   userID: string

@@ -7,10 +7,9 @@ import {
   Permissions
 } from '../../../utils/constants'
 import ChannelCard from './channel/ChannelCard'
-import { useQueries, useQuery } from 'react-query'
-import queryClient from '../../../utils/queryClient'
-import { Auth } from '../../authentication/state'
-import { ChannelResponse, getChannels } from '../remote'
+import { useQueries } from 'react-query'
+import { Auth } from '@/state/auth'
+import { ChannelResponse } from '@/api/communities'
 import {
   DragDropContext,
   Droppable,
@@ -26,8 +25,8 @@ import { faPlus } from '@fortawesome/pro-solid-svg-icons'
 import { Permission } from '../../../utils/permissions'
 import { UI } from '../../../state/ui'
 import { useMatch } from 'react-location'
-import { useChannels } from '../state'
-import { getChannel } from '../../chat/remote'
+import { useChannels } from '@/hooks/communities'
+import { getChannel } from '@/api/messages'
 
 const insert = (
   list: ChannelResponse[],

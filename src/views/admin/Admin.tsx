@@ -4,13 +4,9 @@ import { useMedia } from 'react-use'
 import { Redirect, Switch, useRouteMatch } from 'react-router-dom'
 import { PrivateRoute } from '../authentication/PrivateRoute'
 import styles from './Admin.module.scss'
-import { Auth } from '../authentication/state'
-import { useQuery } from 'react-query'
-import { getUser } from '../../user/remote'
 import Codes from './Codes'
 import Newsletters from './Newsletters'
-import Sidebar from '../../sidebar/Sidebar'
-import Sideview from '../../components/Sideview'
+import { SideView, SideBar } from '@/components/Layout'
 import {
   faClipboardList,
   faNewspaper,
@@ -19,7 +15,8 @@ import {
 // import GitInfo from 'react-git-info/macro'
 // import dayjs from 'dayjs'
 import Queue from './store/Queue'
-import StatusBar from '../../components/StatusBar'
+import { StatusBar } from '@/components/Layout'
+import { useCurrentUser } from '@/hooks/users'
 
 // const gitInfo = GitInfo()
 
@@ -27,8 +24,7 @@ const Admin: FC = () => {
   const isMobile = useMedia('(max-width: 740px)')
   const { path } = useRouteMatch()
   const match = useRouteMatch<{ page: string }>('/admin/:page')
-  const auth = Auth.useContainer()
-  const { data: user } = useQuery(['users', auth.id, auth.token], getUser)
+  const user = useCurrentUser()
 
   const tabs = useMemo(() => {
     const items = [
@@ -63,11 +59,11 @@ const Admin: FC = () => {
   if (user && user.discriminator) throw new Error('InvalidAuthorization')
   return user?.discriminator === 0 ? (
     <>
-      {isMobile && !match && <Sidebar />}
+      {isMobile && !match && <SideBar />}
       <StatusBar sidebar={!match}>
         <div className={styles.admin}>
           {!isMobile && (
-            <Sideview name={'Admin'} tabs={tabs}>
+            <SideView name={'Admin'} tabs={tabs}>
               {/* <p className={styles.buildInfo}>
                 <strong>Branch:</strong> <kbd>{gitInfo.branch}</kbd>
                 <br />
@@ -80,7 +76,7 @@ const Admin: FC = () => {
                 <br />
                 <kbd>{gitInfo.commit.message}</kbd>
               </p> */}
-            </Sideview>
+            </SideView>
           )}
           <div className={styles.pages}>
             <Suspense fallback={<></>}>
@@ -92,7 +88,7 @@ const Admin: FC = () => {
                     path={path}
                     exact
                     component={() => (
-                      <Sideview name={'Admin'} tabs={tabs}>
+                      <SideView name={'Admin'} tabs={tabs}>
                         {/* <p className={styles.buildInfo}>
                           <strong>Branch:</strong> <kbd>{gitInfo.branch}</kbd>
                           <br />
@@ -106,7 +102,7 @@ const Admin: FC = () => {
                           <br />
                           <kbd>{gitInfo.commit.message}</kbd>
                         </p> */}
-                      </Sideview>
+                      </SideView>
                     )}
                   />
                 )}

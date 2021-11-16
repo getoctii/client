@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events, Permissions } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../views/authentication/state'
-import { GroupResponse, MemberResponse } from '../views/community/remote'
-import { MembersResponse } from '../user/remote'
+import { Auth } from '@/state/auth'
+import { GroupResponse, MemberResponse } from '@/api/communities'
+import { MembersResponse } from '@/api/users'
 import queryClient from '../utils/queryClient'
 
 const useUpdatedGroup = (eventSource: EventSourcePolyfill | null) => {

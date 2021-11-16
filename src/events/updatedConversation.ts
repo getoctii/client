@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { EventSourcePolyfill } from 'event-source-polyfill'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../views/authentication/state'
-import { ParticipantsResponse } from '../user/remote'
+import { Auth } from '@/state/auth'
+import { ParticipantsResponse } from '@/api/users'
 import queryClient from '../utils/queryClient'
 
 const useUpdatedConversation = (eventSource: EventSourcePolyfill | null) => {

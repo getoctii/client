@@ -2,7 +2,7 @@ import { FC } from 'react'
 import styles from './NewConversation.module.scss'
 import { Input, Button } from '@/components/Form'
 import { Field, Form, Formik } from 'formik'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationCircle, faSearch } from '@fortawesome/pro-solid-svg-icons'
 import queryClient from '../../utils/queryClient'
@@ -13,7 +13,7 @@ import {
   createConversation,
   findUser,
   validate
-} from './remote'
+} from '@/api/conversations'
 
 const NewConversation: FC = () => {
   const { id, token } = Auth.useContainer()

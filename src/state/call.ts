@@ -1,6 +1,6 @@
 import { createContainer } from '@innatical/innstate'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Auth } from '../views/authentication/state'
+import { Auth } from '@/state/auth'
 
 declare global {
   interface MediaDevices {

@@ -1,15 +1,15 @@
 import { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useQueries, useQuery } from 'react-query'
 import styles from './Mentions.module.scss'
-import { fetchManyUsers, getUser, UserResponse } from '../../user/remote'
-import { Auth } from '../authentication/state'
+import { getUser, UserResponse } from '@/api/users'
+import { Auth } from '@/state/auth'
 import { clientGateway } from '../../utils/constants'
 import { useDebounce, useMedia } from 'react-use'
-import { ChannelResponse, getChannels, getMembers } from '../community/remote'
+import { ChannelResponse, getChannels, getMembers } from '@/api/communities'
 import { useParams, useRouteMatch } from 'react-router-dom'
 import { ErrorBoundary } from 'react-error-boundary'
-import { useConversation, useConversationMembers } from '../conversation/state'
-import { useChannels } from '../community/state'
+import { useConversation, useConversationMembers } from '@/hooks/conversations'
+import { useChannels } from '@/hooks/communities'
 
 type onMention = (id: string, type: 'user' | 'channel') => void
 

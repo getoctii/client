@@ -2,14 +2,14 @@ import { FC, memo, Suspense, useCallback, useEffect, useState } from 'react'
 import styles from './Community.module.scss'
 import Chat from '../chat/Channel'
 import { Redirect, Switch, useParams, useRouteMatch } from 'react-router-dom'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import Channels from './sidebar/Sidebar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Settings from './settings/Settings'
-import { CommunityResponse } from './remote'
+import { CommunityResponse } from '@/api/communities'
 import { PrivateRoute } from '../authentication/PrivateRoute'
 import { useMedia } from 'react-use'
-import Sidebar from '../../sidebar/Sidebar'
+import { SideBar } from '@/components/Layout'
 import Members from './integrations/Members'
 import { ChannelTypes, Permissions } from '../../utils/constants'
 import { Helmet } from 'react-helmet-async'
@@ -18,15 +18,15 @@ import { faLock } from '@fortawesome/pro-solid-svg-icons'
 import EmptyCommunity from './EmptyCommunity'
 import { Permission } from '../../utils/permissions'
 import { useMemo } from 'react'
-import { EditChannel } from './EditChannel'
+import { EditChannel } from '@/modals/Community'
 import { List, Header } from '@/components/Layout'
 import { Placeholder } from '@/components/Layout/Header/Header'
 import { Error } from '@/components/Feedback'
 import Products from './integrations/Products'
 import Product from './integrations/product/Product'
 import VoiceChannel from './voice/VoiceChannel'
-import { useChannels, useCommunity } from './state'
-import { useChannel } from '../chat/state'
+import { useChannels, useCommunity } from '@/hooks/communities'
+import { useChannel } from '@/hooks/messages'
 
 const NoPermission: FC<CommunityResponse> = ({ name }) => (
   <div className={styles.noPermission}>
@@ -230,7 +230,7 @@ const Router: FC = () => {
   const isMobile = useMedia('(max-width: 740px)')
   return (
     <>
-      {isMobile && !matchTab && <Sidebar />}
+      {isMobile && !matchTab && <SideBar />}
       <ErrorBoundary
         fallbackRender={({ error, resetErrorBoundary }) => (
           <Error

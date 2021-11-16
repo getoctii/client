@@ -3,11 +3,11 @@ import { EventSourcePolyfill } from 'event-source-polyfill'
 import queryClient from '../utils/queryClient'
 import { Events } from '../utils/constants'
 import { log } from '../utils/logging'
-import { Auth } from '../views/authentication/state'
-import { MemberResponse } from '../views/community/remote'
-import { MembersResponse } from '../user/remote'
+import { Auth } from '@/state/auth'
+import { MemberResponse } from '@/api/communities'
+import { MembersResponse } from '@/api/users'
 
-const useDeletedGroup = (eventSource: EventSourcePolyfill | null) => {
+const useDeletedGroup = (eventSoure: EventSourcePolyfill | null) => {
   const { id, token } = Auth.useContainer()
   useEffect(() => {
     if (!eventSource) return
