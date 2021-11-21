@@ -40,6 +40,7 @@
     },
     "channels": {
       "background": "#2C1A25",
+      "card": "",
       "seperator": "#383838"
     },
     "chat": {
@@ -110,6 +111,7 @@
     },
     "channels": {
       "background": "#FFFFFF",
+      "card": "",
       "seperator": "#F1F1F1"
     },
     "chat": {

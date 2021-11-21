@@ -29,7 +29,7 @@ const useChat = () => {
     async (content: string, sessionKey?: SymmetricKey) => {
       if (!token || !channelID) return
       console.log(keychain)
-      if (user?.keychain.publicKeychain)
+      if (sessionKey && user?.keychain.publicKeychain)
         await postEncryptedMessage(
           channelID,
           content,

@@ -1,5 +1,4 @@
-import StoreHeader from './StoreHeader'
-import Featured from './Featured'
+import { StoreFeatured, StoreHeader } from '@/domain/Hub'
 import styles from './Store.module.scss'
 import { useMedia } from 'react-use'
 import { Header } from '@/components/Layout'
@@ -22,7 +21,7 @@ const Store: FC = () => {
         </>
       )}
       <StoreHeader />
-      <Featured />
+      <StoreFeatured />
     </div>
   )
 }

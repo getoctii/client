@@ -5,9 +5,7 @@ import { Redirect, Switch, useHistory, useRouteMatch } from 'react-router-dom'
 import { Auth } from '@/state/auth'
 import { useQuery } from 'react-query'
 import { InternalChannelTypes } from '../../utils/constants'
-import { Conversations } from './Conversations'
 import { useLocation, useMedia } from 'react-use'
-import Empty from './empty/Empty'
 import { SideBar } from '@/components/Layout'
 import dayjs from 'dayjs'
 import { useSuspenseStorageItem } from '../../utils/storage'
@@ -18,7 +16,7 @@ import { useConversation, useConversationMembers } from '@/hooks/conversations'
 import { useConversations } from '@/hooks/users'
 import { useMatch } from 'react-location'
 
-export const ConversationView: FC = () => {
+const Conversation: FC = () => {
   const {
     params: { id: conversationID }
   } = useMatch()
@@ -55,137 +53,83 @@ export const ConversationView: FC = () => {
   )
 }
 
-const ConversationProvider: FC = () => {
-  const { id, token } = Auth.useContainer()
-  const [lastConversation] = useSuspenseStorageItem<string>('last-conversation')
-  const match = useRouteMatch<{ id: string }>('/conversations/:id')
+export default Conversation
 
-  const history = useHistory()
-  const isMobile = useMedia('(max-width: 740px)')
-  const conversations = useConversations()
+// const ConversationProvider: FC = () => {
+//   const { id, token } = Auth.useContainer()
+//   const [lastConversation] = useSuspenseStorageItem<string>('last-conversation')
+//   const match = useRouteMatch<{ id: string }>('/conversations/:id')
 
-  useEffect(() => {
-    if (!match?.params.id && conversations.length > 0 && !isMobile) {
-      history.push(
-        `/conversations/${
-          lastConversation &&
-          conversations.find(
-            (conversation) => conversation === lastConversation
-          )
-            ? lastConversation
-            : conversations[0]
-        }`
-      )
-    } else if (
-      match?.params.id &&
-      conversations.length === 0 &&
-      conversations.find((conversation) => conversation !== match.params.id)
-    ) {
-      history.push('/')
-    } else if (
-      match?.params.id &&
-      conversations.length > 0 &&
-      !conversations.find((conversation) => conversation === match.params.id)
-    ) {
-      history.push(`/conversations/${conversations[0]}`)
-    }
-  }, [conversations, isMobile, lastConversation, match?.params.id, history])
+//   const history = useHistory()
+//   const isMobile = useMedia('(max-width: 740px)')
+//   const conversations = useConversations()
 
-  return (
-    <>
-      {match &&
-      conversations?.find(
-        (conversation) => conversation === match.params.id
-      ) ? (
-        <Permission.Provider>
-          <ConversationView />
-        </Permission.Provider>
-      ) : isMobile ? (
-        <>
-          <SideBar />
-          <Conversations />
-        </>
-      ) : (
-        <></>
-      )}
-    </>
-  )
-}
+//   useEffect(() => {
+//     if (!match?.params.id && conversations.length > 0 && !isMobile) {
+//       history.push(
+//         `/conversations/${
+//           lastConversation &&
+//           conversations.find(
+//             (conversation) => conversation === lastConversation
+//           )
+//             ? lastConversation
+//             : conversations[0]
+//         }`
+//       )
+//     } else if (
+//       match?.params.id &&
+//       conversations.length === 0 &&
+//       conversations.find((conversation) => conversation !== match.params.id)
+//     ) {
+//       history.push('/')
+//     } else if (
+//       match?.params.id &&
+//       conversations.length > 0 &&
+//       !conversations.find((conversation) => conversation === match.params.id)
+//     ) {
+//       history.push(`/conversations/${conversations[0]}`)
+//     }
+//   }, [conversations, isMobile, lastConversation, match?.params.id, history])
 
-const Redirects: FC = () => {
-  const { id, token } = Auth.useContainer()
-  const { path } = useRouteMatch()
-  const conversations = useConversations()
-  const isMobile = useMedia('(max-width: 740px)')
+//   return (
+//     <>
+//       {match &&
+//       conversations?.find(
+//         (conversation) => conversation === match.params.id
+//       ) ? (
+//         <Permission.Provider>
+//           <ConversationView />
+//         </Permission.Provider>
+//       ) : isMobile ? (
+//         <>
+//           <SideBar />
+//           <Conversations />
+//         </>
+//       ) : (
+//         <></>
+//       )}
+//     </>
+//   )
+// }
 
-  const location = useLocation()
+// const Redirects: FC = () => {
+//   const { id, token } = Auth.useContainer()
+//   const { path } = useRouteMatch()
+//   const conversations = useConversations()
+//   const isMobile = useMedia('(max-width: 740px)')
 
-  if (!conversations) return <></>
+//   const location = useLocation()
 
-  if (conversations.length === 0 && location.pathname !== `${path}/empty`)
-    return <Redirect to={`${path}/empty`} />
+//   if (!conversations) return <></>
 
-  if (
-    conversations.length > 0 &&
-    !isMobile &&
-    (location.pathname === path || location.pathname === `${path}/empty`)
-  )
-    return <Redirect to={`${path}/${conversations?.[0]}`} />
-  return <></>
-}
+//   if (conversations.length === 0 && location.pathname !== `${path}/empty`)
+//     return <Redirect to={`${path}/empty`} />
 
-const Nested: FC = () => {
-  const { path } = useRouteMatch()
-  const isMobile = useMedia('(max-width: 740px)')
-  return (
-    <>
-      {!isMobile && <Conversations />}
-      <Suspense fallback={<Chat.Placeholder />}>
-        <Switch>
-          <PrivateRoute
-            path={`${path}/:id`}
-            component={ConversationProvider}
-            exact
-          />
-          {isMobile && (
-            <PrivateRoute
-              path={path}
-              exact
-              component={() => (
-                <>
-                  <SideBar />
-                  <Conversations />
-                </>
-              )}
-            />
-          )}
-        </Switch>
-      </Suspense>
-    </>
-  )
-}
-
-const ConversationRouter: FC = () => {
-  const { path } = useRouteMatch()
-  const isMobile = useMedia('(max-width: 740px)')
-
-  return (
-    <>
-      <Redirects />
-      <Switch>
-        <PrivateRoute
-          render={() => (
-            <>
-              {isMobile && <SideBar />}
-              <Empty />
-            </>
-          )}
-          path={`${path}/empty`}
-        />
-        <Nested />
-      </Switch>
-    </>
-  )
-}
-
-export default ConversationRouter
+//   if (
+//     conversations.length > 0 &&
+//     !isMobile &&
+//     (location.pathname === path || location.pathname === `${path}/empty`)
+//   )
+//     return <Redirect to={`${path}/${conversations?.[0]}`} />
+//   return <></>
+// }

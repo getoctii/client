@@ -17,7 +17,7 @@ export const useChannels = (communityID?: string) => {
 export const useCommunity = (communityID?: string) => {
   const { token } = Auth.useContainer()
   const { data: community } = useQuery(
-    ['communities', token],
+    ['community', communityID, token],
     async () => getCommunity(communityID!, token!),
     {
       enabled: !!token && !!communityID

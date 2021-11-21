@@ -41,6 +41,7 @@ import { useCurrentUser, useUser } from '@/hooks/users'
 import { ConversationMember, ConversationType } from '@/api/conversations'
 import { useConversation } from '@/hooks/conversations'
 import { Keychain } from '@/state/keychain'
+import { useMatch } from 'react-location'
 
 const TypingIndicator: FC<{
   channelID: string
@@ -115,7 +116,9 @@ const Header: FC<{
 }
 
 const CommunityChannelView: FC = () => {
-  const { id, channelID } = useParams<{ id: string; channelID: string }>()
+  const {
+    params: { id, channelID }
+  } = useMatch()
   return (
     <ChannelView
       type={InternalChannelTypes.CommunityChannel}
@@ -335,7 +338,7 @@ const ChannelView: FC<{
         otherDMUser!.keychain.publicKeychain.encryption
       ),
     {
-      enabled: !!otherDMUser
+      enabled: !!otherDMUser && !communityID
     }
   )
 
@@ -460,7 +463,10 @@ const ChannelView: FC<{
         </div>
         <Suspense fallback={<Messages.Placeholder />}>
           {channelID ? (
-            <Messages.View channelID={channelID} sessionKey={sessionKey} />
+            <Messages.View
+              channelID={channelID}
+              conversationID={conversationID}
+            />
           ) : (
             <Messages.Placeholder />
           )}

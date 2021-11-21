@@ -32,10 +32,8 @@ const Community: FC<{
   id: string
   index: number
 }> = memo(({ id: communityID, index }) => {
-  const { token, id } = Auth.useContainer()
   const matchRoute = useMatchRoute()
   const navigate = useNavigate()
-
   const community = useCommunity(communityID)
   // const unreads = useQuery(['unreads', id, token], getUnreads)
   // const mentions = useQuery(['mentions', id, token], getMentions)
@@ -70,7 +68,11 @@ const Community: FC<{
           return navigate({ to: `/app/communities/${communityID}` })
         }}
       >
-        <img src={community?.icon} alt={community?.name} />
+        {community?.icon ? (
+          <img src={community?.icon} alt={community?.name} />
+        ) : (
+          <Avatar username={community?.name} size='sidebar' />
+        )}
         {/* {match?.params.id !== community.id &&
           (mentionsCount && mentionsCount > 0 ? (
             <div
@@ -111,7 +113,6 @@ const Placeholder: FC = () => {
 
 const Communities: FC = () => {
   const isMobile = useMedia('(max-width: 740px)')
-  const { id, token } = Auth.useContainer()
   const communities = useCommunities()
   const [communitiesOrder, setCommunitiesOrder] =
     useSuspenseStorageItem<string[]>('communities')

@@ -1,6 +1,12 @@
 import { useQuery } from 'react-query'
 import { Auth } from '@/state/auth'
-import { getConversation, getConversationMembers } from '@/api/conversations'
+import {
+  ConversationType,
+  getConversation,
+  getConversationMembers
+} from '@/api/conversations'
+import { getUser } from '@/api/users'
+import { Keychain } from '@/state/keychain'
 
 export const useConversation = (conversationID?: string) => {
   const { token } = Auth.useContainer()
@@ -26,4 +32,42 @@ export const useConversationMembers = (conversationID?: string) => {
   )
 
   return members ?? []
+}
+
+export const useOtherDMUser = (conversationID?: string) => {
+  const { token, id } = Auth.useContainer()
+  const conversation = useConversation(conversationID)
+  const members = useConversationMembers(conversationID)
+
+  const { data: otherDMUser } = useQuery(
+    ['users', members?.find((m) => m.userID !== id)?.userID, token],
+    () => getUser(members!.find((m) => m.userID !== id)!.userID, token!),
+    {
+      enabled:
+        conversation?.type === ConversationType.DM &&
+        !!token &&
+        !!members?.find((m) => m.userID !== id)
+    }
+  )
+
+  return otherDMUser
+}
+
+export const useSessionKey = (conversationID?: string) => {
+  console.log(conversationID)
+  const otherDMUser = useOtherDMUser(conversationID)
+  console.log(otherDMUser)
+  const { keychain } = Keychain.useContainer()
+  const { data: sessionKey } = useQuery(
+    ['sessionKey', otherDMUser?.keychain.publicKeychain.encryption],
+    () =>
+      keychain!.encryption.sessionKey(
+        otherDMUser!.keychain.publicKeychain.encryption
+      ),
+    {
+      enabled: !!otherDMUser && !!conversationID
+    }
+  )
+
+  return sessionKey
 }

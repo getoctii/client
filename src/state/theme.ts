@@ -61,6 +61,7 @@ export const themeSchema = Yup.object({
   }).defined(),
   channels: Yup.object({
     background: Yup.string().defined(),
+    card: Yup.string().defined(),
     seperator: Yup.string().defined()
   }).defined(),
   chat: Yup.object({
@@ -201,6 +202,7 @@ const useTheme = () => {
       '--neko-modal-background': currentTheme.modal.background,
       '--neko-modal-foreground': currentTheme.modal.foreground,
       '--neko-channels-background': currentTheme.channels.background,
+      '--neko-channels-card': currentTheme.channels.card,
       '--neko-channels-seperator': currentTheme.channels.seperator,
       '--neko-chat-background': currentTheme.chat.background,
       '--neko-chat-hover': currentTheme.chat.hover,

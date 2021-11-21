@@ -1,9 +1,7 @@
 import { FC, memo, Suspense, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { UI } from './state/ui'
-import Conversation, {
-  ConversationView
-} from './views/conversation/Conversation'
+import Conversation from './views/conversation/Conversation'
 import { SideBar } from './components/Layout'
 import { AnimatePresence } from 'framer-motion'
 import { Auth } from '@/state/auth'
@@ -16,7 +14,6 @@ import { Plugins } from '@capacitor/core'
 import { useSuspenseStorageItem } from './utils/storage'
 import Modal from './components/Modals'
 import { Permission } from './utils/permissions'
-import Hub from './views/hub/Hub'
 import { useCommunities, useConversations } from '@/hooks/users'
 import {
   Navigate,
@@ -26,12 +23,12 @@ import {
 } from 'react-location'
 import { Login } from './views/authentication/Login'
 import { Register } from './views/authentication/Register'
-import { Conversations } from './views/conversation/Conversations'
-import Empty from './views/conversation/empty/Empty'
+import { ConversationList, ConversationEmpty } from '@/domain/Conversation'
 import { SideView } from '@/components/Layout'
 import { faStoreAlt } from '@fortawesome/pro-solid-svg-icons'
-import Friends from './views/hub/friends/Friends'
-import Channels from './views/community/sidebar/Sidebar'
+import { FriendList } from '@/domain/Hub'
+import { SideBar as CommunitySideBar } from '@/domain/Community'
+import Channel from './views/chat/Channel'
 
 const { PushNotifications } = Plugins
 
@@ -61,43 +58,6 @@ const IncomingCall: FC = () => {
     <></>
   )
 }
-
-// const MarketingRouter: FC = () => {
-//   const auth = Auth.useContainer()
-//   const isPWA = useMedia('(display-mode: standalone)')
-
-//   return (
-//     <Switch>
-//       {!isPlatform('capacitor') && !isPWA ? (
-//         <Route path='/home' component={Home} exact />
-//       ) : (
-//         <Redirect path='/home' to='/authenticate/login' exact />
-//       )}
-//       {isPlatform('capacitor') || isPWA ? (
-//         <Redirect path='/downloads' to='/authenticate/login' exact />
-//       ) : (
-//         <PrivateRoute path='/downloads' component={Downloads} exact />
-//       )}
-//       <Route
-//         path={'/invite/:invite/:code?'}
-//         component={() => (
-//           <>
-//             {auth.authenticated && <Sidebar />}
-//             <Invite />
-//           </>
-//         )}
-//         exact
-//       />
-//       <Route path='/authenticate' component={Authenticate} />
-//       {!auth.authenticated && (
-//         <Redirect
-//           path='/'
-//           to={isPlatform('capacitor') ? '/authenticate/login' : '/home'}
-//         />
-//       )}
-//     </Switch>
-//   )
-// }
 
 // const OnboardingHandler: FC<{
 //   onboardingStateChange: (state: boolean) => void
@@ -269,7 +229,7 @@ const AppLayout = () => {
 const CommunityLayout = () => {
   return (
     <Permission.Provider>
-      <Channels.View />
+      <CommunitySideBar.View />
       <Outlet />
     </Permission.Provider>
   )
@@ -279,10 +239,10 @@ const ConversationsLayout = () => {
   const conversations = useConversations()
 
   return (conversations?.length ?? 0) < 1 ? (
-    <Empty />
+    <ConversationEmpty />
   ) : (
     <>
-      <Conversations />
+      <ConversationList />
       <Outlet />
     </>
   )
@@ -301,7 +261,7 @@ const HubLayout = () => {
             link: '/app/hub/store'
           }
         ]}
-        children={<Friends />}
+        children={<FriendList />}
       />
       <Outlet />
     </>
@@ -344,7 +304,7 @@ export const Router: FC = memo(() => {
                 children: [
                   {
                     path: ':id',
-                    element: <ConversationView />
+                    element: <Conversation />
                   }
                 ]
               },
@@ -360,7 +320,7 @@ export const Router: FC = memo(() => {
                         children: [
                           {
                             path: '/',
-                            element: <></>
+                            element: <Channel.Community />
                           },
                           {
                             path: 'settings',

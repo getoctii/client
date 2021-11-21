@@ -3,7 +3,7 @@ import styles from './Community.module.scss'
 import Chat from '../chat/Channel'
 import { Redirect, Switch, useParams, useRouteMatch } from 'react-router-dom'
 import { Auth } from '@/state/auth'
-import Channels from './sidebar/Sidebar'
+import { SideBar as Channels } from '@/domain/Community'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Settings from './settings/Settings'
 import { CommunityResponse } from '@/api/communities'
@@ -15,7 +15,7 @@ import { ChannelTypes, Permissions } from '../../utils/constants'
 import { Helmet } from 'react-helmet-async'
 import { ErrorBoundary } from 'react-error-boundary'
 import { faLock } from '@fortawesome/pro-solid-svg-icons'
-import EmptyCommunity from './EmptyCommunity'
+import { CommunityEmpty } from '@/domain/Community'
 import { Permission } from '../../utils/permissions'
 import { useMemo } from 'react'
 import { EditChannel } from '@/modals/Community'
@@ -27,6 +27,7 @@ import Product from './integrations/product/Product'
 import VoiceChannel from './voice/VoiceChannel'
 import { useChannels, useCommunity } from '@/hooks/communities'
 import { useChannel } from '@/hooks/messages'
+import { useMatch } from 'react-location'
 
 const NoPermission: FC<CommunityResponse> = ({ name }) => (
   <div className={styles.noPermission}>
@@ -42,8 +43,9 @@ const NoPermission: FC<CommunityResponse> = ({ name }) => (
 )
 
 const Channel: FC = () => {
-  const { id, channelID } = useParams<{ id: string; channelID: string }>()
-  const auth = Auth.useContainer()
+  const {
+    params: { id, channelID }
+  } = useMatch()
   const channel = useChannel(channelID)
   if (!channel) return <></>
   return channel.type === ChannelTypes.TEXT ? (

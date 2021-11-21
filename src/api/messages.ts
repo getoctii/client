@@ -44,7 +44,7 @@ export interface MessageResponse {
   payload: EncryptedMessage | { content: string }
 }
 
-export const getMessage = async (_: string, messageID: string, token: string) =>
+export const getMessage = async (messageID: string, token: string) =>
   !messageID
     ? undefined
     : (

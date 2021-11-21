@@ -53,6 +53,7 @@ import {
   SigningPair,
   SymmetricKey
 } from '@innatical/inncryption'
+import { useDecryptMessage } from '@/hooks/messages'
 
 const { Clipboard } = Plugins
 dayjs.extend(dayjsUTC)
@@ -127,8 +128,9 @@ const MessageView: FC<{
   authorID: string
   createdAt: string
   updatedAt: string
-  content?: string | EncryptedMessage
+  payload: { content: string } | EncryptedMessage
   primary: boolean
+  conversationID?: string
   richContent?: {
     username?: string
     avatar?: string
@@ -140,12 +142,19 @@ const MessageView: FC<{
       action: number
     }[]
   }
-  sessionKey?: SymmetricKey
 }> = memo(
-  ({ id, authorID, createdAt, primary, content, richContent, sessionKey }) => {
+  ({
+    id,
+    authorID,
+    createdAt,
+    updatedAt,
+    primary,
+    payload,
+    richContent,
+    conversationID
+  }) => {
     const auth = Auth.useContainer()
     const user = useUser(authorID)
-    const { keychain } = Keychain.useContainer()
     const {} = Chat.useContainer()
 
     ///////// well, that would make sense
@@ -196,39 +205,14 @@ const MessageView: FC<{
       }
     )
 
-    const { data: messageContent } = useQuery(
-      ['messageContent', content, sessionKey, keychain],
-      async () => {
-        if (typeof content === 'string') {
-          return content
-        } else {
-          try {
-            if (sessionKey && content) {
-              const message = (await sessionKey.decrypt(
-                content
-              )) as SignedMessage
-              if (!user?.keychain.publicKeychain.signing)
-                return 'Signing key not found'
-              const unwrapped = await SigningPair.verify(
-                message,
-                user.keychain.publicKeychain.signing
-              )
-              if (unwrapped.ok) {
-                return (unwrapped.message as { content: string }).content
-              } else {
-                return 'Unable to decrypt message'
-              }
-            }
-          } catch (error) {
-            console.error(error)
-          }
-          return 'Unable to decrypt message'
-        }
-      },
-      {
-        enabled: !!sessionKey
-      }
-    )
+    console.log(payload)
+    const messageContent = useDecryptMessage({
+      id,
+      authorID,
+      payload,
+      conversationID
+    })
+    console.log(messageContent)
     const uiStore = UI.useContainer()
     const { editingMessageID, setEditingMessageID } = Chat.useContainerSelector(
       ({ editingMessageID, setEditingMessageID }) => ({
@@ -315,6 +299,7 @@ const MessageView: FC<{
       // hasPermissions,
       messageContent
     ])
+    console.log(messageContent)
     const output = useMarkdown(messageContent!, {
       bold: (str, key) => <strong key={key}>{str}</strong>,
       italic: (str, key) => <i key={key}>{str}</i>,
@@ -482,8 +467,6 @@ const MessageView: FC<{
                       className={styles.badge}
                       icon={faUserNinja}
                     />
-                  ) : user?.id === '71df7ca2-93c5-4a8a-be6e-f068fd91d68e' ? (
-                    <FontAwesomeIcon className={styles.badge} icon={faHeart} />
                   ) : (
                     // ) : type === MessageTypes.WEBHOOK ? (
                     // <FontAwesomeIcon className={styles.badge} icon={faEthernet} />
@@ -496,11 +479,6 @@ const MessageView: FC<{
                       />
                     )
                   )}
-                  {typeof content === 'object' ? (
-                    <FontAwesomeIcon className={styles.badge} icon={faLock} />
-                  ) : (
-                    <></>
-                  )}
                 </span>
                 <span className={styles.time}>
                   {dayjs.utc(createdAt).local().calendar()}
@@ -512,7 +490,7 @@ const MessageView: FC<{
                 id={id}
                 content={messageContent!}
                 onDismiss={() => setEditingMessageID(undefined)}
-                encrypted={typeof content === 'object' ? true : false}
+                encrypted={typeof payload === 'object' ? true : false}
               />
             ) : (
               <p key={id} className={styles.selectable}>

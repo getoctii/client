@@ -17,9 +17,9 @@ const { Keyboard } = Plugins
 
 dayjs.extend(dayjsUTC)
 
-const MessagesView: FC<{ channelID: string; sessionKey?: SymmetricKey }> = ({
+const MessagesView: FC<{ channelID: string; conversationID?: string }> = ({
   channelID,
-  sessionKey
+  conversationID
 }) => {
   const {
     tracking,
@@ -220,13 +220,9 @@ const MessagesView: FC<{ channelID: string; sessionKey?: SymmetricKey }> = ({
               // type={message.type}
               authorID={message.authorID}
               createdAt={message.createdAt}
-              content={
-                'content' in message.payload
-                  ? message.payload.content
-                  : message.payload
-              }
+              payload={message.payload}
               updatedAt={message.updatedAt}
-              sessionKey={sessionKey}
+              conversationID={conversationID}
               // richContent={message.rich_content}
             />
           </Suspense>

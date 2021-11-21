@@ -26,16 +26,15 @@
     margin-top: 0.5rem;
 
     .tab {
-      border-radius: 14px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      padding-top: 0.6rem;
-      padding-bottom: 0.6rem;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
       cursor: pointer;
 
       .icon {
         margin-right: 0.5rem;
-        padding: 0.5rem;
         color: var(--neko-text-inverse);
         border-radius: 10px;
       }
@@ -48,8 +47,6 @@
       @media (max-width: 740px) {
         .icon {
           font-size: 1.05rem;
-          border-radius: 12px;
-          padding: 0.58rem;
         }
         h4 {
           font-size: 1.05rem;
@@ -61,71 +58,14 @@
         height: 2.5rem;
         width: 2.5rem;
       }
-
-      &.primary {
-        .icon {
-          background: var(--neko-colors-primary);
-        }
-      }
-
-      &.warning {
-        .icon {
-          background: var(--neko-colors-warning);
-        }
-      }
-
-      &.danger {
-        .icon {
-          background: var(--neko-colors-danger);
-        }
-      }
-
-      &.secondary {
-        .icon {
-          background: var(--neko-colors-secondary);
-        }
-      }
     }
 
     .selected {
-      color: var(--neko-text-inverse);
       margin-left: -0.6rem;
       padding-left: 0.6rem;
       margin-right: -0.6rem;
       padding-right: 0.6rem;
-
-      &.primary {
-        background: var(--neko-colors-primary);
-
-        .icon {
-          color: var(--neko-text-primary);
-          background: var(--neko-text-inverse);
-        }
-      }
-
-      &.warning {
-        background: var(--neko-colors-warning);
-        .icon {
-          color: var(--neko-text-warning);
-          background: var(--neko-text-inverse);
-        }
-      }
-
-      &.danger {
-        background: var(--neko-colors-danger);
-        .icon {
-          color: var(--neko-text-danger);
-          background: var(--neko-text-inverse);
-        }
-      }
-
-      &.secondary {
-        background: var(--neko-colors-secondary);
-        .icon {
-          color: var(--neko-text-secondary);
-          background: var(--neko-text-inverse);
-        }
-      }
+      background-color: var(--neko-channels-card);
     }
   }
 

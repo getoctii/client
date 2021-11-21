@@ -36,6 +36,7 @@
     },
     "channels": {
       "background": "#000000",
+      "card": "",
       "seperator": "#383838"
     },
     "mention": {
@@ -114,6 +115,7 @@
     },
     "channels": {
       "background": "#FFFFFF",
+      "card": "",
       "seperator": "#F1F1F1"
     },
     "chat": {
