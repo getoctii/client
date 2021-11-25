@@ -58,10 +58,6 @@ const CategoryCardView: FC<{
   items: string[]
   index: number
 }> = ({ id, name, items, index }) => {
-  const matchTab = useRouteMatch<{ id: string; channelID: string }>(
-    '/communities/:id/channels/:channelID'
-  )
-  const history = useHistory()
   const auth = Auth.useContainer()
   const ui = UI.useContainer()
   const { hasPermissions } = Permission.useContainer()
@@ -93,10 +89,7 @@ const CategoryCardView: FC<{
           text: 'Edit Channel',
           icon: faPen,
           danger: false,
-          onClick: async () =>
-            history.push(
-              `/communities/${matchTab?.params.id}/channels/${id}/settings`
-            )
+          onClick: async () => {}
         },
         {
           text: 'Delete Channel',
@@ -117,7 +110,7 @@ const CategoryCardView: FC<{
       )
     }
     return items
-  }, [hasPermissions, id, deleteChannel, ui, history, matchTab?.params.id])
+  }, [hasPermissions, id, deleteChannel, ui, history])
 
   const DraggableComponent = useCallback(
     (provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (

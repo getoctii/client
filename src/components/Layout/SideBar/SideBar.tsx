@@ -15,10 +15,10 @@ import { useMedia } from 'react-use'
 import { State } from '@/api/users'
 import { ModalTypes } from '@/utils/constants'
 import { useSuspenseStorageItem } from '@/utils/storage'
-import { useCommunities, useUser } from '@/hooks/users'
+import { useCommunities, useCurrentUser, useUser } from '@/hooks/users'
 import { FC } from 'react'
 import { useCommunity } from '@/hooks/communities'
-import { useMatchRoute, useNavigate } from 'react-location'
+import { useMatches, useMatchRoute, useNavigate } from 'react-location'
 import Avatar from '@/components/Avatar/Avatar'
 
 const reorder = (
@@ -37,7 +37,7 @@ const Community: FC<{
   id: string
   index: number
 }> = memo(({ id: communityID, index }) => {
-  const matchRoute = useMatchRoute()
+  const matches = useMatches()
   const navigate = useNavigate()
   const community = useCommunity(communityID)
   // const unreads = useQuery(['unreads', id, token], getUnreads)
@@ -61,7 +61,7 @@ const Community: FC<{
         key={communityID}
         style={provided.draggableProps.style}
         className={
-          matchRoute({ to: `/app/communities/${communityID}` })
+          matches.find((p) => p.params.id === communityID)
             ? `${styles.icon} ${styles.selected}`
             : styles.icon
         }
@@ -69,7 +69,7 @@ const Community: FC<{
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         onClick={() => {
-          if (matchRoute({ to: `/app/communities/${communityID}` })) return
+          if (matches.find((p) => p.params.id === communityID)) return
           return navigate({ to: `/app/communities/${communityID}` })
         }}
       >
@@ -95,7 +95,7 @@ const Community: FC<{
           ))} */}
       </div>
     ),
-    [communityID, community, history]
+    [communityID, community, matches]
   )
 
   return (
@@ -175,11 +175,10 @@ const Communities: FC = () => {
 
 const SideBar: FC = () => {
   const ui = UI.useContainer()
-  const auth = Auth.useContainer()
   const isMobile = useMedia('(max-width: 740px)')
   const matchRoute = useMatchRoute()
   const navigate = useNavigate()
-  const user = useUser(auth.id ?? undefined)
+  const user = useCurrentUser()
 
   // const scrollRef = useRef<HTMLDivElement>(null)
   // const currentScrollPosition = useScroll(scrollRef)
@@ -344,7 +343,7 @@ const SideBar: FC = () => {
                   navigate({ to: '/app/settings' })
                 }}
               /> */}
-              {matchRoute({ to: '/app/settings' }) && user?.state && (
+              {!matchRoute({ to: '/app/settings' }) && user?.state && (
                 <div
                   className={`${styles.badge} ${
                     user.state === State.ONLINE

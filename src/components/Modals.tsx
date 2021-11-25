@@ -20,7 +20,6 @@ import File from '../views/chat/embeds/File'
 import { UI } from '../state/ui'
 import { Permission } from '../utils/permissions'
 import Update from './Update'
-import Status from './Status'
 import { AddFriend } from '@/modals/Hub'
 import PreviewUser from '@/domain/User/PreviewUser'
 import MFAModal from '../views/authentication/MFAModal'
@@ -170,8 +169,6 @@ const Modals: FC = () => {
               </motion.div>
             </motion.div>
           )
-        ) : uiStore.modal.name === ModalTypes.STATUS ? (
-          <Status />
         ) : (
           <></>
         )}

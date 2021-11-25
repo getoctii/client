@@ -54,6 +54,13 @@ import {
 import { getUser } from '@/api/users'
 import { AddMember } from '@/domain/Conversation'
 
+const StateString = {
+  ONLINE: 'Online',
+  OFFLINE: 'Offline',
+  DND: 'Do Not Disturb',
+  IDLE: 'Idle'
+}
+
 const ConversationMember: FC<{
   id: string
   permission: ConversationMemberPermission
@@ -128,7 +135,7 @@ const ConversationMember: FC<{
               <></>
             )}
           </h1>
-          <p>{user?.status ?? 'Offline'}</p>
+          <p>{user?.status ?? StateString[user?.state ?? 'OFFLINE']}</p>
         </MemberDetails>
       </ConversationMemberCard>
     </ContextMenu.Wrapper>

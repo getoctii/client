@@ -7,11 +7,11 @@ import {
 } from '@fortawesome/pro-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC } from 'react'
-import queryClient from '../utils/queryClient'
+import queryClient from '@/utils/queryClient'
 import { Auth } from '@/state/auth'
-import { clientGateway } from '../utils/constants'
-import { UI } from '../state/ui'
-import { State } from '@/api/users'
+import { clientGateway } from '@/utils/constants'
+import { UI } from '@/state/ui'
+import { State, UserResponse } from '@/api/users'
 import { Button, Input } from '@/components/Form'
 import styles from './Status.module.scss'
 import { ErrorMessage, Field, Form, Formik } from 'formik'
@@ -19,9 +19,9 @@ import { BarLoader } from 'react-spinners'
 import * as Yup from 'yup'
 import { useCurrentUser } from '@/hooks/users'
 
-const updateStatus = async (id: string, state: State, token: string) => {
+const updateStatus = async (state: State, token: string) => {
   await clientGateway.patch(
-    `/users/${id}`,
+    `/users/me`,
     { state },
     {
       headers: {
@@ -29,7 +29,15 @@ const updateStatus = async (id: string, state: State, token: string) => {
       }
     }
   )
-  await queryClient.refetchQueries(['users', id, token])
+  await queryClient.setQueryData<UserResponse>(
+    ['currentUser', token],
+    (initial) => {
+      return {
+        ...initial!,
+        state
+      }
+    }
+  )
 }
 
 const StatusSchema = Yup.object().shape({
@@ -38,29 +46,19 @@ const StatusSchema = Yup.object().shape({
     .max(140, 'Too long, must be less then 140 characters.')
 })
 
-const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
+const Status = () => {
   const { id, token } = Auth.useContainer()
   const ui = UI.useContainer()
   const user = useCurrentUser()
   return (
     <div className={styles.status}>
-      <h1>
-        Status
-        {isClosable ? (
-          <span onClick={() => ui.clearModal()}>
-            <FontAwesomeIcon icon={faTimesCircle} />
-          </span>
-        ) : (
-          <></>
-        )}
-      </h1>
       <div className={styles.statusButtons}>
         <Button
           type='button'
           className={`${styles.online} ${
             user?.state == State.ONLINE ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.ONLINE, token)}
+          onClick={() => id && token && updateStatus(State.ONLINE, token)}
         >
           <FontAwesomeIcon icon={faCircle} />
         </Button>
@@ -69,7 +67,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
           className={`${styles.idle} ${
             user?.state == State.IDLE ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.IDLE, token)}
+          onClick={() => id && token && updateStatus(State.IDLE, token)}
         >
           <FontAwesomeIcon icon={faMoon} />
         </Button>
@@ -78,7 +76,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
           className={`${styles.dnd} ${
             user?.state == State.DND ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.DND, token)}
+          onClick={() => id && token && updateStatus(State.DND, token)}
         >
           <FontAwesomeIcon icon={faStopCircle} />
         </Button>
@@ -87,7 +85,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
           className={`${styles.offline} ${
             user?.state == State.OFFLINE ? styles.active : null
           }`}
-          onClick={() => id && token && updateStatus(id, State.OFFLINE, token)}
+          onClick={() => id && token && updateStatus(State.OFFLINE, token)}
         >
           <FontAwesomeIcon icon={faSignOutAlt} />
         </Button>
@@ -101,7 +99,7 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
           onSubmit={async ({ status }, { setSubmitting }) => {
             try {
               await clientGateway.patch(
-                `/users/${id}`,
+                `/users/me`,
                 {
                   status
                 },
@@ -111,7 +109,15 @@ const Status: FC<{ isClosable?: boolean }> = ({ isClosable = true }) => {
                   }
                 }
               )
-              await queryClient.invalidateQueries(['users', id])
+              await queryClient.setQueryData<UserResponse>(
+                ['currentUser', token],
+                (initial) => {
+                  return {
+                    ...initial!,
+                    status
+                  }
+                }
+              )
             } finally {
               setSubmitting(false)
             }

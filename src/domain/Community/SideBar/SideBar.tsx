@@ -77,6 +77,20 @@ const SidebarView: FC = () => {
                 <FontAwesomeIcon icon={faUserPlus} fixedWidth />
               </div>
             )}
+            {hasPermissions([Permissions.MANAGE_CHANNELS]) && (
+              <div
+                className={styles.menuItem}
+                onClick={() =>
+                  ui.setModal({
+                    name: ModalTypes.NEW_CHANNEL,
+                    props: { communityID: community?.id }
+                  })
+                }
+              >
+                <span>Create Channel</span>{' '}
+                <FontAwesomeIcon icon={faUserPlus} fixedWidth />
+              </div>
+            )}
             <div
               className={styles.menuItem}
               onClick={() => {

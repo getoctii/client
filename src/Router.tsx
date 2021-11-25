@@ -1,4 +1,4 @@
-import { FC, memo, Suspense, useMemo } from 'react'
+import { FC, memo, Suspense, useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { UI } from './state/ui'
 import Conversation from './views/conversation/Conversation'
@@ -19,7 +19,8 @@ import {
   Navigate,
   Outlet,
   ReactLocation,
-  Router as BrowserRouter
+  Router as BrowserRouter,
+  useNavigate
 } from 'react-location'
 import { Login } from './views/authentication/Login'
 import { Register } from './views/authentication/Register'
@@ -36,8 +37,7 @@ import { FriendList } from '@/domain/Hub'
 import { SideBar as CommunitySideBar } from '@/domain/Community'
 import Channel from './views/chat/Channel'
 import Profile from './views/settings/Profile'
-
-const { PushNotifications } = Plugins
+import { Status } from '@/domain/User'
 
 const reactLocation = new ReactLocation()
 
@@ -65,135 +65,6 @@ const IncomingCall: FC = () => {
     <></>
   )
 }
-
-// const OnboardingHandler: FC<{
-//   onboardingStateChange: (state: boolean) => void
-// }> = ({ onboardingStateChange }) => {
-//   const auth = Auth.useContainer()
-
-//   const [onboardingComplete] = useSuspenseStorageItem<boolean>(
-//     'onboarding-complete',
-//     false
-//   )
-//   const communities = useCommunities()
-//   const conversations = useConversations()
-
-//   const showOnBoarding = useMemo(() => {
-//     return (
-//       (communities?.length ?? 0) < 1 &&
-//       (conversations?.length ?? 0) < 1 &&
-//       !onboardingComplete
-//     )
-//   }, [communities?.length, conversations?.length, onboardingComplete])
-
-//   useEffect(() => {
-//     onboardingStateChange(showOnBoarding)
-//   }, [showOnBoarding, onboardingStateChange])
-
-//   return <></>
-// }
-
-// const AppRouter: FC = () => {
-//   const auth = Auth.useContainer()
-//   const isMobile = useMedia('(max-width: 740px)')
-//   const isPWA = useMedia('(display-mode: standalone)')
-//   const call = Call.useContainer()
-//   useEffect(() => {
-//     if (auth.authenticated && isPlatform('capacitor')) {
-//       PushNotifications.addListener('registration', async (token) => {
-//         await clientGateway.post(
-//           `/users/${auth.id}/notifications`,
-//           {
-//             token: token.value,
-//             platform: 'ios'
-//           },
-//           {
-//             headers: {
-//               authorization: auth.token
-//             }
-//           }
-//         )
-//       })
-
-//       if (localStorage.getItem('requested-notifications') !== 'true') {
-//         PushNotifications.requestPermission()
-//           .then(async ({ granted }) => {
-//             if (granted) {
-//               await PushNotifications.register()
-//               localStorage.setItem('requested-notifications', 'true')
-//             }
-//           })
-//           .catch(console.error)
-//       }
-//     }
-//     return () => {
-//       if (isPlatform('capacitor')) PushNotifications.removeAllListeners()
-//     }
-//   }, [auth])
-
-//   const [showOnBoarding, setShowOnBoarding] = useState(false)
-
-//   const onboardingHandler = useCallback((state: boolean) => {
-//     setShowOnBoarding(state)
-//   }, [])
-
-//   return (
-//     <>
-//       <OnboardingHandler onboardingStateChange={onboardingHandler} />
-//       {/* <EventSource /> */}
-//       <Suspense fallback={<></>}>
-//         {showOnBoarding ? (
-//           <OnBoarding />
-//         ) : (
-//           <>
-//             <Switch>
-//               <PrivateRoute
-//                 path='/settings'
-//                 render={() => (
-//                   <>
-//                     {isMobile && <Sidebar />}
-//                     <Suspense fallback={<Loader />}>
-//                       <Settings />
-//                     </Suspense>
-//                   </>
-//                 )}
-//               />
-//               <PrivateRoute path={'/admin'} render={Admin} />
-//               <PrivateRoute path='/communities/:id' render={Community} />
-//               <PrivateRoute
-//                 path={'/conversations'}
-//                 render={Conversation}
-//                 redirect={
-//                   isPlatform('mobile') || isPWA
-//                     ? '/authenticate/login'
-//                     : '/home'
-//                 }
-//               />
-//               <PrivateRoute
-//                 path={'/hub'}
-//                 render={() => (
-//                   <>
-//                     {isMobile && <Sidebar />}
-//                     <Suspense fallback={<Loader />}>
-//                       <Hub />
-//                     </Suspense>
-//                   </>
-//                 )}
-//               />
-//               <Redirect path={'/'} to={'/conversations'} exact />
-//             </Switch>
-//           </>
-//         )}
-//       </Suspense>
-//       {!isMobile && (
-//         <>
-//           <Suspense fallback={<></>}>{call.room && <Current />}</Suspense>
-//         </>
-//       )}
-//       <IncomingCall />
-//     </>
-//   )
-// }
 
 const AppLayout = () => {
   const [onboardingComplete] = useSuspenseStorageItem<boolean>(
@@ -300,7 +171,9 @@ const SettingsLayout = () => {
             link: '/settings/themes'
           }
         ]}
-      />
+      >
+        <Status />
+      </SideView>
       <Outlet />
     </>
   )
@@ -308,6 +181,19 @@ const SettingsLayout = () => {
 const Index = () => {
   const { authenticated } = Auth.useContainer()
   return authenticated ? <Navigate to={'/app'} /> : <Navigate to={'/home'} />
+}
+
+const ConversationRedirect = () => {
+  const [lastConversation] = useSuspenseStorageItem<string>('last-conversation')
+  const conversations = useConversations()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (lastConversation)
+      navigate({ to: `/app/conversations/${lastConversation}` })
+    else navigate({ to: `/app/conversations/${conversations[0]}` })
+  }, [lastConversation, navigate, conversations])
+  return <></>
 }
 
 export const Router: FC = memo(() => {
@@ -339,6 +225,10 @@ export const Router: FC = memo(() => {
                 path: 'conversations',
                 element: <ConversationsLayout />,
                 children: [
+                  {
+                    path: '/',
+                    element: <ConversationRedirect />
+                  },
                   {
                     path: ':id',
                     element: <Conversation />
