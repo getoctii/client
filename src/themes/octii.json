@@ -3,11 +3,11 @@
   "name": "Octii",
   "dark": {
     "colors": {
-      "primary": "linear-gradient(224deg, #75C8FF 0%, #007FFF 100%)",
+      "primary": "#1089FF",
       "secondary": "linear-gradient(224deg, #A3A3A3 0%, #636363 100%)",
       "success": "#8f8f8f",
       "info": "#8f8f8f",
-      "danger": "linear-gradient(224deg, #FC9D9D 0%, #F86464 100%)",
+      "danger": "#F86464",
       "warning": "linear-gradient(224deg, #FFD575 0%, #FF7200 100%)",
       "light": "#dadada",
       "dark": "#040a0f"
@@ -25,27 +25,31 @@
       "other": "#687DB2"
     },
     "sidebar": {
-      "background": "#040a0f",
+      "background": "#121214",
       "seperator": "#383838",
       "shadow": " 0 -9px 10px 0 rgba(0, 0, 0, 0.42)"
     },
     "backgrounds": {
-      "primary": "#040a0f",
-      "secondary": "#1A1F2C"
+      "primary": "#121214",
+      "secondary": "#1B1C1D"
     },
     "settings": {
-      "background": "#040a0f",
-      "card": "#1A1F2C",
-      "input": "#040a0f"
+      "background": "#121214",
+
+      "card": "#1B1C1D",
+      "input": "#121214"
     },
     "channels": {
-      "background": "#1A1F2C",
-      "card": "#252C3D",
-      "seperator": "#383838"
+      "background": "#1B1C1D",
+      "search": "#242526",
+      "shadow": "0 3 7px 0 rgba(24, 24, 24, 0.5)",
+      "card": "#242526",
+      "seperator": "#303030"
     },
     "chat": {
-      "background": "#040a0f",
-      "hover": "#1A1F2CAC"
+      "background": "#121214",
+      "seperator": "#1F1F1F",
+      "hover": "#151515"
     },
     "context": {
       "seperator": "#040a0f",
@@ -64,7 +68,7 @@
       "message": "string"
     },
     "input": {
-      "background": "#1A1F2C",
+      "background": "#191919",
       "text": "#ffffff"
     },
     "modal": {

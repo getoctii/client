@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { FC } from 'react'
-import Avatar from '@/components/Avatar'
+import Avatar from '@/components/Avatar/Avatar'
 import styles from './Icon.module.scss'
 import { State } from '@/api/users'
 

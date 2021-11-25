@@ -83,7 +83,8 @@ export const ContextWrapper: FC<{
   message?: string
   children: React.ReactNode
   items: ContextMenuItems
-}> = ({ title, message, children, items }) => {
+  disabled?: boolean
+}> = ({ title, message, children, items, disabled }) => {
   const { setContextMenu } = UI.useContainer()
   const [touchTimeout, setTouchTimeout] = useState<any>()
   return (
@@ -100,6 +101,7 @@ export const ContextWrapper: FC<{
       <div
         style={{ zIndex: 2 }}
         onTouchStart={(event) => {
+          if (disabled) return
           if (isPlatform('mobile')) {
             event.preventDefault()
             setTouchTimeout(
@@ -135,6 +137,7 @@ export const ContextWrapper: FC<{
           }
         }}
         onMouseDown={(event) => {
+          if (disabled) return
           if (event.buttons === 2 && !isPlatform('mobile')) {
             const itemsSize = items.length * 34 + 15
             if (window.innerHeight - (event.pageY + itemsSize) < 20) {

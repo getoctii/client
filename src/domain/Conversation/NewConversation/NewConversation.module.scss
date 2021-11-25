@@ -10,8 +10,8 @@
       font-size: 0.8rem;
       font-weight: 400;
       width: 100%;
-      background: var(--neko-sidebar-background);
-
+      background: var(--neko-channels-search);
+      box-shadow: var(--neko-channels-shadow);
       &::-webkit-input-placeholder {
         color: var(--neko-text-normal);
         opacity: 0.5;

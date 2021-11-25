@@ -21,7 +21,7 @@ import { useChannel, useDecryptMessage, useMessage } from '@/hooks/messages'
 import { useConversation, useConversationMembers } from '@/hooks/conversations'
 import { useMatch, useMatchRoute, useNavigate } from 'react-location'
 import { ConversationType } from '@/api/conversations'
-import Avatar from '@/components/Avatar'
+import Avatar from '@/components/Avatar/Avatar'
 import { SignedMessage, SigningPair } from '@innatical/inncryption'
 import { useCurrentUser } from '@/hooks/users'
 import useMarkdown from '@innatical/markdown'
@@ -185,12 +185,22 @@ const ConversationCardView: FC<{
       }
     })
   )
-
   const conversationName = useMemo(() => {
     if (conversation?.type === ConversationType.DM)
-      return users.filter(({ data: user }) => user?.id !== userID)[0]?.data
-        ?.username
-    else return users?.map(({ data: user }) => user?.username).join(', ')
+      return users.length > 0
+        ? users.filter(({ data: user }) => user?.id !== userID)[0]?.data
+            ?.username
+        : 'Empty Group'
+    else
+      return (
+        conversation?.name ??
+        (users.filter(({ data: user }) => user?.id !== userID).length > 0
+          ? users
+              .filter(({ data: user }) => user?.id !== userID)
+              ?.map(({ data: user }) => user?.username)
+              .join(', ')
+          : 'Empty Group')
+      )
   }, [conversation, users])
 
   const conversationIcon = useMemo(() => {
@@ -228,12 +238,11 @@ const ConversationCardView: FC<{
       )
     } else
       return (
-        <div className={styles.groupIcon}>
+        <Avatar username={conversationID} size='conversation'>
           <FontAwesomeIcon icon={faUserFriends} />
-        </div>
+        </Avatar>
       )
   }, [conversation, users])
-  console.log(id)
   return (
     <ContextMenu.Wrapper
       title={users?.map(({ data: user }) => user?.username).join(', ') || ''}

@@ -22,7 +22,8 @@ import {
   faUserPlus,
   faVolumeUp,
   faVolumeMute,
-  faAt
+  faAt,
+  faUserGroup
 } from '@fortawesome/pro-solid-svg-icons'
 import { useHistory, useParams } from 'react-router-dom'
 import Box from './Box'
@@ -34,7 +35,7 @@ import { ChannelResponse } from '@/api/messages'
 import { useChannel } from '@/hooks/messages'
 import { Chat } from '@/state/chat'
 import { Permission } from '../../utils/permissions'
-import AddParticipant from './AddParticipant'
+import { AddMember } from '@/domain/Conversation'
 import { VoiceCard } from '../community/voice/VoiceChannel'
 import { Call } from '../../state/call'
 import { useCurrentUser, useUser } from '@/hooks/users'
@@ -87,9 +88,10 @@ const PrivateName: FC<{ id?: string }> = ({ id }) => {
 
 const Header: FC<{
   members?: ConversationMember[]
-  type: InternalChannelTypes
+  type?: ConversationType
   channel?: ChannelResponse
-}> = ({ members, type, channel }) => {
+  name?: string
+}> = ({ members, type, channel, name }) => {
   const { token } = Auth.useContainer()
 
   const users = useQueries(
@@ -103,10 +105,14 @@ const Header: FC<{
 
   return (
     <div className={styles.title}>
-      {type === InternalChannelTypes.PrivateChannel ? (
-        <PrivateName id={members?.[0].userID} />
-      ) : type === InternalChannelTypes.GroupChannel ? (
-        users?.map((i) => i.data?.username).join(', ')
+      {type === ConversationType.DM ? (
+        (members ?? []).length > 0 ? (
+          <PrivateName id={members?.[0].userID} />
+        ) : (
+          'Empty Group'
+        )
+      ) : type === ConversationType.GROUP ? (
+        name ?? users?.map((i) => i.data?.username).join(', ')
       ) : (
         channel?.name
       )}
@@ -338,7 +344,7 @@ const ChannelView: FC<{
         otherDMUser!.keychain.publicKeychain.encryption
       ),
     {
-      enabled: !!otherDMUser && !communityID
+      enabled: !!otherDMUser && conversation?.type === ConversationType.DM
     }
   )
 
@@ -375,23 +381,25 @@ const ChannelView: FC<{
                 />
               </div>
             ) : (
-              <div
-                className={styles.icon}
-                style={
-                  channel?.color
-                    ? {
-                        backgroundColor: channel?.color
-                      }
-                    : {
-                        background: 'var(--neko-colors-primary)'
-                      }
-                }
-              >
-                <FontAwesomeIcon icon={conversationID ? faAt : faHashtag} />
+              <div className={styles.icon}>
+                <FontAwesomeIcon
+                  icon={
+                    conversation?.type === ConversationType.DM
+                      ? faAt
+                      : conversation?.type === ConversationType.GROUP
+                      ? faUserGroup
+                      : faHashtag
+                  }
+                />
               </div>
             )}
             <Suspense fallback={<></>}>
-              <Header type={type} members={members} channel={channel} />
+              <Header
+                type={conversation?.type}
+                members={members}
+                channel={channel}
+                name={conversation?.name}
+              />
             </Suspense>
             <div className={styles.buttonGroup}>
               {/* {voiceChannel && room?.channelID !== voiceChannel.id ? (
@@ -427,10 +435,8 @@ const ChannelView: FC<{
               ) : (
                 <></>
               )} */}
-              {type === InternalChannelTypes.PrivateChannel ||
-              type === InternalChannelTypes.GroupChannel ? (
-                <Button
-                  type='button'
+              {conversation?.type === ConversationType.DM && (
+                <div
                   onClick={() => {
                     setShowAddParticipant(!showAddParticipant)
                   }}
@@ -438,14 +444,11 @@ const ChannelView: FC<{
                   <FontAwesomeIcon
                     icon={showAddParticipant ? faTimes : faUserPlus}
                   />
-                </Button>
-              ) : (
-                <></>
+                </div>
               )}
             </div>
             {showAddParticipant && (
-              <AddParticipant
-                isPrivate={type === InternalChannelTypes.PrivateChannel}
+              <AddMember
                 groupID={
                   type === InternalChannelTypes.GroupChannel
                     ? conversationID

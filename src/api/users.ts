@@ -53,6 +53,7 @@ export type UserResponse = {
   state: State
   createdAt: Date
   updatedAt: Date
+  email?: string
   badges: string[]
   flags: string[]
   keychain: {

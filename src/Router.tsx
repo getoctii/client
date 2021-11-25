@@ -25,10 +25,17 @@ import { Login } from './views/authentication/Login'
 import { Register } from './views/authentication/Register'
 import { ConversationList, ConversationEmpty } from '@/domain/Conversation'
 import { SideView } from '@/components/Layout'
-import { faStoreAlt } from '@fortawesome/pro-solid-svg-icons'
+import {
+  faPaintBrush,
+  faReceipt,
+  faShieldAlt,
+  faStoreAlt,
+  faUser
+} from '@fortawesome/pro-solid-svg-icons'
 import { FriendList } from '@/domain/Hub'
 import { SideBar as CommunitySideBar } from '@/domain/Community'
 import Channel from './views/chat/Channel'
+import Profile from './views/settings/Profile'
 
 const { PushNotifications } = Plugins
 
@@ -268,6 +275,36 @@ const HubLayout = () => {
   )
 }
 
+const SettingsLayout = () => {
+  return (
+    <>
+      <SideView
+        name={'Settings'}
+        tabs={[
+          {
+            name: 'Profile',
+            icon: faUser,
+            color: 'primary',
+            link: '/settings/profile'
+          },
+          {
+            name: 'Security',
+            icon: faShieldAlt,
+            color: 'danger',
+            link: '/settings/security'
+          },
+          {
+            name: 'Themes',
+            icon: faPaintBrush,
+            color: 'warning',
+            link: '/settings/themes'
+          }
+        ]}
+      />
+      <Outlet />
+    </>
+  )
+}
 const Index = () => {
   const { authenticated } = Auth.useContainer()
   return authenticated ? <Navigate to={'/app'} /> : <Navigate to={'/home'} />
@@ -334,7 +371,17 @@ export const Router: FC = memo(() => {
               },
               {
                 path: 'settings',
-                element: <></>
+                element: <SettingsLayout />,
+                children: [
+                  {
+                    path: '/',
+                    element: <Navigate to={'/app/settings/profile'} />
+                  },
+                  {
+                    path: 'profile',
+                    element: <Profile />
+                  }
+                ]
               },
               {
                 path: 'hub',

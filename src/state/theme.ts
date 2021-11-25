@@ -62,10 +62,13 @@ export const themeSchema = Yup.object({
   channels: Yup.object({
     background: Yup.string().defined(),
     card: Yup.string().defined(),
+    search: Yup.string().defined(),
+    shadow: Yup.string().defined(),
     seperator: Yup.string().defined()
   }).defined(),
   chat: Yup.object({
     background: Yup.string().defined(),
+    seperator: Yup.string().defined(),
     hover: Yup.string().defined()
   }).defined(),
   status: Yup.object({
@@ -203,8 +206,11 @@ const useTheme = () => {
       '--neko-modal-foreground': currentTheme.modal.foreground,
       '--neko-channels-background': currentTheme.channels.background,
       '--neko-channels-card': currentTheme.channels.card,
+      '--neko-channels-search': currentTheme.channels.search,
+      '--neko-channels-shadow': currentTheme.channels.shadow,
       '--neko-channels-seperator': currentTheme.channels.seperator,
       '--neko-chat-background': currentTheme.chat.background,
+      '--neko-chat-seperator': currentTheme.chat.seperator,
       '--neko-chat-hover': currentTheme.chat.hover,
       '--neko-sidebar-background': currentTheme.sidebar.background,
       '--neko-sidebar-seperator': currentTheme.sidebar.seperator,

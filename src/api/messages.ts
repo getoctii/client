@@ -34,6 +34,8 @@ export interface ChannelResponse {
   voice_users?: string[]
   webhook_code?: string
   lastMessageID?: string
+  lastMessageDate?: Date
+  lastReadMessageID?: string
 }
 
 export interface MessageResponse {

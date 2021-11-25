@@ -3,7 +3,12 @@ import styles from './SideBar.module.scss'
 import { UI } from '@/state/ui'
 import { Auth } from '@/state/auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInbox, faPlus, faGrid } from '@fortawesome/pro-solid-svg-icons'
+import {
+  faInbox,
+  faPlus,
+  faGrid,
+  faComments
+} from '@fortawesome/pro-solid-svg-icons'
 import { Button } from '@/components/Form'
 import { DragDropContext, Droppable, Draggable } from '@react-forked/dnd'
 import { useMedia } from 'react-use'
@@ -14,7 +19,7 @@ import { useCommunities, useUser } from '@/hooks/users'
 import { FC } from 'react'
 import { useCommunity } from '@/hooks/communities'
 import { useMatchRoute, useNavigate } from 'react-location'
-import Avatar from '@/components/Avatar'
+import Avatar from '@/components/Avatar/Avatar'
 
 const reorder = (
   list: string[],
@@ -286,7 +291,11 @@ const SideBar: FC = () => {
             navigate({ to: '/app' })
           }}
         >
-          <FontAwesomeIcon className={styles.symbol} icon={faInbox} size='2x' />
+          <FontAwesomeIcon
+            className={styles.symbol}
+            icon={faComments}
+            size='2x'
+          />
           {/* {matchTab?.params.tab !== 'conversations' &&
             matchTab &&
             (mentionsCount && mentionsCount > 0 ? (
@@ -321,6 +330,7 @@ const SideBar: FC = () => {
                 matchRoute({ to: '/app/settings' }) ? styles.selected : ''
               }`}
               type='button'
+              onClick={() => navigate({ to: '/app/settings' })}
             >
               <Avatar
                 username={user?.username}

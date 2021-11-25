@@ -1,5 +1,7 @@
 import { FC } from 'react'
-import { AvatarImage, AvatarPlaceholder } from './style'
+import { AvatarImage, AvatarPlaceholder } from './Avatar.style'
+import ColorHash from 'color-hash'
+const colorHash = new ColorHash()
 
 const Avatar: FC<{
   username?: string
@@ -16,8 +18,12 @@ const Avatar: FC<{
       {children}
     </AvatarImage>
   ) : (
-    <AvatarPlaceholder size={size}>
-      {(username || 'BRUH')?.split('')[0].toUpperCase()}
+    <AvatarPlaceholder
+      size={size}
+      style={{ backgroundColor: colorHash.hex(username ?? 'octii') }}
+    >
+      {(!children || size === 'friend') &&
+        (username || 'BRUH')?.split('')[0].toUpperCase()}
       {children}
     </AvatarPlaceholder>
   )

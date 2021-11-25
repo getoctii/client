@@ -1,6 +1,11 @@
 .profile {
   padding-top: 5rem;
   overflow-y: scroll;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
   h2,
   h5,
   h4,

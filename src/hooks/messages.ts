@@ -50,12 +50,10 @@ export const useDecryptMessage = ({
 }) => {
   const { keychain } = Keychain.useContainer()
   const sessionKey = useSessionKey(conversationID)
-  console.log(sessionKey)
   const user = useUser(authorID)
   const { data: messageContent } = useQuery(
     ['messageContent', id, keychain],
     async () => {
-      console.log(payload)
       if (typeof payload === 'string') {
         return payload
       }
@@ -79,8 +77,9 @@ export const useDecryptMessage = ({
           }
         } catch (error) {
           console.error(error)
+          return 'Unable to decrypt message'
         }
-        return 'Unable to decrypt message'
+        return
       }
     },
     {

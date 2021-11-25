@@ -17,13 +17,6 @@ const FriendCardView: FC<{
 }> = ({ userID, type }) => {
   const { token } = Auth.useContainer()
   const user = useUser(userID)
-  // const { newRelationship, deleteRelationship } =
-  //   Relationships.useContainerSelector(
-  //     ({ newRelationship, deleteRelationship }) => ({
-  //       newRelationship,
-  //       deleteRelationship
-  //     })
-  //   )
   return (
     <div className={styles.card}>
       <Icon

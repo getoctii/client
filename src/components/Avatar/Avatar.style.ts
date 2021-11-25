@@ -12,7 +12,6 @@ export const AvatarImage = styled.div<{
   background-size: cover;
   background-position: center;
   cursor: pointer;
-
   ${({ size }) => {
     if (size === 'conversation')
       return css`
@@ -54,8 +53,11 @@ export const AvatarPlaceholder = styled.div<{
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--neko-colors-secondary);
 
+  svg {
+    margin-left: 0;
+    font-size: 1rem;
+  }
   ${({ size }) => {
     if (size === 'conversation')
       return css`

@@ -7,6 +7,14 @@ import {
   getRelationships,
   getUser
 } from '@/api/users'
+import { Socket } from 'socket.io-client'
+import { useEffect } from 'react'
+import { log } from '@/utils/logging'
+import queryClient from '@/utils/queryClient'
+
+enum UserEvents {
+  CONVERSATION_CREATE = 'CONVERSATION_CREATE'
+}
 
 export const useCurrentUser = () => {
   const { token } = Auth.useContainer()
@@ -68,4 +76,27 @@ export const useConversations = () => {
   )
 
   return conversations ?? []
+}
+
+export const useUserEvents = (socket: Socket | null) => {
+  const { token } = Auth.useContainer()
+  useEffect(() => {
+    if (!socket) return
+    const handler = async ({ id }: { id: string }) => {
+      log('Events', 'purple', 'CONVERSATION_CREATE')
+
+      queryClient.setQueryData<string[]>(
+        ['conversations', token!],
+        (initial) => {
+          return [...(initial ?? []), id]
+        }
+      )
+    }
+
+    socket.on(UserEvents.CONVERSATION_CREATE, handler)
+
+    return () => {
+      socket.off(UserEvents.CONVERSATION_CREATE, handler)
+    }
+  }, [socket])
 }

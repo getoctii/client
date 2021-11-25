@@ -11,13 +11,15 @@
   height: 100%;
 
   .header {
-    padding: calc(env(safe-area-inset-top) + 2rem) 2rem 1rem;
+    padding: 2rem;
     display: flex;
     z-index: 3;
     flex-direction: column;
     width: 100%;
     background-color: transparent;
-
+    border-bottom: 1px;
+    border-bottom-color: var(--neko-chat-seperator);
+    border-bottom-style: solid;
     .heading {
       display: flex;
       flex-direction: row;
@@ -26,7 +28,6 @@
         background: var(--neko-colors-primary);
         color: var(--neko-text-inverse);
         padding: 0.5rem;
-        height: 2.65rem;
         width: 2.65rem;
         border-radius: 12px;
         margin-left: auto;
@@ -36,8 +37,9 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        height: 2.65rem;
         width: 100%;
+        font-size: 1.15rem;
+        font-weight: 700;
         white-space: nowrap;
         overflow-y: hidden;
         text-overflow: ellipsis;
@@ -58,11 +60,6 @@
 
       .icon {
         margin-right: 0.7rem;
-        padding: 0.5rem;
-        height: 2.65rem;
-        width: 2.65rem;
-        min-height: 2.65rem;
-        min-width: 2.65rem;
         border-radius: 12px;
         color: var(--neko-text-inverse);
         cursor: pointer;

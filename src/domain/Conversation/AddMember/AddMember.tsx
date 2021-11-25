@@ -1,39 +1,64 @@
-import { faExclamationCircle, faSearch } from '@fortawesome/pro-solid-svg-icons'
+import {
+  faCirclePlus,
+  faExclamationCircle
+} from '@fortawesome/pro-solid-svg-icons'
+import { faSearch } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Field, Form, Formik } from 'formik'
 import { FC, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Auth } from '@/state/auth'
 import { Input, Button } from '@/components/Form'
-import { createConversation, findUser, validate } from '@/api/conversations'
-import { UI } from '../../state/ui'
-import { clientGateway } from '../../utils/constants'
-import styles from './AddParticipant.module.scss'
-import { useQuery } from 'react-query'
+import {
+  addConversationMember,
+  ConversationType,
+  createConversation,
+  findUser,
+  validate
+} from '@/api/conversations'
+import { UI } from '@/state/ui'
+import { clientGateway } from '@/utils/constants'
+import styles from './AddMember.module.scss'
+import { useRelationships, useUser } from '@/hooks/users'
+import {
+  AddMemberWrapper,
+  FriendCard,
+  FriendDetails,
+  Friends
+} from './AddMember.style'
+import Avatar from '@/components/Avatar/Avatar'
+import { useNavigate } from 'react-location'
 
-const AddParticipant: FC<{
+const Friend: FC<{
+  id: string
+  onClick?: () => void
+}> = ({ id, onClick }) => {
+  const user = useUser(id)
+  return (
+    <FriendCard>
+      <Avatar username={user?.username} avatar={user?.avatar} />
+      <FriendDetails>
+        <h1>{user?.username}</h1>
+        <FontAwesomeIcon
+          icon={faCirclePlus}
+          onClick={() => onClick && onClick()}
+        />
+      </FriendDetails>
+    </FriendCard>
+  )
+}
+
+const AddMember: FC<{
   groupID?: string
-  isPrivate: boolean
   participant?: string
-}> = ({ groupID, isPrivate, participant }) => {
+}> = ({ groupID, participant }) => {
   const uiStore = UI.useContainer()
-  const history = useHistory()
-  const { token, id } = Auth.useContainer()
-  const { data: relationships } = useQuery(
-    ['relationships', id, token],
-    getRelationships
-  )
-  const friends = useMemo(
-    () =>
-      relationships?.filter(
-        (relationship) => relationship.type === RelationshipTypes.FRIEND
-      ) ?? [],
-    [relationships]
-  )
-
-  return friends.length > 0 ? (
-    <div className={styles.addParticipant}>
-      <h3>Add Friends</h3>
+  const navigate = useNavigate()
+  const { token } = Auth.useContainer()
+  const relationships = useRelationships()
+  if (relationships) relationships.friends.length = 3
+  return (relationships?.friends ?? []).length > 0 ? (
+    <AddMemberWrapper>
       <Formik
         initialValues={{ tag: '' }}
         initialErrors={{ tag: 'No input' }}
@@ -50,12 +75,13 @@ const AddParticipant: FC<{
               splitted[0],
               splitted[1] === 'inn' ? '0' : splitted[1]
             )
-            if (isPrivate) {
+            if (!groupID) {
               const result = await createConversation(token!, {
-                recipient: participant!
+                recipients: [participant!, searchedUser.id],
+                type: ConversationType.GROUP
               })
               if (result.id) {
-                history.push(`/conversations/${result.id}`)
+                navigate({ to: `/app/conversations/${result.id}` })
                 await clientGateway.post(
                   `/conversations/${result.id}`,
                   {
@@ -94,7 +120,7 @@ const AddParticipant: FC<{
             <Field
               placeholder={
                 !isSubmitting
-                  ? isPrivate
+                  ? !groupID
                     ? 'Start a new group chat'
                     : 'Add a user'
                   : 'Finding...'
@@ -105,38 +131,48 @@ const AddParticipant: FC<{
               type='text'
             />
             {errors.tag === 'User not found' ? (
-              <Button type='button' className={styles.searchError} disabled>
+              <button type='button' disabled>
                 <FontAwesomeIcon icon={faExclamationCircle} />
-              </Button>
+              </button>
             ) : !isValid ? (
-              <Button
-                type='button'
-                className={styles.searchPlaceholder}
-                disabled
-              >
+              <button type='button' disabled>
                 <FontAwesomeIcon icon={faSearch} />
-              </Button>
+              </button>
             ) : (
-              <Button
-                type='submit'
-                className={styles.search}
-                disabled={isSubmitting}
-              >
+              <button type='submit' disabled={isSubmitting}>
                 <FontAwesomeIcon icon={faSearch} />
-              </Button>
+              </button>
             )}
           </Form>
         )}
       </Formik>
-    </div>
+      <Friends>
+        {relationships?.friends.map((friend) => (
+          <Friend
+            id={friend}
+            onClick={async () => {
+              if (!groupID) {
+                const result = await createConversation(token!, {
+                  recipients: [participant!, friend],
+                  type: ConversationType.GROUP
+                })
+                navigate({ to: `/app/conversations/${result.id}` })
+              } else {
+                await addConversationMember(groupID, friend, token!)
+              }
+            }}
+          />
+        ))}
+      </Friends>
+    </AddMemberWrapper>
   ) : (
     <div className={styles.noFriends}>
       <h2>You have no friends!</h2>
-      <Button type={'button'} onClick={() => history.push('/friends')}>
+      <Button type={'button'} onClick={() => navigate({ to: `/app/hub` })}>
         Go add some!
       </Button>
     </div>
   )
 }
 
-export default AddParticipant
+export default AddMember

@@ -144,22 +144,15 @@
 
   .messages {
     @extend .button;
-    background: var(--neko-colors-danger);
+    background: var(--neko-channels-background);
     color: #ffffff;
   }
 
   .hub {
     @extend .button;
-    background: var(--neko-colors-primary);
+    background: var(--neko-channels-background);
     color: #ffffff;
   }
-
-  .hub {
-    @extend .button;
-    background: var(--neko-colors-primary);
-    color: #ffffff;
-  }
-
   .plus {
     @extend .button;
     background: var(--neko-channels-background);

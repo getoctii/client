@@ -46,7 +46,7 @@ import { useCurrentUser, useUser } from '@/hooks/users'
 import File from './embeds/File'
 import { Keychain } from '@/state/keychain'
 import { getProduct, getResource } from '@/api/communities'
-import Avatar from '../../components/Avatar'
+import Avatar from '../../components/Avatar/Avatar'
 import {
   EncryptedMessage,
   SignedMessage,
@@ -205,14 +205,12 @@ const MessageView: FC<{
       }
     )
 
-    console.log(payload)
     const messageContent = useDecryptMessage({
       id,
       authorID,
       payload,
       conversationID
     })
-    console.log(messageContent)
     const uiStore = UI.useContainer()
     const { editingMessageID, setEditingMessageID } = Chat.useContainerSelector(
       ({ editingMessageID, setEditingMessageID }) => ({
@@ -299,7 +297,6 @@ const MessageView: FC<{
       // hasPermissions,
       messageContent
     ])
-    console.log(messageContent)
     const output = useMarkdown(messageContent!, {
       bold: (str, key) => <strong key={key}>{str}</strong>,
       italic: (str, key) => <i key={key}>{str}</i>,

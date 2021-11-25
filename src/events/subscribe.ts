@@ -18,7 +18,8 @@ const useSubscribe = () => {
       const s = io(CLIENT_GATEWAY_URL, {
         auth: {
           token
-        }
+        },
+        path: '/gateway'
       })
 
       socket = s

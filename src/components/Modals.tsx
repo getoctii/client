@@ -3,10 +3,9 @@ import styles from './Modals.module.scss'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMedia } from 'react-use'
 import { ModalTypes } from '../utils/constants'
-import AddParticipant from '../views/chat/AddParticipant'
 import { Alert } from '@/components/Overlay'
 import { NewCommunity } from '@/modals/Community'
-import NewConversation from '../views/conversation/NewConversation'
+import { NewConversation, AddMember } from '@/domain/Conversation'
 import {
   AddIntegration,
   NewGroup,
@@ -22,7 +21,7 @@ import { UI } from '../state/ui'
 import { Permission } from '../utils/permissions'
 import Update from './Update'
 import Status from './Status'
-import AddFriend from '../views/hub/friends/AddFriend'
+import { AddFriend } from '@/modals/Hub'
 import PreviewUser from '@/domain/User/PreviewUser'
 import MFAModal from '../views/authentication/MFAModal'
 import CodePrompt from '../views/authentication/CodePrompt'
@@ -31,7 +30,7 @@ import Ringing from '../views/call/Ringing'
 const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
   switch (name) {
     case ModalTypes.ADD_PARTICIPANT:
-      return <AddParticipant {...props} />
+      return <AddMember {...props} />
     case ModalTypes.DELETE_MESSAGE:
       return <Alert {...props} />
     case ModalTypes.DEVELOPER_MODE:

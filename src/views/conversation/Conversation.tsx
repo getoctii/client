@@ -1,9 +1,8 @@
-import { FC, Suspense, useEffect, useMemo } from 'react'
-import styles from './Conversation.module.scss'
+import { FC, Suspense, useEffect, useMemo, useState } from 'react'
 import Chat from '../chat/Channel'
 import { Redirect, Switch, useHistory, useRouteMatch } from 'react-router-dom'
 import { Auth } from '@/state/auth'
-import { useQuery } from 'react-query'
+import { useQueries, useQuery } from 'react-query'
 import { InternalChannelTypes } from '../../utils/constants'
 import { useLocation, useMedia } from 'react-use'
 import { SideBar } from '@/components/Layout'
@@ -13,13 +12,133 @@ import { Helmet } from 'react-helmet-async'
 import { Permission } from '../../utils/permissions'
 import { PrivateRoute } from '../authentication/PrivateRoute'
 import { useConversation, useConversationMembers } from '@/hooks/conversations'
-import { useConversations } from '@/hooks/users'
-import { useMatch } from 'react-location'
+import { useConversations, useUser } from '@/hooks/users'
+import { useMatch, useNavigate } from 'react-location'
+import { ContextMenu } from '@/components/Overlay'
+import {
+  ConversationMemberPermission,
+  ConversationType,
+  demoteConversationMember,
+  editConversation,
+  leaveConversation,
+  promoteConversationMember,
+  removeConversationMember
+} from '@/api/conversations'
+import {
+  ConversationAction,
+  ConversationActions,
+  ConversationDetails,
+  ConversationGroupType,
+  ConversationInfo,
+  ConversationMemberCard,
+  ConversationMembers,
+  ConversationName,
+  ConversationWrapper,
+  MemberDetails,
+  MembersHeading,
+  Seperator
+} from './Conversation.style'
+import Avatar from '@/components/Avatar/Avatar'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faCrown,
+  faHammer,
+  faPhone,
+  faRunning,
+  faUserCrown,
+  faUserFriends,
+  faUserPlus,
+  faUserPolice,
+  IconDefinition
+} from '@fortawesome/pro-solid-svg-icons'
+import { getUser } from '@/api/users'
+import { AddMember } from '@/domain/Conversation'
 
+const ConversationMember: FC<{
+  id: string
+  permission: ConversationMemberPermission
+  isAdmin?: boolean
+  isOwner?: boolean
+  conversationID?: string
+}> = ({ id, permission, isAdmin, isOwner, conversationID }) => {
+  const { token } = Auth.useContainer()
+  const user = useUser(id)
+
+  const items = useMemo(() => {
+    const items: {
+      text: string
+      icon: IconDefinition
+      danger: boolean
+      onClick: any
+    }[] = []
+
+    if (isOwner) {
+      if (permission === ConversationMemberPermission.MEMBER) {
+        items.push({
+          text: 'Promote to Admin',
+          icon: faUserPolice,
+          danger: false,
+          onClick: async () => {
+            await promoteConversationMember(conversationID!, id, token!)
+          }
+        })
+      }
+
+      if (permission === ConversationMemberPermission.ADMINISTRATOR) {
+        items.push({
+          text: 'Demote to Member',
+          icon: faUserPolice,
+          danger: false,
+          onClick: async () => {
+            await demoteConversationMember(conversationID!, id, token!)
+          }
+        })
+      }
+    }
+    if (
+      (permission === ConversationMemberPermission.MEMBER &&
+        (isAdmin || isOwner)) ||
+      (permission === ConversationMemberPermission.ADMINISTRATOR && isOwner)
+    ) {
+      items.push({
+        text: 'Kick Member',
+        icon: faHammer,
+        danger: true,
+        onClick: async () => {
+          await removeConversationMember(conversationID!, id, token!)
+        }
+      })
+    }
+
+    return items
+  }, [permission, isAdmin, conversationID, token])
+
+  return (
+    <ContextMenu.Wrapper title='' items={items} disabled={items.length <= 0}>
+      <ConversationMemberCard>
+        <Avatar username={user?.username} avatar={user?.avatar} />
+        <MemberDetails>
+          <h1>
+            {user?.username}{' '}
+            {permission === ConversationMemberPermission.OWNER ? (
+              <FontAwesomeIcon icon={faCrown} />
+            ) : permission === ConversationMemberPermission.ADMINISTRATOR ? (
+              <FontAwesomeIcon icon={faUserPolice} />
+            ) : (
+              <></>
+            )}
+          </h1>
+          <p>{user?.status ?? 'Offline'}</p>
+        </MemberDetails>
+      </ConversationMemberCard>
+    </ContextMenu.Wrapper>
+  )
+}
 const Conversation: FC = () => {
   const {
     params: { id: conversationID }
   } = useMatch()
+  const navigate = useNavigate()
   const { id, token } = Auth.useContainer()
   const conversation = useConversation(conversationID)
   const members = useConversationMembers(conversationID)
@@ -27,7 +146,35 @@ const Conversation: FC = () => {
     () => members.filter((member) => member.userID !== id),
     [members, id]
   )
+  const you = useMemo(
+    () => members.find((member) => member.userID === id),
+    [id, members]
+  )
 
+  const users = useQueries(
+    (people ?? []).map((member) => {
+      return {
+        queryKey: ['user', member, token],
+        queryFn: async () => getUser(member.userID, token!)
+      }
+    })
+  )
+
+  const [editingName, setEditingName] = useState(false)
+  const [showAddMember, setShowAddMember] = useState(false)
+  const usernames = useMemo(
+    () =>
+      users.length > 0
+        ? users.map(({ data: user }) => user?.username).join(', ')
+        : 'Empty Group',
+    [users]
+  )
+  const [conversationName, setConversationName] = useState(
+    conversation?.name ?? usernames
+  )
+  useEffect(() => {
+    if (!conversation?.name) setConversationName(usernames)
+  }, [usernames])
   if (!conversation) return <></>
 
   return (
@@ -35,7 +182,7 @@ const Conversation: FC = () => {
       <Helmet>
         <title>Octii - Messages</title>
       </Helmet>
-      <div className={styles.conversation} key={conversation.channelID}>
+      <ConversationWrapper key={conversation.channelID}>
         <Chat.View
           type={
             (people?.length ?? 0) > 1
@@ -48,7 +195,85 @@ const Conversation: FC = () => {
           key={conversation.channelID}
           voiceChannelID={''}
         />
-      </div>
+        {conversation.type === ConversationType.GROUP && (
+          <ConversationInfo>
+            <ConversationDetails>
+              <Avatar size='conversation' username={conversationID}>
+                <FontAwesomeIcon icon={faUserFriends} />
+              </Avatar>
+              <ConversationName
+                onClick={() => setEditingName(true)}
+                editing={editingName}
+                disabled={
+                  you?.permission === ConversationMemberPermission.MEMBER
+                }
+                onBlur={async () => {
+                  setEditingName(false)
+                  await editConversation(
+                    conversationID,
+                    conversationName,
+                    token!
+                  )
+                }}
+                value={conversationName}
+                onChange={(event) => setConversationName(event.target.value)}
+              />
+              <ConversationGroupType>Group Chat</ConversationGroupType>
+              <ConversationActions>
+                <ConversationAction primary>
+                  <FontAwesomeIcon icon={faPhone} />
+                </ConversationAction>
+                <ConversationAction
+                  danger
+                  onClick={async () => {
+                    await leaveConversation(conversationID, token!)
+                    navigate({ to: '/app/conversations' })
+                  }}
+                >
+                  <FontAwesomeIcon icon={faRunning} />
+                </ConversationAction>
+              </ConversationActions>
+            </ConversationDetails>
+            <Seperator />
+            <ConversationMembers>
+              <MembersHeading>
+                {members.length} members{' '}
+                {(you?.permission === ConversationMemberPermission.OWNER ||
+                  you?.permission ===
+                    ConversationMemberPermission.ADMINISTRATOR) && (
+                  <FontAwesomeIcon
+                    icon={faUserPlus}
+                    onClick={() => setShowAddMember(!showAddMember)}
+                  />
+                )}
+                {showAddMember && (
+                  <div>
+                    <AddMember groupID={conversationID} />
+                  </div>
+                )}
+              </MembersHeading>
+
+              <div>
+                {members.map((member) => (
+                  <ConversationMember
+                    key={member.userID}
+                    id={member.userID}
+                    conversationID={conversationID}
+                    permission={member.permission}
+                    isOwner={
+                      you?.permission === ConversationMemberPermission.OWNER
+                    }
+                    isAdmin={
+                      you?.permission ===
+                      ConversationMemberPermission.ADMINISTRATOR
+                    }
+                  />
+                ))}
+              </div>
+            </ConversationMembers>
+          </ConversationInfo>
+        )}
+      </ConversationWrapper>
     </Suspense>
   )
 }

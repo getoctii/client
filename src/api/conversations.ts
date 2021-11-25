@@ -24,6 +24,8 @@ export enum ConversationType {
 
 export interface Conversation {
   id: string
+  name: string
+  icon?: string
   type: ConversationType
   channelID: string
 }
@@ -39,7 +41,7 @@ export const getConversation = async (
   ).data
 }
 
-enum ConversationMemberPermission {
+export enum ConversationMemberPermission {
   MEMBER = 'MEMBER',
   ADMINISTRATOR = 'ADMINISTRATOR',
   OWNER = 'OWNER'
@@ -78,6 +80,23 @@ export const createConversation = async (
     })
   ).data
 
+export const editConversation = async (
+  conversationID: string,
+  name: string,
+  token: string
+) =>
+  (
+    await clientGateway.patch(
+      `/conversations/${conversationID}`,
+      {
+        name
+      },
+      {
+        headers: { Authorization: token }
+      }
+    )
+  ).data
+
 export const addConversationMember = async (
   conversationID: string,
   memberID: string,
@@ -86,9 +105,53 @@ export const addConversationMember = async (
   (
     await clientGateway.put<{
       id: string
-    }>(`/conversations/${conversationID}/members/${memberID}`, {
-      headers: { Authorization: token }
-    })
+    }>(
+      `/conversations/${conversationID}/members/${memberID}`,
+      {
+        permission: ConversationMemberPermission.MEMBER
+      },
+      {
+        headers: { Authorization: token }
+      }
+    )
+  ).data
+
+export const promoteConversationMember = async (
+  conversationID: string,
+  memberID: string,
+  token: string
+) =>
+  (
+    await clientGateway.put<{
+      id: string
+    }>(
+      `/conversations/${conversationID}/members/${memberID}`,
+      {
+        permission: ConversationMemberPermission.ADMINISTRATOR
+      },
+      {
+        headers: { Authorization: token }
+      }
+    )
+  ).data
+
+export const demoteConversationMember = async (
+  conversationID: string,
+  memberID: string,
+  token: string
+) =>
+  (
+    await clientGateway.put<{
+      id: string
+    }>(
+      `/conversations/${conversationID}/members/${memberID}`,
+      {
+        permission: ConversationMemberPermission.MEMBER
+      },
+      {
+        headers: { Authorization: token }
+      }
+    )
   ).data
 
 export const removeConversationMember = async (
@@ -111,9 +174,13 @@ export const leaveConversation = async (
   (
     await clientGateway.post<{
       id: string
-    }>(`/conversations/${conversationID}/leave`, {
-      headers: { Authorization: token }
-    })
+    }>(
+      `/conversations/${conversationID}/leave`,
+      {},
+      {
+        headers: { Authorization: token }
+      }
+    )
   ).data
 
 export const findUser = async (

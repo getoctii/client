@@ -1,5 +1,5 @@
 import { FC, Suspense, useState } from 'react'
-import styles from './Friends.module.scss'
+import styles from './FriendList.module.scss'
 import { FriendCard, FriendEmpty } from '@/domain/Hub'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUserClock } from '@fortawesome/pro-solid-svg-icons'
@@ -79,7 +79,6 @@ const Friends: FC = () => {
           {(relationships?.friends?.length ?? 0) > 0 ? (
             relationships?.friends?.map((friend, index) => (
               <>
-                {index !== 0 && <hr />}
                 <Suspense key={friend} fallback={<FriendCard.Placeholder />}>
                   <FriendCard.View
                     userID={friend}

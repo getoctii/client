@@ -193,7 +193,6 @@ const MessagesView: FC<{ channelID: string; conversationID?: string }> = ({
   //       )}
   //     </div>
   //   )
-  console.log(messages)
   return (
     <div key={channelID} className={styles.messages} ref={ref}>
       <div key='buffer' className={styles.buffer} />

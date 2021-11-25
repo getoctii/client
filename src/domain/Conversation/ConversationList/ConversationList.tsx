@@ -18,45 +18,82 @@ import { StatusBar } from '@/components/Layout'
 import { useConversations } from '@/hooks/users'
 import { useConversation } from '@/hooks/conversations'
 import { useMatch } from 'react-location'
+import queryClient from '@/utils/queryClient'
+import { useQueries } from 'react-query'
+import { getConversation } from '@/api/conversations'
+import { getChannel } from '@/api/messages'
 
 dayjs.extend(dayjsUTC)
 
-const ConversationCardWrapper: FC<{ index: number; conversationID: string }> =
-  ({ conversationID, index }) => {
-    const {
-      params: { id }
-    } = useMatch()
-    const conversation = useConversation(conversationID)
-    return (
-      <div key={conversationID}>
-        {index !== 0 && (
-          <hr className={id === conversationID ? styles.hidden : ''} />
-        )}
-        <Suspense fallback={<ConversationCard.Placeholder />}>
-          <ConversationCard.View
-            conversationID={conversationID}
-            channelID={conversation?.channelID}
-          />
-        </Suspense>
-      </div>
-    )
-  }
+const ConversationCardWrapper: FC<{ conversationID: string }> = ({
+  conversationID
+}) => {
+  const {
+    params: { id }
+  } = useMatch()
+  const conversation = useConversation(conversationID)
+  return (
+    <div key={conversationID}>
+      <Suspense fallback={<ConversationCard.Placeholder />}>
+        <ConversationCard.View
+          conversationID={conversationID}
+          channelID={conversation?.channelID}
+        />
+      </Suspense>
+    </div>
+  )
+}
 
 const ConversationCardList: FC = memo(() => {
   const auth = Auth.useContainer()
-  const conversations = useConversations()
+  const conversationIDs = useConversations()
 
+  const conversations = useQueries(
+    conversationIDs.map((id) => ({
+      queryKey: ['conversation', id, auth.token],
+      queryFn: async () => getConversation(id, auth.token!)
+    }))
+  )
+
+  const channels = useQueries(
+    conversations.map(({ data: conversation }) => ({
+      queryKey: ['channel', conversation?.channelID, auth.token],
+      queryFn: async () => getChannel(conversation?.channelID!, auth.token!),
+      enabled: !!conversation
+    }))
+  )
   return (
     <>
       {conversations && conversations.length > 0 ? (
-        conversations.map((conversation, index) => {
-          return (
-            <ConversationCardWrapper
-              conversationID={conversation}
-              index={index}
-            />
-          )
-        })
+        conversations
+          .sort(({ data: a }, { data: b }) => {
+            const channelA = channels.find(
+              ({ data: c }) => c?.id === a?.channelID
+            )?.data
+            const channelB = channels.find(
+              ({ data: c }) => c?.id === b?.channelID
+            )?.data
+
+            if (
+              (channelB?.lastMessageDate ?? new Date()) >
+              (channelA?.lastMessageDate ?? new Date())
+            )
+              return 1
+            else if (
+              (channelB?.lastMessageDate ?? new Date()) <
+              (channelA?.lastMessageDate ?? new Date())
+            )
+              return -1
+            else return 0
+          })
+          .map(({ data: conversation }) => {
+            return (
+              <ConversationCardWrapper
+                key={conversation?.id!}
+                conversationID={conversation?.id!}
+              />
+            )
+          })
       ) : (
         <div className={styles.alert}>
           <h4>You aren't in any chats!</h4>

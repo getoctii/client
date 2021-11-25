@@ -29,6 +29,8 @@ import useUpdatedOverride from './updatedOverride'
 import useNewOverride from './newOverride'
 import useDeletedOverride from './deletedOverride'
 import useRinging from './ringing'
+import { useConversationEvents } from '@/hooks/conversations'
+import { useUserEvents } from '@/hooks/users'
 
 const EventSource = () => {
   const [socket] = useSubscribe()
@@ -47,6 +49,8 @@ const EventSource = () => {
   // useNewGroupMember(eventSource)
   // useNewMember(eventSource)
   // useNewMention(eventSource)
+  useConversationEvents(socket)
+  useUserEvents(socket)
   useNewMessage(socket)
   // useNewOverride(eventSource)
   // useNewParticipant(eventSource)

@@ -132,6 +132,7 @@
   }
 
   &.selected {
+    box-shadow: var(--neko-channels-shadow);
     .user {
       p {
         .link {
