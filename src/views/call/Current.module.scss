@@ -3,14 +3,17 @@
   position: absolute;
   bottom: 0;
   left: 5.5rem;
-  background: var(--neko-modal-foreground);
+  background: var(--neko-channels-card);
   padding: 1rem;
   margin: 1.5rem;
   width: 15rem;
   border-radius: 14px;
-
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   h3 {
     font-size: 1.15rem;
+    font-weight: 700;
   }
 
   h3,
@@ -31,13 +34,15 @@
     margin-right: 0.3rem;
     min-width: 2.5rem;
     font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 2.5rem;
     width: 2.5rem;
     height: 2.5rem;
     border: 0;
     border-radius: 10px;
-    color: var(--neko-text-inverse);
-    background: var(--neko-colors-secondary);
+    background: var(--neko-channels-background);
   }
 
   button:last-child {

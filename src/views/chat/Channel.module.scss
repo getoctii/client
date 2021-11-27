@@ -177,9 +177,8 @@
   }
 
   :not(:last-child) {
-    background: var(--neko-colors-secondary) !important;
-
-    margin-right: 0.4rem;
+    margin-right: 1rem;
+    cursor: pointer;
   }
 }
 
@@ -271,7 +270,7 @@
     }
 
     button {
-      background: var(--neko-colors-secondary);
+      background: var(--neko-channels-background);
     }
   }
 }

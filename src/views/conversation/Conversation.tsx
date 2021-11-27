@@ -200,7 +200,7 @@ const Conversation: FC = () => {
           conversationID={conversationID}
           members={people}
           key={conversation.channelID}
-          voiceChannelID={''}
+          voiceChannelID={conversation.voiceChannelID}
         />
         {conversation.type === ConversationType.GROUP && (
           <ConversationInfo>

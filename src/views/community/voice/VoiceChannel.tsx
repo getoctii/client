@@ -8,6 +8,7 @@ import { useUser } from '@/hooks/users'
 import styles from './VoiceChannel.module.scss'
 import { Call } from '../../../state/call'
 import { clientGateway } from '../../../utils/constants'
+import Avatar from '@/components/Avatar/Avatar'
 
 export const VoiceCard: FC<{
   userID: string
@@ -20,19 +21,12 @@ export const VoiceCard: FC<{
     <div
       className={styles.card}
       style={{
-        backgroundImage: `url(${user.avatar})`,
         border: speaking ? '5px solid var(--neko-text-primary)' : undefined,
         width: small ? 100 : undefined,
         height: small ? 100 : undefined
       }}
     >
-      {!small ? (
-        <div className={styles.name}>
-          <h1>{user.username}</h1>
-        </div>
-      ) : (
-        <></>
-      )}
+      <Avatar username={user.username} avatar={user.avatar} />
     </div>
   )
 }
@@ -83,7 +77,7 @@ const VoiceChannel: FC<{ channel: ChannelResponse }> = ({ channel }) => {
         }
       />
       <div className={styles.grid}>
-        {channel.voice_users?.map((id) => (
+        {channel.voiceUsers?.map((id) => (
           <VoiceCard
             userID={id}
             speaking={

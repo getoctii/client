@@ -25,7 +25,11 @@ const FriendSuggestion: FC<{ id: string }> = ({ id }) => {
         if (result.id) navigate({ to: `/app/conversations/${result.id}` })
       }}
     >
-      <Icon avatar={user?.avatar} state={user?.state} />
+      <Icon
+        username={user?.username}
+        avatar={user?.avatar}
+        state={user?.state}
+      />
       <div>
         <h4>{user?.username}</h4>
         <p>{user?.status}</p>
@@ -52,7 +56,6 @@ const Empty: FC = () => {
             <h3>Suggestions</h3>
             {relationships?.friends.map((friend, index) => (
               <>
-                {index !== 0 && <hr />}
                 <FriendSuggestion key={friend} id={friend} />
               </>
             ))}

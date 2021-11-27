@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  gap: 10px;
+  min-width: 200px;
   img {
     width: 6rem;
     height: 6rem;
@@ -12,6 +13,15 @@
 
   h1 {
     font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .details {
+    text-align: center;
+  }
+  p {
+    margin: 0;
   }
 }
 
@@ -36,18 +46,13 @@
 .buttons {
   display: flex;
   width: 100%;
-
-  :not(:first-child) {
-    margin-left: 0.5rem;
-  }
-
-  :not(:last-child) {
-    margin-right: 0.5rem;
-  }
+  justify-content: center;
+  gap: 10px;
 
   button {
     height: 3rem;
     width: 100%;
+    max-width: 6rem;
     font-size: 1.25rem;
   }
 }

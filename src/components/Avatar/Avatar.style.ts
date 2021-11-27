@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 export const AvatarImage = styled.div<{
-  size?: 'message' | 'conversation' | 'sidebar' | 'friend'
+  size?: 'message' | 'conversation' | 'sidebar' | 'friend' | 'call'
 }>`
   min-width: 2.65rem;
   min-height: 2.65rem;
@@ -36,11 +36,19 @@ export const AvatarImage = styled.div<{
         min-height: 45px;
         border-radius: 10px;
       `
+    else if (size === 'call')
+      return css`
+        width: 125px;
+        height: 125px;
+        min-width: 45px;
+        min-height: 45px;
+        border-radius: 17px;
+      `
   }}
 `
 
 export const AvatarPlaceholder = styled.div<{
-  size?: 'message' | 'conversation' | 'sidebar' | 'friend'
+  size?: 'message' | 'conversation' | 'sidebar' | 'friend' | 'call'
 }>`
   min-width: 2.65rem;
   min-height: 2.65rem;
@@ -84,6 +92,15 @@ export const AvatarPlaceholder = styled.div<{
         min-width: 36px;
         border-radius: 10px;
         margin-right: 0.5rem;
+      `
+    else if (size === 'call')
+      return css`
+        width: 125px;
+        height: 125px;
+        min-width: 45px;
+        min-height: 45px;
+        border-radius: 17px;
+        font-size: 2rem;
       `
   }}
 `

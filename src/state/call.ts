@@ -82,7 +82,7 @@ const useCall = () => {
 
   useEffect(() => {
     if (!room) return
-
+    console.log(room)
     const params = new URLSearchParams({
       room: room.id,
       authorization: room.token

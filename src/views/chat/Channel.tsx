@@ -147,6 +147,22 @@ const VideoCard: FC<{ track: MediaStreamTrack }> = ({ track }) => {
   return <video ref={ref} className={styles.video} />
 }
 
+const VoiceChannel: FC<{
+  id: string
+  conversationID: string
+}> = ({ id, conversationID }) => {
+  const voiceChannel = useChannel(id)
+  return (
+    <>
+      {voiceChannel && (voiceChannel.voiceUsers?.length ?? 0) > 0 ? (
+        <CallView channel={voiceChannel} conversationID={conversationID!} />
+      ) : (
+        <></>
+      )}
+    </>
+  )
+}
+
 const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
   channel,
   conversationID
@@ -180,7 +196,7 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
             remoteVideoTracks?.length ?? 0 > 0 ? styles.vertical : ''
           }`}
         >
-          {channel.voice_users?.map((user) => (
+          {channel.voiceUsers?.map((user) => (
             <VoiceCard
               userID={user}
               speaking={
@@ -229,10 +245,11 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
       </div>
       <div className={styles.buttons}>
         <Button type='button' onClick={() => setMuted(!muted)}>
-          <FontAwesomeIcon
-            icon={muted ? faMicrophoneSlash : faMicrophone}
-            fixedWidth
-          />
+          <FontAwesomeIcon icon={muted ? faMicrophoneSlash : faMicrophone} />
+        </Button>
+
+        <Button type='button' onClick={() => setDeafened(!deafened)}>
+          <FontAwesomeIcon icon={deafened ? faVolumeMute : faVolumeUp} />
         </Button>
         <Button
           className={current ? styles.disconnect : styles.connect}
@@ -244,7 +261,7 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
               const {
                 data
               }: {
-                data: { room_id: string; token: string; server: string }
+                data: { roomID: string; token: string; socket: string }
               } = await clientGateway.post(
                 `/channels/${channel.id}/join`,
                 {},
@@ -256,8 +273,8 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
               )
               setRoom({
                 token: data.token,
-                id: data.room_id,
-                server: data.server,
+                id: data.roomID,
+                server: data.socket,
                 conversationID,
                 channelID: channel.id
               })
@@ -266,12 +283,6 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
           }}
         >
           {current ? 'Disconnect' : 'Connect'}
-        </Button>
-        <Button type='button' onClick={() => setDeafened(!deafened)}>
-          <FontAwesomeIcon
-            icon={deafened ? faVolumeMute : faVolumeUp}
-            fixedWidth
-          />
         </Button>
       </div>
     </div>
@@ -402,17 +413,16 @@ const ChannelView: FC<{
               />
             </Suspense>
             <div className={styles.buttonGroup}>
-              {/* {voiceChannel && room?.channelID !== voiceChannel.id ? (
-                <Button
-                  type='button'
+              {voiceChannelID && room?.channelID !== voiceChannelID && (
+                <div
                   onClick={async () => {
-                    if (!voiceChannel) return
+                    if (!voiceChannelID) return
                     const {
                       data
                     }: {
-                      data: { room_id: string; token: string; server: string }
+                      data: { roomID: string; token: string; socket: string }
                     } = await clientGateway.post(
-                      `/channels/${voiceChannel.id}/join`,
+                      `/channels/${voiceChannelID}/join`,
                       {},
                       {
                         headers: {
@@ -422,8 +432,8 @@ const ChannelView: FC<{
                     )
                     setRoom({
                       token: data.token,
-                      id: data.room_id,
-                      server: data.server,
+                      id: data.roomID,
+                      server: data.socket,
                       conversationID,
                       channelID: voiceChannelID
                     })
@@ -431,10 +441,8 @@ const ChannelView: FC<{
                   }}
                 >
                   <FontAwesomeIcon icon={faPhone} />
-                </Button>
-              ) : (
-                <></>
-              )} */}
+                </div>
+              )}
               {conversation?.type === ConversationType.DM && (
                 <div
                   onClick={() => {
@@ -458,11 +466,12 @@ const ChannelView: FC<{
               />
             )}
           </div>
-          {/* {voiceChannel && (voiceChannel.voice_users?.length ?? 0) > 0 ? (
-            <CallView channel={voiceChannel} conversationID={conversationID!} />
-          ) : (
-            <></>
-          )} */}
+          {voiceChannelID && (
+            <VoiceChannel
+              id={voiceChannelID}
+              conversationID={conversationID!}
+            />
+          )}
         </div>
         <Suspense fallback={<Messages.Placeholder />}>
           {channelID ? (

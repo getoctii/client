@@ -11,6 +11,7 @@ import {
   MessageTypes
 } from '@/utils/constants'
 import queryClient from '@/utils/queryClient'
+import { UserResponse } from './users'
 
 export interface Override {
   allow: ChannelPermissions[]
@@ -31,11 +32,11 @@ export interface ChannelResponse {
   overrides?: {
     [groupID: string]: Override
   }
-  voice_users?: string[]
   webhook_code?: string
   lastMessageID?: string
   lastMessageDate?: Date
   lastReadMessageID?: string
+  voiceUsers?: string[]
 }
 
 export interface MessageResponse {

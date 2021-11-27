@@ -15,12 +15,16 @@ import { log } from '@/utils/logging'
 import { useEffect } from 'react'
 import queryClient from '@/utils/queryClient'
 import { useMatch, useMatches, useNavigate } from 'react-location'
+import { UI } from '@/state/ui'
+import { ModalTypes } from '@/utils/constants'
+import { ChannelResponse } from '@/api/messages'
 enum ConversationEvents {
   MEMBER_ADD = 'MEMBER_ADD',
   MEMBER_UPDATE = 'MEMBER_UPDATE',
   MEMBER_REMOVE = 'MEMBER_REMOVE',
   MEMBER_LEAVE = 'MEMBER_LEAVE',
-  CONVERSATION_UPDATE = 'CONVERSATION_UPDATE'
+  CONVERSATION_UPDATE = 'CONVERSATION_UPDATE',
+  INCOMING_CALL = 'INCOMING_CALL'
 }
 
 export const useConversation = (conversationID?: string) => {
@@ -87,6 +91,7 @@ export const useSessionKey = (conversationID?: string) => {
 
 export const useConversationEvents = (socket: Socket | null) => {
   const { token, id: currentUserID } = Auth.useContainer()
+  const { setModal } = UI.useContainer()
   const matches = useMatches()
   const navigate = useNavigate()
   useEffect(() => {
@@ -236,4 +241,37 @@ export const useConversationEvents = (socket: Socket | null) => {
       socket.off(ConversationEvents.CONVERSATION_UPDATE, handler)
     }
   }, [socket])
+
+  useEffect(() => {
+    if (!socket) return
+
+    const handler = async ({
+      id,
+      userID,
+      channelID
+    }: {
+      id: string
+      userID: string
+      channelID: string
+    }) => {
+      log('Events', 'purple', 'INCOMING_CALL')
+      const channel = queryClient.getQueryData<ChannelResponse>([
+        'channel',
+        channelID,
+        token
+      ])
+      if (userID !== currentUserID && !channel?.voiceUsers?.includes(userID)) {
+        setModal({
+          name: ModalTypes.RINGING,
+          props: { id: id }
+        })
+      }
+    }
+
+    socket.on(ConversationEvents.INCOMING_CALL, handler)
+
+    return () => {
+      socket.off(ConversationEvents.INCOMING_CALL, handler)
+    }
+  })
 }

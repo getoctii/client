@@ -6,7 +6,7 @@ const colorHash = new ColorHash()
 const Avatar: FC<{
   username?: string
   avatar?: string
-  size?: 'message' | 'conversation' | 'sidebar' | 'friend'
+  size?: 'message' | 'conversation' | 'sidebar' | 'friend' | 'call'
 }> = ({ username, avatar, size, children }) => {
   return avatar ? (
     <AvatarImage

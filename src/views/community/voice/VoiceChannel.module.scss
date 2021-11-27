@@ -13,10 +13,13 @@
 .card {
   width: 200px;
   height: 200px;
-  border-radius: 10px;
+  border-radius: 17px;
   background-size: cover;
   background-position: center;
-
+  div {
+    width: 100% !important;
+    height: 100% !important;
+  }
   .name {
     display: flex;
     flex-direction: column;

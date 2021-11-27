@@ -46,6 +46,9 @@
 
   .friends {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     text-align: left;
     h3 {
       margin-bottom: 0.7rem;

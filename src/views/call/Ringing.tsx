@@ -14,9 +14,10 @@ import { Auth } from '@/state/auth'
 import { UI } from '../../state/ui'
 import { clientGateway } from '../../utils/constants'
 import { Call } from '../../state/call'
-import { useHistory } from 'react-router-dom'
 import { useAudio } from 'react-use'
-import { useConversationMembers } from '@/hooks/conversations'
+import { useConversation, useConversationMembers } from '@/hooks/conversations'
+import { useNavigate } from 'react-location'
+import Avatar from '@/components/Avatar/Avatar'
 
 const Ringing: FC<{ id: string }> = ({ id }) => {
   const [audio] = useAudio({
@@ -27,30 +28,35 @@ const Ringing: FC<{ id: string }> = ({ id }) => {
   const auth = Auth.useContainer()
   const ui = UI.useContainer()
   const call = Call.useContainer()
-  const history = useHistory()
-
+  const navigate = useNavigate()
+  const conversation = useConversation(id)
   const conversationMembers = useConversationMembers(id)
   const users = useQueries(
-    (conversationMembers ?? []).map((member) => {
-      return {
-        queryKey: ['user', member.userID, auth.token],
-        queryFn: async () => getUser(member.userID, auth.token!)
-      }
-    })
+    (conversationMembers ?? [])
+      .filter((member) => member.userID !== auth.id)
+      .map((member) => {
+        return {
+          queryKey: ['user', member.userID, auth.token],
+          queryFn: async () => getUser(member.userID, auth.token!)
+        }
+      })
   )
 
   return (
-    <Modal onDismiss={() => {}} icon={faPhone} title={'Incoming Call'}>
+    <Modal noWidth>
       {audio}
       <div className={styles.container}>
-        {users?.length === 1 ? (
-          <img src={users[0].data?.avatar} alt={users[0].data?.username} />
-        ) : (
-          <div className={styles.gc}>
-            <FontAwesomeIcon icon={faUserFriends} size={'2x'} />
-          </div>
-        )}
-        <h1>{users?.map(({ data: user }) => user?.username).join(', ')}</h1>
+        <Avatar
+          username={
+            users?.length === 1 ? users[0].data?.username : conversation?.id
+          }
+          size='call'
+          avatar={users?.length !== 1 ? undefined : users[0].data?.avatar}
+        />
+        <div className={styles.details}>
+          <h1>{users?.map(({ data: user }) => user?.username).join(', ')}</h1>
+          <p>Incoming Call</p>
+        </div>
         <div className={styles.buttons}>
           <Button
             type={'button'}
@@ -59,9 +65,9 @@ const Ringing: FC<{ id: string }> = ({ id }) => {
               const {
                 data
               }: {
-                data: { room_id: string; token: string; server: string }
+                data: { roomID: string; token: string; socket: string }
               } = await clientGateway.post(
-                `/channels//join`,
+                `/channels/${conversation?.voiceChannelID}/join`,
                 {},
                 {
                   headers: {
@@ -71,14 +77,14 @@ const Ringing: FC<{ id: string }> = ({ id }) => {
               )
               call.setRoom({
                 token: data.token,
-                id: data.room_id,
-                server: data.server,
+                id: data.roomID,
+                server: data.socket,
                 conversationID: id,
                 channelID: ''
               })
               call.play()
               ui.setModal(undefined)
-              history.push(`/conversations/${id}`)
+              navigate({ to: `/app/conversations/${id}` })
             }}
           >
             <FontAwesomeIcon icon={faPhone} fixedWidth />

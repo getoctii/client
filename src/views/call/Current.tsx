@@ -72,34 +72,39 @@ const Current: FC = () => {
 
   return (
     <div className={styles.current}>
-      <h3
-        className={styles.pointer}
-        onClick={() => {
-          if (room?.conversationID) {
-            history.push(`/conversations/${room.conversationID}`)
-          } else {
-            history.push(
-              `/communities/${channel?.communityID}/channels/${channel?.id}`
-            )
-          }
-        }}
-      >
-        {users && users.length > 0
-          ? 'Call w/' +
-            users?.map(({ data: user }) => user?.username).join(', ')
-          : '#' + channel?.name}
-      </h3>
-      <p>
-        {state === 'new' || !state
-          ? 'Connecting to server...'
-          : state === 'failed' || state === 'disconnected'
-          ? 'Connection failure'
-          : state === 'connected' ||
-            state === 'completed' ||
-            state === 'checking'
-          ? 'Connected'
-          : ''}
-      </p>
+      <div>
+        <h3
+          className={styles.pointer}
+          onClick={() => {
+            if (room?.conversationID) {
+              history.push(`/conversations/${room.conversationID}`)
+            } else {
+              history.push(
+                `/communities/${channel?.communityID}/channels/${channel?.id}`
+              )
+            }
+          }}
+        >
+          {users && users.length > 0
+            ? 'Call w/' +
+              users
+                ?.filter(({ data: user }) => user?.id !== id)
+                .map(({ data: user }) => user?.username)
+                .join(', ')
+            : '#' + channel?.name}
+        </h3>
+        <p>
+          {state === 'new' || !state
+            ? 'Connecting to server...'
+            : state === 'failed' || state === 'disconnected'
+            ? 'Connection failure'
+            : state === 'connected' ||
+              state === 'completed' ||
+              state === 'checking'
+            ? 'Connected'
+            : ''}
+        </p>
+      </div>
       <nav>
         <button onClick={() => setMuted(!muted)}>
           {muted ? (

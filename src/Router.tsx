@@ -56,8 +56,8 @@ const ContextMenuHandler: FC = () => {
 const IncomingCall: FC = () => {
   const auth = Auth.useContainer()
   const call = Call.useContainerSelector(({ room }) => ({ room }))
-  const isMobile = useMedia('(max-width: 740px)')
-  return auth.authenticated && isMobile ? (
+
+  return auth.authenticated ? (
     <>
       <Suspense fallback={<></>}>{call.room && <Current />}</Suspense>
     </>
@@ -197,6 +197,7 @@ const ConversationRedirect = () => {
 }
 
 export const Router: FC = memo(() => {
+  const call = Call.useContainer()
   return (
     <div id='main'>
       <BrowserRouter
@@ -297,6 +298,10 @@ export const Router: FC = memo(() => {
           }
         ]}
       />
+
+      <Suspense fallback={<></>}>{call.room && <Current />}</Suspense>
+
+      <IncomingCall />
     </div>
   )
 })

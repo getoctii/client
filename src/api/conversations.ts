@@ -28,6 +28,7 @@ export interface Conversation {
   icon?: string
   type: ConversationType
   channelID: string
+  voiceChannelID?: string
 }
 
 export const getConversation = async (
