@@ -153,10 +153,9 @@ const useTheme = () => {
   )
 
   const prefersDarkMode = useMedia('(prefers-color-scheme: dark)')
-  useEffect(() => {
-    const documentStyle = document.documentElement.style
-
-    const currentTheme = isThemeBundle(theme)
+  const currentTheme = useMemo(() => {
+    if (!theme) return octii.light
+    return isThemeBundle(theme)
       ? variations === 'system'
         ? prefersDarkMode
           ? theme.dark
@@ -165,6 +164,10 @@ const useTheme = () => {
         ? theme.light
         : theme.dark
       : theme
+  }, [variations, theme, prefersDarkMode])
+
+  useEffect(() => {
+    const documentStyle = document.documentElement.style
 
     if (isPlatform('capacitor')) {
       if (isPlatform('android')) {
@@ -227,10 +230,9 @@ const useTheme = () => {
       '--neko-mention-me': currentTheme.mention.me,
       '--neko-mention-other': currentTheme.mention.other
     }).forEach(([key, value]) => documentStyle.setProperty(key, value))
-    if (currentTheme.global) globalStyle.textContent = currentTheme.global
-    else globalStyle.textContent = ''
-  }, [theme, prefersDarkMode, variations, setThemeID])
+  }, [currentTheme, prefersDarkMode, variations, setThemeID])
   return {
+    currentTheme,
     theme,
     themeID,
     setThemeID,

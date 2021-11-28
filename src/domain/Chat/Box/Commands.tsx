@@ -3,7 +3,7 @@ import { useQuery } from 'react-query'
 import { useRouteMatch } from 'react-router-dom'
 import { Auth } from '@/state/auth'
 import { CommandResponse, getIntegrations } from '@/api/communities'
-import { clientGateway } from '../../utils/constants'
+import { clientGateway } from '@/utils/constants'
 import styles from './Commands.module.scss'
 
 const Commands: React.FC<{

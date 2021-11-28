@@ -5,9 +5,9 @@ import { FC } from 'react'
 import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Button } from '@/components/Form'
-import { UI } from '../../../state/ui'
-import { ModalTypes } from '../../../utils/constants'
-import Audio from './Audio'
+import { UI } from '@/state/ui'
+import { ModalTypes } from '@/utils/constants'
+import Audio from '../Audio/Audio'
 import styles from './File.module.scss'
 
 const isFile = (url: string) =>

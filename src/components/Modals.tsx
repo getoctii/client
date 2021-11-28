@@ -16,8 +16,8 @@ import {
   NewResource,
   NewVersion
 } from '@/modals/Community'
-import File from '../views/chat/embeds/File'
-import { UI } from '../state/ui'
+import { File } from '@/domain/Chat/Embeds'
+import { UI } from '@/state/ui'
 import { Permission } from '../utils/permissions'
 import Update from './Update'
 import { AddFriend } from '@/modals/Hub'

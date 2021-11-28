@@ -8,45 +8,35 @@ import {
   faCopy,
   faTrashAlt,
   IconDefinition,
-  faPencilAlt,
-  faLock,
-  faEthernet,
-  faLink
+  faPencilAlt
 } from '@fortawesome/pro-solid-svg-icons'
 import { Plugins } from '@capacitor/core'
 import { Auth } from '@/state/auth'
-import { useMutation, useQuery } from 'react-query'
-import {
-  clientGateway,
-  MessageTypes,
-  ModalTypes,
-  Permissions
-} from '../../utils/constants'
+import { useQuery } from 'react-query'
+import { ModalTypes } from '@/utils/constants'
 import { ContextMenu } from '@/components/Overlay'
 import useMarkdown from '@innatical/markdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faTimesCircle,
   faUserNinja,
-  faUserShield,
-  faHeart
+  faUserShield
 } from '@fortawesome/pro-solid-svg-icons'
 import { ErrorBoundary } from 'react-error-boundary'
-import { UI } from '../../state/ui'
+import { UI } from '@/state/ui'
 import { patchEncryptedMessage, patchMessage } from '@/api/messages'
-import Editor from '../../components/Editor'
+import Editor from '@/components/Editor'
 import { Chat } from '@/state/chat'
 import { withHistory } from 'slate-history'
 import { withReact } from 'slate-react'
-import { withMentions } from '../../utils/slate'
+import { withMentions } from '@/utils/slate'
 import { createEditor } from 'slate'
-import Invite from './embeds/Invite'
+import { Invite, File } from '@/domain/Chat/Embeds'
 import Mention from './Mention'
 import { useCurrentUser, useUser } from '@/hooks/users'
-import File from './embeds/File'
 import { Keychain } from '@/state/keychain'
 import { getProduct, getResource } from '@/api/communities'
-import Avatar from '../../components/Avatar/Avatar'
+import Avatar from '@/components/Avatar/Avatar'
 import {
   EncryptedMessage,
   SignedMessage,

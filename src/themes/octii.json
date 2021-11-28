@@ -4,11 +4,11 @@
   "dark": {
     "colors": {
       "primary": "#1089FF",
-      "secondary": "linear-gradient(224deg, #A3A3A3 0%, #636363 100%)",
-      "success": "#8f8f8f",
+      "secondary": "#757575",
+      "success": "#20D626",
       "info": "#8f8f8f",
       "danger": "#F86464",
-      "warning": "linear-gradient(224deg, #FFD575 0%, #FF7200 100%)",
+      "warning": "#FF7D0E",
       "light": "#dadada",
       "dark": "#040a0f"
     },
@@ -82,12 +82,12 @@
   },
   "light": {
     "colors": {
-      "primary": "linear-gradient(224deg, #75C8FF 0%, #007FFF 100%)",
-      "secondary": "linear-gradient(224deg, #A3A3A3 0%, #636363 100%)",
-      "success": "#8f8f8f",
+      "primary": "#1089FF",
+      "secondary": "#757575",
+      "success": "#20D626",
       "info": "#8f8f8f",
-      "danger": "linear-gradient(224deg, #FC9D9D 0%, #F86464 100%)",
-      "warning": "linear-gradient(224deg, #FFD575 0%, #FF7200 100%)",
+      "danger": "#F86464",
+      "warning": "#FF7D0E",
       "light": "#dadada",
       "dark": "#040a0f"
     },

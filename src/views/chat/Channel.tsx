@@ -26,7 +26,7 @@ import {
   faUserGroup
 } from '@fortawesome/pro-solid-svg-icons'
 import { useHistory, useParams } from 'react-router-dom'
-import Box from './Box'
+import { Box } from '@/domain/Chat'
 import Typing from '../../state/typing'
 import { Button } from '@/components/Form'
 import Messages from './Messages'

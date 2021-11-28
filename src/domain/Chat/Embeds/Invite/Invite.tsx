@@ -8,7 +8,7 @@ import { useQuery } from 'react-query'
 import { getUseInvite } from '@/api/invites'
 import { Auth } from '@/state/auth'
 import { getCommunities } from '@/api/users'
-import { clientGateway } from '../../../utils/constants'
+import { clientGateway } from '@/utils/constants'
 
 const isInvite = (url: string) =>
   /^https:\/\/octii\.(chat\/invite|com)\/[A-Za-z0-9_-]*/g.test(url)

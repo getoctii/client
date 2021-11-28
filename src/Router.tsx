@@ -38,6 +38,8 @@ import { SideBar as CommunitySideBar } from '@/domain/Community'
 import Channel from './views/chat/Channel'
 import Profile from './views/settings/Profile'
 import { Status } from '@/domain/User'
+import { ThemeProvider } from 'styled-components'
+import { Theme } from './state/theme'
 
 const reactLocation = new ReactLocation()
 
@@ -198,110 +200,113 @@ const ConversationRedirect = () => {
 
 export const Router: FC = memo(() => {
   const call = Call.useContainer()
+  const theme = Theme.useContainer()
   return (
     <div id='main'>
-      <BrowserRouter
-        location={reactLocation}
-        routes={[
-          {
-            path: '/',
-            element: <Index />
-          },
-          {
-            path: 'home',
-            element: <Home />
-          },
-          { path: 'downloads', element: <Downloads /> },
-          { path: 'login', element: <Login /> },
-          { path: 'register', element: <Register /> },
-          {
-            path: 'app',
-            element: <AppLayout />,
-            children: [
-              {
-                path: '/',
-                element: <Navigate to={'/app/conversations'} />
-              },
-              {
-                path: 'conversations',
-                element: <ConversationsLayout />,
-                children: [
-                  {
-                    path: '/',
-                    element: <ConversationRedirect />
-                  },
-                  {
-                    path: ':id',
-                    element: <Conversation />
-                  }
-                ]
-              },
-              {
-                path: 'communities',
-                children: [
-                  {
-                    path: ':id',
-                    element: <CommunityLayout />,
-                    children: [
-                      {
-                        path: 'channels/:channelID',
-                        children: [
-                          {
-                            path: '/',
-                            element: <Channel.Community />
-                          },
-                          {
-                            path: 'settings',
-                            element: <></>
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                path: 'settings',
-                element: <SettingsLayout />,
-                children: [
-                  {
-                    path: '/',
-                    element: <Navigate to={'/app/settings/profile'} />
-                  },
-                  {
-                    path: 'profile',
-                    element: <Profile />
-                  }
-                ]
-              },
-              {
-                path: 'hub',
-                element: <HubLayout />,
-                children: [
-                  {
-                    path: '/',
-                    element: <Navigate to={'/app/hub/store'} />
-                  },
-                  {
-                    path: 'store',
-                    element: <></>,
-                    children: [
-                      {
-                        path: ':productID',
-                        element: <></>
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]}
-      />
+      <ThemeProvider theme={theme.currentTheme}>
+        <BrowserRouter
+          location={reactLocation}
+          routes={[
+            {
+              path: '/',
+              element: <Index />
+            },
+            {
+              path: 'home',
+              element: <Home />
+            },
+            { path: 'downloads', element: <Downloads /> },
+            { path: 'login', element: <Login /> },
+            { path: 'register', element: <Register /> },
+            {
+              path: 'app',
+              element: <AppLayout />,
+              children: [
+                {
+                  path: '/',
+                  element: <Navigate to={'/app/conversations'} />
+                },
+                {
+                  path: 'conversations',
+                  element: <ConversationsLayout />,
+                  children: [
+                    {
+                      path: '/',
+                      element: <ConversationRedirect />
+                    },
+                    {
+                      path: ':id',
+                      element: <Conversation />
+                    }
+                  ]
+                },
+                {
+                  path: 'communities',
+                  children: [
+                    {
+                      path: ':id',
+                      element: <CommunityLayout />,
+                      children: [
+                        {
+                          path: 'channels/:channelID',
+                          children: [
+                            {
+                              path: '/',
+                              element: <Channel.Community />
+                            },
+                            {
+                              path: 'settings',
+                              element: <></>
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  path: 'settings',
+                  element: <SettingsLayout />,
+                  children: [
+                    {
+                      path: '/',
+                      element: <Navigate to={'/app/settings/profile'} />
+                    },
+                    {
+                      path: 'profile',
+                      element: <Profile />
+                    }
+                  ]
+                },
+                {
+                  path: 'hub',
+                  element: <HubLayout />,
+                  children: [
+                    {
+                      path: '/',
+                      element: <Navigate to={'/app/hub/store'} />
+                    },
+                    {
+                      path: 'store',
+                      element: <></>,
+                      children: [
+                        {
+                          path: ':productID',
+                          element: <></>
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]}
+        />
 
-      <Suspense fallback={<></>}>{call.room && <Current />}</Suspense>
+        <Suspense fallback={<></>}>{call.room && <Current />}</Suspense>
 
-      <IncomingCall />
+        <IncomingCall />
+      </ThemeProvider>
     </div>
   )
 })

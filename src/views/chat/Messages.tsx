@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useMemo, FC, Suspense } from 'react'
 import styles from './Messages.module.scss'
 import { useInfiniteQuery } from 'react-query'
 import { Auth } from '@/state/auth'
-import Message from './Message'
+import { Message } from '@/domain/Chat'
 import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
 import { Waypoint } from 'react-waypoint'
@@ -11,7 +11,6 @@ import { Chat } from '@/state/chat'
 import { isPlatform } from '@ionic/react'
 import { Plugins } from '@capacitor/core'
 import { Keychain } from '@/state/keychain'
-import { JsonWebKeyPublicChain, SymmetricKey } from '@innatical/inncryption'
 
 const { Keyboard } = Plugins
 

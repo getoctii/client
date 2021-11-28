@@ -1,15 +1,20 @@
+import { Theme } from '@/state/theme'
 import styled, { css } from 'styled-components'
 
-export const ConversationWrapper = styled.div`
-  background: var(--neko-chat-background);
+export const ConversationWrapper = styled.div<{
+  theme?: Theme
+}>`
+  background: ${({ theme }) => theme.chat?.background};
   width: 100%;
   height: 100%;
   display: flex;
 `
 
-export const ConversationInfo = styled.div`
+export const ConversationInfo = styled.div<{
+  theme?: Theme
+}>`
   width: 20rem;
-  background: var(--neko-channels-background);
+  background: ${({ theme }) => theme.channels?.background};
 `
 
 export const ConversationDetails = styled.div`
@@ -25,6 +30,7 @@ export const ConversationMembers = styled.div`
 
 export const ConversationName = styled.input<{
   editing?: boolean
+  theme?: Theme
 }>`
   font-size: 1.15rem;
   margin-top: 0.5rem;
@@ -38,13 +44,13 @@ export const ConversationName = styled.input<{
   border-color: transparent;
   &:hover {
     border: 1px;
-    border-color: var(--neko-chat-background);
+    border-color: ${({ theme }) => theme.chat?.background};
     border-style: solid;
   }
   ${(props) =>
     props.editing &&
     css`
-      background: var(--neko-chat-background);
+      background: ${({ theme }) => theme.chat?.background};
     `}
 `
 
@@ -54,9 +60,11 @@ export const ConversationGroupType = styled.h1`
   opacity: 0.8;
 `
 
-export const Seperator = styled.div`
+export const Seperator = styled.div<{
+  theme: Theme
+}>`
   height: 1px;
-  background: var(--neko-channels-seperator);
+  background: ${({ theme }) => theme.channels?.seperator};
 `
 
 export const MembersHeading = styled.h1`
@@ -100,6 +108,7 @@ export const ConversationActions = styled.div`
 export const ConversationAction = styled.button<{
   primary?: boolean
   danger?: boolean
+  theme?: Theme
 }>`
   height: 2.2rem;
   width: 2.2rem;
@@ -111,12 +120,12 @@ export const ConversationAction = styled.button<{
   ${(props) =>
     props.primary &&
     css`
-      background: var(--neko-colors-primary);
+      background: ${({ theme }) => theme.colors?.primary};
     `}
 
   ${(props) =>
     props.danger &&
     css`
-      background: var(--neko-colors-danger);
+      background: ${({ theme }) => theme.colors?.danger};
     `}
 `

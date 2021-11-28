@@ -5,6 +5,8 @@ import styles from './Mention.module.scss'
 import { getChannel } from '@/api/messages'
 import { useHistory } from 'react-router-dom'
 import { useUser } from '@/hooks/users'
+import { useChannel } from '@/hooks/messages'
+import { useNavigate } from 'react-location'
 
 const User: FC<{
   userID: string
@@ -32,8 +34,8 @@ const Channel: FC<{
   attributes?: any
 }> = ({ channelID, selected, attributes, children }) => {
   const { token } = Auth.useContainer()
-  const history = useHistory()
-  const channel = useQuery(['channel', channelID, token], getChannel)
+  const navigate = useNavigate()
+  const channel = useChannel(channelID)
   return (
     <span
       {...attributes}
@@ -42,12 +44,12 @@ const Channel: FC<{
       }`}
       onClick={() =>
         !attributes &&
-        history.push(
-          `/communities/${channel.data?.community_id}/channels/${channelID}`
-        )
+        navigate({
+          to: `/communities/${channel?.communityID}/channels/${channelID}`
+        })
       }
     >
-      #{channel.data?.name}
+      #{channel?.name}
       {children}
     </span>
   )

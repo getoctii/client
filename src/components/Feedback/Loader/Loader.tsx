@@ -1,12 +1,12 @@
 import { FC } from 'react'
 import { SyncLoader } from 'react-spinners'
-import styles from './Loader.module.scss'
+import { StyledLoader } from './Loader.style'
 
 const Loader: FC = () => {
   return (
-    <div className={styles.loader}>
+    <StyledLoader>
       <SyncLoader />
-    </div>
+    </StyledLoader>
   )
 }
 
