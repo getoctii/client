@@ -1,5 +1,4 @@
 import { FC, memo, Suspense, useEffect, useMemo } from 'react'
-import { useMedia } from 'react-use'
 import { UI } from './state/ui'
 import Conversation from './views/conversation/Conversation'
 import { SideBar } from './components/Layout'
@@ -10,7 +9,6 @@ import { Call } from './state/call'
 import Current from './views/call/Current'
 import EventSource from './events'
 import { ContextMenu } from '@/components/Overlay'
-import { Plugins } from '@capacitor/core'
 import { useSuspenseStorageItem } from './utils/storage'
 import Modal from './components/Modals'
 import { Permission } from './utils/permissions'
@@ -28,7 +26,6 @@ import { ConversationList, ConversationEmpty } from '@/domain/Conversation'
 import { SideView } from '@/components/Layout'
 import {
   faPaintBrush,
-  faReceipt,
   faShieldAlt,
   faStoreAlt,
   faUser
@@ -85,9 +82,11 @@ const AppLayout = () => {
     )
   }, [communities?.length, conversations?.length, onboardingComplete])
 
+  const auth = Auth.useContainer()
+  if (!auth.authenticated) return <Navigate to='/login' />
   return (
     <>
-      {showOnBoarding ? (
+      {auth.authenticated && showOnBoarding ? (
         <OnBoarding />
       ) : (
         <>

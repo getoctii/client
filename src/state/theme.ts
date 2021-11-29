@@ -6,18 +6,11 @@ import octiiHub from '@/themes/octii-hub.json'
 import ayu from '@/themes/ayu-mirage.json'
 import eyestrain from '@/themes/eyestrain.json'
 import innlove from '@/themes/innlove.json'
-import { isPlatform } from '@ionic/react'
-import {
-  KeyboardResize,
-  KeyboardStyle,
-  Plugins,
-  StatusBarStyle
-} from '@capacitor/core'
+
 import { useSuspenseStorageItem } from '@/utils/storage'
 import Integrations from '@/state/integrations'
 // import * as Yup from 'zod'
 import * as Yup from 'yup'
-const { Keyboard, StatusBar } = Plugins
 const isThemeBundle = (theme: Theme | ThemeBundle): theme is ThemeBundle => {
   return (theme as ThemeBundle).dark !== undefined
 }
@@ -154,7 +147,6 @@ const useTheme = () => {
 
   const prefersDarkMode = useMedia('(prefers-color-scheme: dark)')
   const currentTheme = useMemo(() => {
-    if (!theme) return octii.light
     return isThemeBundle(theme)
       ? variations === 'system'
         ? prefersDarkMode
@@ -168,21 +160,6 @@ const useTheme = () => {
 
   useEffect(() => {
     const documentStyle = document.documentElement.style
-
-    if (isPlatform('capacitor')) {
-      if (isPlatform('android')) {
-        StatusBar.setOverlaysWebView({ overlay: true })
-      }
-      Keyboard.setResizeMode({ mode: KeyboardResize.Native })
-      const isDark =
-        (variations === 'system' && prefersDarkMode) || variations === 'dark'
-      Keyboard.setStyle({
-        style: isDark ? KeyboardStyle.Dark : KeyboardStyle.Light
-      })
-      StatusBar.setStyle({
-        style: isDark ? StatusBarStyle.Dark : StatusBarStyle.Light
-      })
-    }
 
     Object.entries({
       '--neko-colors-primary': currentTheme.colors.primary,

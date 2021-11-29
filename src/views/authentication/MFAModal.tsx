@@ -1,7 +1,6 @@
 import { faLock } from '@fortawesome/pro-solid-svg-icons'
 import { FC } from 'react'
 import { Button } from '@/components/Form'
-import { Plugins } from '@capacitor/core'
 import { Modal } from '@/components/Overlay'
 import QRCode from 'qrcode.react'
 import styles from './MFAModal.module.scss'
@@ -16,9 +15,7 @@ const MFAModal: FC<{ url: string; TOTPKey: string }> = ({ url, TOTPKey }) => {
         <Button
           type='button'
           onClick={async () => {
-            await Plugins.Clipboard.write({
-              string: TOTPKey
-            })
+            await navigator.clipboard.writeText(TOTPKey)
           }}
           className={styles.button}
         >

@@ -5,7 +5,7 @@ import dayjsCalendar from 'dayjs/plugin/calendar'
 import { FC, memo, useMemo, useRef, useState } from 'react'
 import { useInfiniteQuery, useMutation } from 'react-query'
 import { Waypoint } from 'react-waypoint'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import styles from './Codes.module.scss'
 import { clientGateway } from '../../utils/constants'
 import {
@@ -16,10 +16,8 @@ import {
   faTrashAlt,
   faPlusCircle
 } from '@fortawesome/pro-solid-svg-icons'
-import Button from '../../components/Button'
-import { Plugins } from '@capacitor/core'
-import Header from '../../components/Header'
-import List from '../../components/List'
+import { Button } from '@/components/Form'
+import { Header, List } from '@/components/Layout'
 import { useHistory } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import queryClient from '../../utils/queryClient'
@@ -36,7 +34,7 @@ interface CodeResponse {
 
 const Code: FC<CodeResponse> = memo(({ id, used, created_at }) => {
   const { token } = Auth.useContainer()
-  const [deleteCode] = useMutation(
+  const deleteCode = useMutation(
     async () =>
       (
         await clientGateway.delete(`/admin/codes/${id}`, {
@@ -66,9 +64,7 @@ const Code: FC<CodeResponse> = memo(({ id, used, created_at }) => {
             className={styles.copyButton}
             type='button'
             onClick={async () => {
-              await Plugins.Clipboard.write({
-                string: id
-              })
+              await navigator.clipboard.writeText(id)
             }}
           >
             <FontAwesomeIcon icon={faCopy} />
@@ -78,7 +74,7 @@ const Code: FC<CodeResponse> = memo(({ id, used, created_at }) => {
             className={styles.deleteButton}
             type='button'
             onClick={async () => {
-              await deleteCode()
+              await deleteCode.mutate()
             }}
           >
             <FontAwesomeIcon icon={faTrashAlt} />

@@ -1,25 +1,7 @@
 import { createContainer } from '@innatical/innstate'
-import {
-  Plugins,
-  FilesystemDirectory,
-  FilesystemEncoding
-} from '@capacitor/core'
 import { clientGateway } from '@/utils/constants'
 import { ThemeBundle } from '@/state/theme'
-
-const { Filesystem } = Plugins
-
-const exists = async (path: string, directory: FilesystemDirectory) => {
-  try {
-    await Filesystem.stat({
-      path,
-      directory
-    })
-    return true
-  } catch {
-    return false
-  }
-}
+import { db } from '@/utils/db'
 
 const getPayloads = async (
   _: unknown,
@@ -28,21 +10,12 @@ const getPayloads = async (
 ) => {
   return await Promise.all(
     payloadKeys.map(async (key) => {
-      if (
-        await exists(
-          `payloads/${key[0]}/${key[1]}.json`,
-          FilesystemDirectory.Data
-        )
-      ) {
-        return JSON.parse(
-          (
-            await Filesystem.readFile({
-              path: `payloads/${key[0]}/${key[1]}.json`,
-              directory: FilesystemDirectory.Data,
-              encoding: FilesystemEncoding.UTF8
-            })
-          ).data
-        )
+      const payload = await db.payloads.get({
+        id: key[0],
+        version: key[1]
+      })
+      if (payload) {
+        return payload.data
       } else {
         const { data } = await clientGateway.get<{
           server: any[]
@@ -53,14 +26,11 @@ const getPayloads = async (
             Authorization: token
           }
         })
-        await Filesystem.writeFile({
-          path: `payloads/${key[0]}/${key[1]}.json`,
-          directory: FilesystemDirectory.Data,
-          data: JSON.stringify(data),
-          encoding: FilesystemEncoding.UTF8,
-          recursive: true
+        await db.payloads.add({
+          id: key[0],
+          version: key[1],
+          data
         })
-
         return data
       }
     })
@@ -97,7 +67,7 @@ const useIntegrations = () => {
   // }
 
   return {
-    payloads: []
+    payloads: [] as any[]
   }
 }
 

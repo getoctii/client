@@ -7,7 +7,6 @@ import styles from './NewInvite.module.scss'
 import { useRouteMatch } from 'react-router-dom'
 import { UI } from '@/state/ui'
 import { useQuery } from 'react-query'
-import { Plugins } from '@capacitor/core'
 import { faTimesCircle } from '@fortawesome/pro-solid-svg-icons'
 
 const InviteField: FC<{ onInvite: (invite: string) => void }> = ({
@@ -57,9 +56,10 @@ const NewInvite: FC = () => {
             type='submit'
             onClick={async () => {
               if (!invite) return
-              await Plugins.Clipboard.write({
-                string: `https://octii.chat/invite/${invite ?? ''}`
-              })
+              await navigator.clipboard.writeText(
+                `https://octii.chat/invite/${invite ?? ''}`
+              )
+
               ui.clearModal()
             }}
           >

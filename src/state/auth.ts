@@ -3,7 +3,6 @@ import decode from 'jwt-decode'
 import { createContainer } from '@innatical/innstate'
 import { clientGateway } from '@/utils/constants'
 import { useSuspenseStorageItem } from '@/utils/storage'
-import { Plugins } from '@capacitor/core'
 import queryClient from '@/utils/queryClient'
 
 const useAuth = () => {
@@ -21,32 +20,11 @@ const useAuth = () => {
 
   useEffect(() => {
     if (payload?.exp && payload.exp <= Math.floor(Date.now() / 1000)) {
-      Plugins.Storage.clear()
+      localStorage.clear()
       queryClient.clear()
     }
   }, [payload, setToken])
 
-  useEffect(() => {
-    // @ts-ignore
-    window.octiiStatus = async (title: string) => {
-      if (!token || !payload?.sub) return 'failed'
-      await clientGateway.patch(
-        `/users/${payload.sub}`,
-        {
-          status: title
-        },
-        {
-          headers: {
-            authorization: token
-          }
-        }
-      )
-
-      await queryClient.invalidateQueries(['users', payload.sub])
-
-      return 'success'
-    }
-  }, [token, payload])
   return {
     id: payload?.sub ?? null,
     authenticated,

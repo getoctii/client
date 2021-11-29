@@ -40,10 +40,7 @@ import {
 import { Permission } from '@/utils/permissions'
 import { TextArea } from '@/components/Form'
 import { StatusBar } from '@/components/Layout'
-import { Plugins } from '@capacitor/core'
 import queryClient from '@/utils/queryClient'
-
-const { Clipboard } = Plugins
 
 const ChannelSchema = Yup.object().shape({
   name: Yup.string()

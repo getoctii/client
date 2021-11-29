@@ -1,4 +1,3 @@
-import { Plugins } from '@capacitor/core'
 import { useCallback } from 'react'
 import { useQuery } from 'react-query'
 import queryClient from './queryClient'
@@ -8,13 +7,13 @@ export const useSuspenseStorageItem = <T>(
   initialValue?: T
 ): [T | undefined, (value: T) => void] => {
   const { data } = useQuery<T>(['storage', key, initialValue], async () => {
-    const { value } = await Plugins.Storage.get({ key })
+    const value = await localStorage.getItem(key)
     if (!value && !initialValue) return initialValue
     else if (!value && initialValue) {
-      await Plugins.Storage.set({
+      await localStorage.setItem(
         key,
-        value: typeof value === 'string' ? value : JSON.stringify(initialValue)
-      })
+        typeof value === 'string' ? value : JSON.stringify(initialValue)
+      )
       return initialValue
     } else if (value) {
       if (value === 'undefined' || value === 'null') return undefined
@@ -31,10 +30,10 @@ export const useSuspenseStorageItem = <T>(
   const setValue = useCallback(
     async (value: T) => {
       try {
-        await Plugins.Storage.set({
+        await localStorage.setItem(
           key,
-          value: typeof value === 'string' ? value : JSON.stringify(value)
-        })
+          typeof value === 'string' ? value : JSON.stringify(value)
+        )
 
         queryClient.setQueryData(['storage', key, initialValue], value)
       } catch (error) {

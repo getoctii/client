@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Auth } from '@/state/auth'
 import { CLIENT_GATEWAY_URL } from '../utils/constants'
-import { AppState, Plugins } from '@capacitor/core'
-import { isPlatform } from '@ionic/react'
 import { io, Socket } from 'socket.io-client'
-
-const { App, BackgroundTask } = Plugins
 
 const useSubscribe = () => {
   const { token, id } = Auth.useContainer()
@@ -30,24 +26,9 @@ const useSubscribe = () => {
       // queryClient.prefetchQuery(['mentions', id, token], getMentions)
     }
 
-    const stateChangeCb = (state: AppState) => {
-      if (!isPlatform('capacitor')) return
-      if (!state.isActive) {
-        const taskID = BackgroundTask.beforeExit(() => {
-          socket?.close()
-          BackgroundTask.finish({ taskId: taskID })
-        })
-      } else {
-        createEventSource()
-      }
-    }
-
     createEventSource()
 
-    const listener = App.addListener('appStateChange', stateChangeCb)
-
     return () => {
-      listener.remove()
       socket?.close()
     }
   }, [token, id])

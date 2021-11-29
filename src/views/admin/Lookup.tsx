@@ -16,7 +16,6 @@ import {
 import Icon from '../../user/Icon'
 import { useHistory } from 'react-router-dom'
 import { clientGateway } from '../../utils/constants'
-import { Plugins } from '@capacitor/core'
 import { useMedia } from 'react-use'
 import { useUser } from '../../user/state'
 import queryClient from '../../utils/queryClient'
@@ -63,7 +62,7 @@ const UserLookup: FC<{ userID: string }> = ({ userID }) => {
           <strong>Email:</strong>{' '}
           <kbd
             onClick={async () =>
-              await Plugins.Clipboard.write({ string: user?.email })
+              await navigator.clipboard.writeText(user.email)
             }
           >
             {user?.email}
@@ -72,9 +71,7 @@ const UserLookup: FC<{ userID: string }> = ({ userID }) => {
         <p>
           <strong>ID:</strong>{' '}
           <kbd
-            onClick={async () =>
-              await Plugins.Clipboard.write({ string: user?.id })
-            }
+            onClick={async () => await navigator.clipboard.writeText(user.id)}
           >
             {user?.id}
           </kbd>

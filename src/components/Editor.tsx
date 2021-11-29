@@ -17,7 +17,6 @@ import underlineFromMarkdown from '@innatical/mdast-util-underline/from-markdown
 import underlineToMarkdown from '@innatical/mdast-util-underline/to-markdown'
 import { Mentions, Mention, Commands } from '@/domain/Chat'
 import { ChannelResponse, CommandResponse } from '@/api/communities'
-import { isPlatform } from '@ionic/react'
 import styles from './Editor.module.scss'
 import { UI } from '../state/ui'
 import { useSuspenseStorageItem } from '../utils/storage'
@@ -321,7 +320,6 @@ const EditorView: FC<{
         !ui.modal &&
         !ReactEditor.isFocused(editor) &&
         !isMobile &&
-        !isPlatform('ipad') &&
         (event.target as any)?.type !== 'text' &&
         (!(event.target as any)?.id || (event.target as any)?.id === id) &&
         allowedKeys.has(event.code) &&
@@ -486,7 +484,7 @@ const EditorView: FC<{
           }}
         >
           <Editable
-            autoFocus={!ui.modal && !isMobile && !isPlatform('ipad')}
+            autoFocus={!ui.modal && !isMobile}
             className={`${styles.input} ${inputClassName}`}
             autoCapitalize={isMobile ? 'true' : 'false'}
             spellCheck

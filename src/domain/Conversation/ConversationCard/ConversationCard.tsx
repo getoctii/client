@@ -12,7 +12,6 @@ import { clientGateway } from '@/utils/constants'
 import styles from './ConversationCard.module.scss'
 import { Auth } from '@/state/auth'
 import { getUser, State } from '@/api/users'
-import { Clipboard } from '@capacitor/core'
 import { ContextMenu } from '@/components/Overlay'
 import { ContextMenuItems } from '@/state/ui'
 import { useSuspenseStorageItem } from '@/utils/storage'
@@ -76,9 +75,7 @@ const ConversationCardView: FC<{
         icon: faCopy,
         danger: false,
         onClick: async () => {
-          await Clipboard.write({
-            string: conversationID
-          })
+          await navigator.clipboard.writeText(conversationID)
         }
       }
     ]

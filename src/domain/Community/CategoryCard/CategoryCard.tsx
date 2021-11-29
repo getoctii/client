@@ -14,11 +14,9 @@ import { clientGateway, ModalTypes, Permissions } from '@/utils/constants'
 import { ContextMenu } from '@/components/Overlay'
 import { AlertType } from '@/components/Overlay/Alert/Alert'
 import { faCopy, faPen, faTrashAlt } from '@fortawesome/pro-solid-svg-icons'
-import { Clipboard } from '@capacitor/core'
 import { UI } from '@/state/ui'
 import { useMutation } from 'react-query'
 import { Auth } from '@/state/auth'
-import { useHistory, useRouteMatch } from 'react-router-dom'
 
 export const CategoryChannelsDraggable: FC<{
   id: string
@@ -77,9 +75,7 @@ const CategoryCardView: FC<{
         icon: faCopy,
         danger: false,
         onClick: async () => {
-          await Clipboard.write({
-            string: id
-          })
+          await navigator.clipboard.writeText(id!)
         }
       }
     ]

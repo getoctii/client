@@ -2,7 +2,6 @@ import { faHashtag } from '@fortawesome/pro-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { memo, Suspense, useCallback, useMemo, FC } from 'react'
 import { Auth } from '@/state/auth'
-import { Clipboard } from '@capacitor/core'
 import { ContextMenu } from '@/components/Overlay'
 import styles from './ChannelCard.module.scss'
 import { useMutation } from 'react-query'
@@ -123,9 +122,7 @@ const ChannelCardView: FC<{
         icon: faCopy,
         danger: false,
         onClick: async () => {
-          await Clipboard.write({
-            string: id
-          })
+          await navigator.clipboard.writeText(id)
         }
       }
     ]

@@ -1,28 +1,24 @@
 import { FC } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
-import { Auth } from '../authentication/state'
+import { Auth } from '@/state/auth'
 import { clientGateway, ModalTypes } from '../../utils/constants'
-import Button from '../../components/Button'
+import { Button, Input } from '@/components/Form'
 import { BarLoader } from 'react-spinners'
 import styles from './Security.module.scss'
-import Input from '../../components/Input'
 import { faChevronLeft } from '@fortawesome/pro-solid-svg-icons'
 import { useMedia } from 'react-use'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useHistory } from 'react-router-dom'
 import * as Yup from 'yup'
-import { Keychain } from '../../keychain/state'
+import { Keychain } from '@/state/keychain'
 import { UI } from '../../state/ui'
 import {
   createProtectedKeychain,
   exportProtectedKeychain,
   updateKeychainPassword
 } from '@innatical/inncryption'
-import { useUser } from '../../user/state'
-import { Plugins } from '@capacitor/core'
+import { useUser } from '@/hooks/users'
 import queryClient from '../../utils/queryClient'
-
-const { Clipboard } = Plugins
 
 const PasswordSchema = Yup.object().shape({
   newPassword: Yup.string()

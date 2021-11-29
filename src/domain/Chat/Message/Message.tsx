@@ -10,7 +10,6 @@ import {
   IconDefinition,
   faPencilAlt
 } from '@fortawesome/pro-solid-svg-icons'
-import { Plugins } from '@capacitor/core'
 import { Auth } from '@/state/auth'
 import { useQuery } from 'react-query'
 import { ModalTypes } from '@/utils/constants'
@@ -45,7 +44,6 @@ import {
 } from '@innatical/inncryption'
 import { useDecryptMessage } from '@/hooks/messages'
 
-const { Clipboard } = Plugins
 dayjs.extend(dayjsUTC)
 dayjs.extend(dayjsCalendar)
 
@@ -232,9 +230,7 @@ const MessageView: FC<{
           icon: faCopy,
           danger: false,
           onClick: async () => {
-            await Clipboard.write({
-              string: messageContent
-            })
+            await navigator.clipboard.writeText(messageContent!)
           }
         },
         {
@@ -242,9 +238,7 @@ const MessageView: FC<{
           icon: faCopy,
           danger: false,
           onClick: async () => {
-            await Clipboard.write({
-              string: id
-            })
+            await navigator.clipboard.writeText(id!)
           }
         }
       ]
@@ -349,19 +343,7 @@ const MessageView: FC<{
             <Button
               type='button'
               onClick={async () => {
-                await Clipboard.write({
-                  string: str
-                })
-
-                await Plugins.LocalNotifications.schedule({
-                  notifications: [
-                    {
-                      title: 'Successfully copied code block!',
-                      body: str.slice(0, 20) + '...',
-                      id: 1
-                    }
-                  ]
-                })
+                await navigator.clipboard.writeText(str)
               }}
               className={styles.copyCodeButton}
             >

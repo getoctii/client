@@ -5,11 +5,11 @@ import dayjsCalendar from 'dayjs/plugin/calendar'
 import { memo, Suspense, FC } from 'react'
 import { useMutation, useQuery } from 'react-query'
 import { useRouteMatch } from 'react-router-dom'
-import { Auth } from '../../authentication/state'
-import Button from '../../../components/Button'
-import { getUser } from '../../../user/remote'
+import { Auth } from '@/state/auth'
+import { Button } from '@/components/Form'
+import { getUser } from '@/api/users'
 import styles from './Invites.module.scss'
-import { getInvites, InviteResponse } from '../remote'
+import { getInvites, InviteResponse } from '@/api/invites'
 import {
   faCopy,
   faPlusCircle,
@@ -17,11 +17,11 @@ import {
   faUsers
 } from '@fortawesome/pro-solid-svg-icons'
 import { clientGateway, ModalTypes } from '../../../utils/constants'
-import { Plugins } from '@capacitor/core'
-import List from '../../../components/List'
+import { List } from '@/components/Layout'
 import { UI } from '../../../state/ui'
 import { useMedia } from 'react-use'
 import queryClient from '../../../utils/queryClient'
+import { useUser } from '@/hooks/users'
 
 dayjs.extend(dayjsUTC)
 dayjs.extend(dayjsCalendar)
@@ -29,9 +29,9 @@ dayjs.extend(dayjsCalendar)
 const InviteCard: FC<InviteResponse> = memo((invite) => {
   const match = useRouteMatch<{ id: string }>('/communities/:id/settings')
   const { token } = Auth.useContainer()
-  const user = useQuery(['users', invite.author_id, token], getUser)
+  const user = useUser(invite.author_id)
   const isMobile = useMedia('(max-width: 873px)')
-  const [deleteInvite] = useMutation(
+  const deleteInvite = useMutation(
     async () =>
       (
         await clientGateway.delete(`/invites/${invite.id}`, {
@@ -53,10 +53,10 @@ const InviteCard: FC<InviteResponse> = memo((invite) => {
       icon={<div className={styles.icon}>{invite.uses}</div>}
       title={
         <>
-          {user.data?.username}#
-          {user.data?.discriminator === 0
+          {user?.username}#
+          {user?.discriminator === 0
             ? 'inn'
-            : user.data?.discriminator.toString().padStart(4, '0')}
+            : user?.discriminator.toString().padStart(4, '0')}
         </>
       }
       subtitle={invite.code}
@@ -66,9 +66,9 @@ const InviteCard: FC<InviteResponse> = memo((invite) => {
             className={styles.copyButton}
             type='button'
             onClick={async () => {
-              await Plugins.Clipboard.write({
-                string: `https://octii.com/${invite.code}`
-              })
+              await navigator.clipboard.writeText(
+                `https://octii.com/${invite.code}`
+              )
             }}
           >
             <FontAwesomeIcon icon={faCopy} />
@@ -78,7 +78,7 @@ const InviteCard: FC<InviteResponse> = memo((invite) => {
             <Button
               type='button'
               className={styles.deleteButton}
-              onClick={async () => await deleteInvite()}
+              onClick={async () => await deleteInvite.mutate()}
             >
               <FontAwesomeIcon icon={faTrashAlt} />
             </Button>

@@ -3,15 +3,10 @@ import { StrictMode, Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import './index.scss'
 import '@fontsource/inter/variable.css'
-// import * as serviceWorkerRegistration from './utils/serviceWorkerRegistration'
 import { Router } from './Router'
 import { ReactQueryDevtools } from 'react-query-devtools'
 import { Auth } from '@/state/auth'
-import {
-  QueryClient,
-  QueryClientProvider,
-  QueryErrorResetBoundary
-} from 'react-query'
+import { QueryClientProvider, QueryErrorResetBoundary } from 'react-query'
 import { Loader, Error } from '@/components/Feedback'
 import { UI } from './state/ui'
 import '@sentry/browser'
@@ -28,11 +23,8 @@ import { HelmetProvider } from 'react-helmet-async'
 import smoothscroll from 'smoothscroll-polyfill'
 import Integration from '@/state/integrations'
 import { Keychain } from '@/state/keychain'
-import { Plugins } from '@capacitor/core'
 import queryClient from './utils/queryClient'
 smoothscroll.polyfill()
-
-const { App } = Plugins
 
 if (import.meta.env.PROD) {
   Sentry.init({

@@ -1,4 +1,0 @@
-terminal:
-  image: node:latest
-  before_script:
-    - yarn

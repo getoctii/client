@@ -8,11 +8,7 @@ import dayjsUTC from 'dayjs/plugin/utc'
 import { Waypoint } from 'react-waypoint'
 import { getMessages, MessageResponse } from '@/api/messages'
 import { Chat } from '@/state/chat'
-import { isPlatform } from '@ionic/react'
-import { Plugins } from '@capacitor/core'
 import { Keychain } from '@/state/keychain'
-
-const { Keyboard } = Plugins
 
 dayjs.extend(dayjsUTC)
 
@@ -85,27 +81,6 @@ const MessagesView: FC<{ channelID: string; conversationID?: string }> = ({
 
   const ref = useRef<HTMLDivElement>(null)
   const trackingRef = useRef(tracking)
-
-  useEffect(() => {
-    if (isPlatform('capacitor')) {
-      Keyboard.addListener('keyboardDidShow', () => {
-        if (!editingMessageID) {
-          const scrollRef = ref?.current
-          setTracking(true)
-          if (scrollRef) {
-            scrollRef.scroll({
-              top: scrollRef.scrollHeight,
-              behavior: 'smooth'
-            })
-          }
-        }
-      })
-    }
-
-    return () => {
-      if (isPlatform('capacitor')) Keyboard.removeAllListeners()
-    }
-  }, [setTracking, editingMessageID])
 
   useEffect(() => {
     trackingRef.current = tracking

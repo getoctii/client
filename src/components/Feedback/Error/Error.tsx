@@ -3,7 +3,6 @@ import styles from './Error.module.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLock, faPoo } from '@fortawesome/pro-solid-svg-icons'
 import { Button } from '@/components/Form'
-import { Plugins } from '@capacitor/core'
 import queryClient from '@/utils/queryClient'
 
 const Error: FC<{
@@ -24,7 +23,7 @@ const Error: FC<{
         <Button
           type='button'
           onClick={async () => {
-            await Plugins.Storage.clear()
+            await localStorage.clear()
             await queryClient.invalidateQueries()
             window.location.pathname = '/authenticate/login'
           }}
