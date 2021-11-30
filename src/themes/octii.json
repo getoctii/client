@@ -56,7 +56,7 @@
       "background": "rgba(227, 242, 256, 0.1)"
     },
     "status": {
-      "selected": "#1089FF",
+      "selected": "#242526",
       "online": "#23DB5F",
       "idle": "#FED009",
       "dnd": "#F86464",

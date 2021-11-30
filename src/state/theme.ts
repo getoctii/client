@@ -112,10 +112,6 @@ export type Theme = Yup.InferType<typeof themeSchema>
 export type DevThemeBundle = Yup.InferType<typeof devThemeBundleSchema>
 export type ThemeBundle = Yup.InferType<typeof themeBundleSchema>
 
-const globalStyle = document.createElement('style')
-globalStyle.type = 'text/css'
-document.head.appendChild(globalStyle)
-
 export const themes = [octii, innlove, octiiHub, ayu, eyestrain]
 
 const useTheme = () => {

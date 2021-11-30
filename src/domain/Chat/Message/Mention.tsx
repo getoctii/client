@@ -1,12 +1,9 @@
 import { FC } from 'react'
 import { Auth } from '@/state/auth'
-import { useQuery } from 'react-query'
-import styles from './Mention.module.scss'
-import { getChannel } from '@/api/messages'
-import { useHistory } from 'react-router-dom'
 import { useUser } from '@/hooks/users'
 import { useChannel } from '@/hooks/messages'
 import { useNavigate } from 'react-location'
+import { StyledMention } from './Mention.style'
 
 const User: FC<{
   userID: string
@@ -16,15 +13,10 @@ const User: FC<{
   const { id } = Auth.useContainer()
   const user = useUser(userID)
   return (
-    <span
-      {...attributes}
-      className={`${styles.mention} ${userID === id ? styles.isMe : ''} ${
-        selected ? styles.selected : ''
-      }`}
-    >
+    <StyledMention selected={selected} isMe={userID === id} {...attributes}>
       @{user?.username}
       {children}
-    </span>
+    </StyledMention>
   )
 }
 
@@ -33,15 +25,13 @@ const Channel: FC<{
   selected?: boolean
   attributes?: any
 }> = ({ channelID, selected, attributes, children }) => {
-  const { token } = Auth.useContainer()
   const navigate = useNavigate()
   const channel = useChannel(channelID)
   return (
-    <span
+    <StyledMention
+      selected={selected}
+      isMe
       {...attributes}
-      className={`${styles.mention} ${styles.isMe} ${
-        selected ? styles.selected : ''
-      }`}
       onClick={() =>
         !attributes &&
         navigate({
@@ -51,7 +41,7 @@ const Channel: FC<{
     >
       #{channel?.name}
       {children}
-    </span>
+    </StyledMention>
   )
 }
 

@@ -44,6 +44,15 @@ interface PurchaseResponse {
   latest_version?: number
 }
 
+export enum UserFlags {
+  DEVELOPER = 'DEVELOPER',
+  DISABLED = 'DISABLED'
+}
+
+export enum UserBadges {
+  STAFF = 'STAFF'
+}
+
 export type UserResponse = {
   id: string
   username: string
@@ -54,8 +63,8 @@ export type UserResponse = {
   createdAt: Date
   updatedAt: Date
   email?: string
-  badges: string[]
-  flags: string[]
+  badges: UserBadges[]
+  flags: UserFlags[]
   keychain: {
     publicKeychain: JsonWebKeyPublicChain
   }

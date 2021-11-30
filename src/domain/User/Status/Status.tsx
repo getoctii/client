@@ -48,7 +48,6 @@ const StatusSchema = Yup.object().shape({
 
 const Status = () => {
   const { id, token } = Auth.useContainer()
-  const ui = UI.useContainer()
   const user = useCurrentUser()
   return (
     <div className={styles.status}>

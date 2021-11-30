@@ -1,21 +1,12 @@
-.footer {
+import styled from 'styled-components'
+
+export const StyledFooter = styled.div`
   width: 100%;
   padding: 3.5rem;
   padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  .socials {
-    display: grid;
-    grid-gap: 15px;
-    grid-template-columns: auto auto;
-
-    a {
-      color: var(--neko-text-normal);
-      color: var(--neko-default-text);
-    }
-  }
 
   p {
     text-align: center;
@@ -29,5 +20,16 @@
     margin: 0;
     color: var(--neko-default-text);
     font-size: 1rem;
+    font-weight: 800;
   }
-}
+`
+
+export const StyledFooterSocials = styled.div`
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: auto auto;
+
+  a {
+    color: var(--neko-default-text);
+  }
+`

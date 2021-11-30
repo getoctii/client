@@ -1,4 +1,4 @@
-import { FC, useMemo, useCallback, memo } from 'react'
+import { FC, useMemo, memo } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faChevronRight,
@@ -9,23 +9,32 @@ import {
 } from '@fortawesome/pro-solid-svg-icons'
 import { useMutation, useQueries } from 'react-query'
 import { clientGateway } from '@/utils/constants'
-import styles from './ConversationCard.module.scss'
 import { Auth } from '@/state/auth'
-import { getUser, State } from '@/api/users'
+import { getUser } from '@/api/users'
 import { ContextMenu } from '@/components/Overlay'
 import { ContextMenuItems } from '@/state/ui'
 import { useSuspenseStorageItem } from '@/utils/storage'
-import { Keychain } from '@/state/keychain'
 import { useChannel, useDecryptMessage, useMessage } from '@/hooks/messages'
 import { useConversation, useConversationMembers } from '@/hooks/conversations'
 import { useMatch, useMatchRoute, useNavigate } from 'react-location'
 import { ConversationType } from '@/api/conversations'
 import Avatar from '@/components/Avatar/Avatar'
-import { SignedMessage, SigningPair } from '@innatical/inncryption'
-import { useCurrentUser } from '@/hooks/users'
 import useMarkdown from '@innatical/markdown'
+import {
+  StyledConversationCard,
+  StyledConversationCardAvatar,
+  StyledConversationCardDetails,
+  StyledConversationCardLink,
+  StyledConversationCardPlaceholder,
+  StyledConversationCardPlaceholderAvatar,
+  StyledConversationCardPlaceholderStatus,
+  StyledConversationCardPlaceholderUser,
+  StyledConversationCardPlaceholderUsername,
+  StyledConversationCardUser
+} from './ConversationCard.style'
+import { StyledIconBadge } from '@/domain/User/Icon/Icon.style'
 
-const ConversationCardView: FC<{
+const ConversationCard: FC<{
   conversationID: string
   channelID?: string
 }> = memo(({ conversationID, channelID }) => {
@@ -50,8 +59,6 @@ const ConversationCardView: FC<{
   )
   const [, setLastConversation] = useSuspenseStorageItem('last-conversation')
 
-  const { keychain } = Keychain.useContainer()
-  const user = useCurrentUser()
   const message = useMessage(channel?.lastMessageID)
   const messageContent = useDecryptMessage({
     id: message?.id,
@@ -60,16 +67,8 @@ const ConversationCardView: FC<{
     conversationID: conversationID
   })
 
-  // const unreads = useQuery(['unreads', id, token], getUnreads)
-  // const mentions = useQuery(['mentions', id, token], getMentions)
-
-  // const mentionsCount = useMemo(
-  //   () => mentions.data?.[channelID]?.filter((mention) => !mention.read).length,
-  //   [mentions, channelID]
-  // )
-
-  const getItems = useCallback(() => {
-    const items: ContextMenuItems = [
+  const items = useMemo(() => {
+    const contextMenuItems: ContextMenuItems = [
       {
         text: 'Copy ID',
         icon: faCopy,
@@ -80,56 +79,7 @@ const ConversationCardView: FC<{
       }
     ]
 
-    // if (
-    //   unreads?.data?.[channelID]?.last_message_id !==
-    //   unreads?.data?.[channelID]?.read
-    // ) {
-    //   items.push({
-    //     text: 'Mark as Read',
-    //     icon: faGlasses,
-    //     danger: false,
-    //     onClick: async () => {
-    //       if (!channel.data) return
-    //       const channelId = channel.data.id
-
-    //       await clientGateway.post(
-    //         `/channels/${channelId}/read`,
-    //         {},
-    //         {
-    //           headers: {
-    //             Authorization: token
-    //           }
-    //         }
-    //       )
-    //       // TODO: Maybe we want to push a gateway event instead?
-    //       queryClient.setQueryData(['unreads', id, token], (initial: any) => ({
-    //         ...initial,
-    //         [channelId]: {
-    //           ...initial[channelId],
-    //           read: initial[channelId].last_message_id
-    //         }
-    //       }))
-
-    //       const initialMentions = queryClient.getQueryData<Mentions>([
-    //         'mentions',
-    //         id,
-    //         token
-    //       ])
-
-    //       if (initialMentions) {
-    //         queryClient.setQueryData(['mentions', id, token], {
-    //           ...initialMentions,
-    //           [channelId]: initialMentions[channelId]?.map((m) => ({
-    //             ...m,
-    //             read: true
-    //           }))
-    //         })
-    //       }
-    //     }
-    //   })
-    // }
-
-    items.push({
+    contextMenuItems.push({
       text:
         conversation?.type === ConversationType.DM
           ? 'Delete Conversation'
@@ -144,7 +94,7 @@ const ConversationCardView: FC<{
         leaveConversation.mutate()
       }
     })
-    return items
+    return contextMenuItems
   }, [
     channel,
     conversationID,
@@ -165,9 +115,7 @@ const ConversationCardView: FC<{
     strikethough: (str, key) => <del key={key}>{str}</del>,
     link: (str, key) => {
       return (
-        <span key={key} className={styles.link}>
-          {str}
-        </span>
+        <StyledConversationCardLink key={key}>{str}</StyledConversationCardLink>
       )
     },
     codeblock: (str, key) => <code key={key}>{str}</code>,
@@ -213,22 +161,11 @@ const ConversationCardView: FC<{
             avatar={user?.avatar}
           />
           {users?.[0].data?.state && (
-            <div
-              className={`${styles.badge} ${
-                user?.state === State.ONLINE
-                  ? styles.online
-                  : user?.state === State.DND
-                  ? styles.dnd
-                  : user?.state === State.IDLE
-                  ? styles.idle
-                  : user?.state === State.OFFLINE
-                  ? styles.offline
-                  : ''
-              } ${
-                matchRoute({ to: `/app/conversations/${conversationID}` })
-                  ? styles.selectedBadge
-                  : ''
-              }`}
+            <StyledIconBadge
+              state={user?.state}
+              selected={
+                !!matchRoute({ to: `/app/conversations/${conversationID}` })
+              }
             />
           )}
         </>
@@ -248,75 +185,48 @@ const ConversationCardView: FC<{
           ? users?.[0]?.status
           : 'Group Chat'
       }
-      items={getItems()}
+      items={items}
     >
-      <div
-        className={`${styles.card} ${
-          matchRoute({ to: `/app/conversations/${conversationID}` })
-            ? styles.selected
-            : ''
-        }`}
+      <StyledConversationCard
+        selected={!!matchRoute({ to: `/app/conversations/${conversationID}` })}
         onClick={() => {
           if (matchRoute({ to: `/app/conversations/${conversationID}` })) return
           navigate({ to: `/app/conversations/${conversationID}` })
           setLastConversation(conversationID)
         }}
       >
-        <div className={styles.avatar} key='avatar'>
+        <StyledConversationCardAvatar key='avatar'>
           {conversationIcon}
-        </div>
-        <div className={styles.user} key='user'>
+        </StyledConversationCardAvatar>
+        <StyledConversationCardUser key='user'>
           <h4>{conversationName}</h4>
           {output && <p>{output}</p>}
-        </div>
-        <div className={styles.details} key='details'>
-          {/* {match?.params.id !== conversationID &&
-            (mentionsCount && mentionsCount > 0 ? (
-              <div
-                className={`${styles.mention} ${
-                  mentionsCount > 9 ? styles.pill : ''
-                }`}
-              >
-                <span>{mentionsCount > 999 ? '999+' : mentionsCount}</span>
-              </div>
-            ) : unreads?.data?.[channelID]?.last_message_id !==
-              unreads?.data?.[channelID]?.read ? (
-              <div className={styles.unread} />
-            ) : (
-              <></>
-            ))} */}
+        </StyledConversationCardUser>
+        <StyledConversationCardDetails key='details'>
           <FontAwesomeIcon icon={faChevronRight} fixedWidth />
-        </div>
-      </div>
+        </StyledConversationCardDetails>
+      </StyledConversationCard>
     </ContextMenu.Wrapper>
   )
 })
 
-const ConversationCardPlaceholder: FC = () => {
+export const ConversationCardPlaceholder: FC = () => {
   const username = useMemo(() => Math.floor(Math.random() * 5) + 3, [])
   const status = useMemo(() => Math.floor(Math.random() * 6) + 3, [])
   return (
-    <div className={styles.placeholder}>
-      <div className={styles.avatar} key='avatar' />
-      <div className={styles.user} key='user'>
-        <div
-          className={styles.username}
+    <StyledConversationCardPlaceholder>
+      <StyledConversationCardPlaceholderAvatar key='avatar' />
+      <StyledConversationCardPlaceholderUser key='user'>
+        <StyledConversationCardPlaceholderUsername
           key='username'
           style={{ width: `${username}rem` }}
         />
-        <div
-          className={styles.status}
+        <StyledConversationCardPlaceholderStatus
           key='status'
           style={{ width: `${status}rem` }}
         />
-      </div>
-    </div>
+      </StyledConversationCardPlaceholderUser>
+    </StyledConversationCardPlaceholder>
   )
 }
-
-const ConversationCard = {
-  View: ConversationCardView,
-  Placeholder: ConversationCardPlaceholder
-}
-
 export default ConversationCard

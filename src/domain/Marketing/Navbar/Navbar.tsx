@@ -1,27 +1,29 @@
-import { Auth } from '@/state/auth'
-import styles from './Navbar.module.scss'
 import { useCurrentUser } from '@/hooks/users'
 import { FC } from 'react'
 import { Link } from 'react-location'
+import {
+  StyledNavbar,
+  StyledNavbarButton,
+  StyledNavbarMarketing,
+  StyledNavbarTitle
+} from './Navbar.style'
 
 const Navbar: FC = () => {
-  const auth = Auth.useContainer()
   const user = useCurrentUser()
-  console.log(auth)
   return (
-    <div className={styles.navbar}>
-      <div className={styles.marketing}>
+    <StyledNavbar>
+      <StyledNavbarMarketing>
         <picture>
           <img alt='Octii' src='/logo.svg' />
         </picture>
-      </div>
-      <Link to='/home' className={styles.title}>
-        Octii
+        <Link to='/home'>
+          <StyledNavbarTitle>Octii</StyledNavbarTitle>
+        </Link>
+      </StyledNavbarMarketing>
+      <Link to='/login'>
+        <StyledNavbarButton>{user?.username ?? 'Login'}</StyledNavbarButton>
       </Link>
-      <Link to='/login' className={styles.button}>
-        {user?.username ?? 'Login'}
-      </Link>
-    </div>
+    </StyledNavbar>
   )
 }
 

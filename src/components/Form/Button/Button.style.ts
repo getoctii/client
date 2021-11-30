@@ -47,35 +47,40 @@ export const StyledButton = styled.button<{
   }) => {
     if (primary)
       return css`
-        background-color: ${theme.colors.primary};
+        background-color: ${theme.colors?.primary ??
+        'var(--neko-default-primary)'};
       `
     else if (secondary)
       return css`
-        background-color: ${theme.colors.secondary};
+        background-color: ${theme.colors?.secondary ??
+        'var(--neko-default-secondary)'};
       `
     else if (light)
       return css`
-        background-color: ${theme.colors.light};
+        background-color: ${theme.colors?.light ?? 'var(--neko-default-light)'};
       `
     else if (dark)
       return css`
-        background-color: ${theme.colors.dark};
+        background-color: ${theme.colors?.dark ?? 'var(--neko-default-dark)'};
       `
     else if (danger)
       return css`
-        background-color: ${theme.colors.danger};
+        background-color: ${theme.colors?.danger ??
+        'var(--neko-default-danger)'};
       `
     else if (warning)
       return css`
-        background-color: ${theme.colors.warning};
+        background-color: ${theme.colors?.warning ??
+        'var(--neko-default-warning)'};
       `
     else if (info)
       return css`
-        background-color: ${theme.colors.info};
+        background-color: ${theme.colors?.info ?? 'var(--neko-default-info)'};
       `
     else if (success)
       return css`
-        background-color: ${theme.colors.success};
+        background-color: ${theme.colors?.success ??
+        'var(--neko-default-success)'};
       `
   }}
 

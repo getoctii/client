@@ -9,7 +9,20 @@ export const parameters = {
       date: /Date$/
     }
   },
-  layout: 'centered'
+  layout: 'centered',
+  backgrounds: {
+    default: 'light',
+    values: [
+      {
+        name: 'light',
+        value: OctiiTheme.light.backgrounds.primary
+      },
+      {
+        name: 'dark',
+        value: OctiiTheme.dark.backgrounds.primary
+      }
+    ]
+  }
 }
 
 const getTheme = (themeName) => {

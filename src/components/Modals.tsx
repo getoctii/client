@@ -19,12 +19,11 @@ import {
 import { File } from '@/domain/Chat/Embeds'
 import { UI } from '@/state/ui'
 import { Permission } from '../utils/permissions'
-import Update from './Update'
 import { AddFriend } from '@/modals/Hub'
 import PreviewUser from '@/domain/User/PreviewUser'
 import MFAModal from '../views/authentication/MFAModal'
 import CodePrompt from '../views/authentication/CodePrompt'
-import Ringing from '../views/call/Ringing'
+import { Ringing } from '@/modals/Call'
 
 const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
   switch (name) {
@@ -52,8 +51,6 @@ const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
       return <Alert {...props} />
     case ModalTypes.MANAGE_MEMBER_GROUPS:
       return <ManageGroups {...props} />
-    case ModalTypes.UPDATE:
-      return <Update {...props} />
     case ModalTypes.ADD_FRIEND:
       return <AddFriend {...props} />
     case ModalTypes.NEW_RESOURCE:

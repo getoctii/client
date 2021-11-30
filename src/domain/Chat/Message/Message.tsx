@@ -1,6 +1,5 @@
 import { FC, memo, Suspense, useCallback, useMemo } from 'react'
 import { Button } from '@/components/Form'
-import styles from './Message.module.scss'
 import dayjs from 'dayjs'
 import dayjsUTC from 'dayjs/plugin/utc'
 import dayjsCalendar from 'dayjs/plugin/calendar'
@@ -16,15 +15,11 @@ import { ModalTypes } from '@/utils/constants'
 import { ContextMenu } from '@/components/Overlay'
 import useMarkdown from '@innatical/markdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faTimesCircle,
-  faUserNinja,
-  faUserShield
-} from '@fortawesome/pro-solid-svg-icons'
+import { faTimesCircle, faUserShield } from '@fortawesome/pro-solid-svg-icons'
 import { ErrorBoundary } from 'react-error-boundary'
 import { UI } from '@/state/ui'
 import { patchEncryptedMessage, patchMessage } from '@/api/messages'
-import Editor from '@/components/Editor'
+import { Editor } from '@/components/Form'
 import { Chat } from '@/state/chat'
 import { withHistory } from 'slate-history'
 import { withReact } from 'slate-react'
@@ -36,13 +31,29 @@ import { useCurrentUser, useUser } from '@/hooks/users'
 import { Keychain } from '@/state/keychain'
 import { getProduct, getResource } from '@/api/communities'
 import Avatar from '@/components/Avatar/Avatar'
-import {
-  EncryptedMessage,
-  SignedMessage,
-  SigningPair,
-  SymmetricKey
-} from '@innatical/inncryption'
+import { EncryptedMessage } from '@innatical/inncryption'
 import { useDecryptMessage } from '@/hooks/messages'
+import {
+  StyledMessage,
+  StyledMessageActions,
+  StyledMessageBadge,
+  StyledMessageCode,
+  StyledMessageContent,
+  StyledMessageCopyButton,
+  StyledMessageInnerInput,
+  StyledMessageLine,
+  StyledMessageLineContent,
+  StyledMessageLineIndicator,
+  StyledMessagePlaceholder,
+  StyledMessagePlaceholderAvatar,
+  StyledMessagePlaceholderContent,
+  StyledMessagePlaceholderContentDate,
+  StyledMessagePlaceholderContentMessage,
+  StyledMessagePlaceholderContentUser,
+  StyledMessageSelectable,
+  StyledMessageTime
+} from './Message.style'
+import { UserBadges } from '@/api/users'
 
 dayjs.extend(dayjsUTC)
 dayjs.extend(dayjsCalendar)
@@ -74,14 +85,11 @@ const EditBox: FC<{
   )
   const { keychain } = Keychain.useContainer()
   return (
-    <div className={styles.innerInput}>
+    <StyledMessageInnerInput>
       <Editor
         id={'editMessage'}
         editor={editor}
         userMentions={false}
-        className={styles.editor}
-        inputClassName={styles.input}
-        mentionsClassName={styles.mentionsWrapper}
         newLines
         onDismiss={onDismiss}
         emptyEditor={[
@@ -107,7 +115,7 @@ const EditBox: FC<{
       />
 
       <FontAwesomeIcon icon={faTimesCircle} onClick={() => onDismiss()} />
-    </div>
+    </StyledMessageInnerInput>
   )
 }
 
@@ -326,30 +334,29 @@ const MessageView: FC<{
       codeblock: (str, key) => ({
         link: <></>,
         embed: str ? (
-          <div key={key} className={styles.code}>
+          <StyledMessageCode key={key}>
             {stringToLineArray(str.trim()).map((e: string, i: number) =>
               i < 999 ? (
-                <span className={styles.line}>
-                  <p className={styles.lineIndicator}>
+                <StyledMessageLine>
+                  <StyledMessageLineIndicator>
                     {i + 1}{' '}
                     {' '.repeat(3 - (i + 1).toString().split('').length)}
-                  </p>
-                  <p className={styles.lineContent}>{e}</p>
-                </span>
+                  </StyledMessageLineIndicator>
+                  <StyledMessageLineContent>{e}</StyledMessageLineContent>
+                </StyledMessageLine>
               ) : (
                 <></>
               )
             )}
-            <Button
+            <StyledMessageCopyButton
               type='button'
               onClick={async () => {
                 await navigator.clipboard.writeText(str)
               }}
-              className={styles.copyCodeButton}
             >
               Copy Code
-            </Button>
-          </div>
+            </StyledMessageCopyButton>
+          </StyledMessageCode>
         ) : (
           <></>
         )
@@ -399,16 +406,7 @@ const MessageView: FC<{
         key={id}
         items={getItems()}
       >
-        <div
-          className={`${styles.message} ${primary ? styles.primary : ''} ${
-            // type === MessageTypes.MEMBER_ADDED
-            //   ? styles.joined
-            //   : type === MessageTypes.MEMBER_REMOVED
-            //   ? styles.left
-            //   : ''
-            ''
-          }`}
-        >
+        <StyledMessage primary={!!primary}>
           {primary && (
             <Avatar
               username={user?.username ?? ''}
@@ -416,42 +414,18 @@ const MessageView: FC<{
               size='message'
             />
           )}
-          <div className={`${styles.content} ${!primary ? styles.spacer : ''}`}>
+          <StyledMessageContent spacer={!primary}>
             {primary && (
-              <h2
-                key='username'
-                // onClick={() => {
-                //   if (type === MessageTypes.NORMAL) {
-                //     ui.setModal({
-                //       name: ModalTypes.PREVIEW_USER,
-                //       props: { id: user?.id }
-                //     })
-                //   }
-                // }}
-              >
+              <h2 key='username'>
                 <span>
                   {resource?.name || richContent?.username || user?.username}
-                  {user?.id === '987d59ba-1979-4cc4-8818-7fe2f3d4b560' ? (
-                    <FontAwesomeIcon
-                      className={styles.badge}
-                      icon={faUserNinja}
-                    />
-                  ) : (
-                    // ) : type === MessageTypes.WEBHOOK ? (
-                    // <FontAwesomeIcon className={styles.badge} icon={faEthernet} />
-                    // ) : type === MessageTypes.INTEGRATION ? (
-                    // <FontAwesomeIcon className={styles.badge} icon={faLink} />
-                    user?.discriminator === 0 && (
-                      <FontAwesomeIcon
-                        className={styles.badge}
-                        icon={faUserShield}
-                      />
-                    )
+                  {user?.badges.includes(UserBadges.STAFF) && (
+                    <StyledMessageBadge icon={faUserShield} />
                   )}
                 </span>
-                <span className={styles.time}>
+                <StyledMessageTime>
                   {dayjs.utc(createdAt).local().calendar()}
-                </span>
+                </StyledMessageTime>
               </h2>
             )}
             {editingMessageID === id ? (
@@ -462,22 +436,20 @@ const MessageView: FC<{
                 encrypted={typeof payload === 'object' ? true : false}
               />
             ) : (
-              <p key={id} className={styles.selectable}>
-                {main}
-              </p>
+              <StyledMessageSelectable key={id}>{main}</StyledMessageSelectable>
             )}
             {embeds.length > 0 ? embeds : <></>}
             {richContent?.actions?.length ?? 0 > 0 ? (
-              <div className={styles.actions}>
+              <StyledMessageActions>
                 {richContent?.actions?.map(({ content }) => (
                   <Button type='button'>{content}</Button>
                 ))}
-              </div>
+              </StyledMessageActions>
             ) : (
               <></>
             )}
-          </div>
-        </div>
+          </StyledMessageContent>
+        </StyledMessage>
       </ContextMenu.Wrapper>
     )
   }
@@ -488,29 +460,22 @@ const MessagePlaceholder: FC = () => {
   const message = useMemo(() => Math.floor(Math.random() * 10) + 8, [])
   const isPrimary = useMemo(() => Math.floor(Math.random() * 1000000) + 1, [])
   return (
-    <div
-      className={`${styles.placeholder} ${
-        isPrimary % 2 === 0 ? styles.primary : ''
-      }`}
-    >
-      {isPrimary % 2 === 0 && <div className={styles.avatar} />}
-      <div
-        className={`${styles.content} ${
-          isPrimary % 2 !== 0 ? styles.spacer : ''
-        }`}
-      >
-        <div className={styles.user}>
+    <StyledMessagePlaceholder primary={isPrimary % 2 === 0}>
+      {isPrimary % 2 === 0 && <StyledMessagePlaceholderAvatar />}
+      <StyledMessagePlaceholderContent spacer={isPrimary % 2 !== 0}>
+        <StyledMessagePlaceholderContentUser>
           {isPrimary % 2 === 0 && (
-            <div
-              className={styles.username}
+            <StyledMessagePlaceholderContentMessage
               style={{ width: `${username}rem` }}
             />
           )}
-          {isPrimary % 2 === 0 && <div className={styles.date} />}
-        </div>
-        <div className={styles.message} style={{ width: `${message}rem` }} />
-      </div>
-    </div>
+          {isPrimary % 2 === 0 && <StyledMessagePlaceholderContentDate />}
+        </StyledMessagePlaceholderContentUser>
+        <StyledMessagePlaceholderContentMessage
+          style={{ width: `${message}rem` }}
+        />
+      </StyledMessagePlaceholderContent>
+    </StyledMessagePlaceholder>
   )
 }
 

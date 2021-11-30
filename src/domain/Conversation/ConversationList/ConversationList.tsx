@@ -22,6 +22,7 @@ import queryClient from '@/utils/queryClient'
 import { useQueries } from 'react-query'
 import { getConversation } from '@/api/conversations'
 import { getChannel } from '@/api/messages'
+import { ConversationCardPlaceholder } from '../ConversationCard/ConversationCard'
 
 dayjs.extend(dayjsUTC)
 
@@ -34,8 +35,8 @@ const ConversationCardWrapper: FC<{ conversationID: string }> = ({
   const conversation = useConversation(conversationID)
   return (
     <div key={conversationID}>
-      <Suspense fallback={<ConversationCard.Placeholder />}>
-        <ConversationCard.View
+      <Suspense fallback={<ConversationCardPlaceholder />}>
+        <ConversationCard
           conversationID={conversationID}
           channelID={conversation?.channelID}
         />
@@ -111,7 +112,7 @@ const ConversationsPlaceholder: FC = () => {
       {Array.from(Array(length).keys()).map((_, index) => (
         <>
           {index !== 0 && <hr />}
-          <ConversationCard.Placeholder key={index} />
+          <ConversationCardPlaceholder key={index} />
         </>
       ))}
     </>

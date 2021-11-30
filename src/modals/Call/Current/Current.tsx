@@ -8,8 +8,8 @@ import {
   faVolumeMute
 } from '@fortawesome/pro-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { FC, useMemo } from 'react'
-import { Call } from '../../state/call'
+import { FC } from 'react'
+import { Call } from '@/state/call'
 import styles from './Current.module.scss'
 import { Auth } from '@/state/auth'
 import { useQueries } from 'react-query'

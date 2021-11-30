@@ -15,7 +15,7 @@ export default {
   component: Avatar
 } as ComponentMeta<typeof Avatar>
 
-export const PlaceholderTemplate: ComponentStory<typeof Avatar> = (args) => (
+const PlaceholderTemplate: ComponentStory<typeof Avatar> = (args) => (
   <Avatar
     username={args.username ?? 'adam'}
     size={args.size}

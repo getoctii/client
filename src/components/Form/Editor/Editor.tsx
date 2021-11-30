@@ -4,7 +4,7 @@ import { Element, Text, Transforms, Editor, Range, Node } from 'slate'
 import { HistoryEditor } from 'slate-history'
 import { RenderLeafProps, Slate, Editable, ReactEditor } from 'slate-react'
 import { UserResponse } from '@/api/users'
-import { serialize } from '../utils/slate'
+import { serialize } from '@/utils/slate'
 import unified from 'unified'
 import markdown from 'remark-parse'
 import visit from 'unist-util-visit'
@@ -17,12 +17,20 @@ import underlineFromMarkdown from '@innatical/mdast-util-underline/from-markdown
 import underlineToMarkdown from '@innatical/mdast-util-underline/to-markdown'
 import { Mentions, Mention, Commands } from '@/domain/Chat'
 import { ChannelResponse, CommandResponse } from '@/api/communities'
-import styles from './Editor.module.scss'
-import { UI } from '../state/ui'
-import { useSuspenseStorageItem } from '../utils/storage'
+import { UI } from '@/state/ui'
+import { useSuspenseStorageItem } from '@/utils/storage'
 import { Auth } from '@/state/auth'
-import { clientGateway } from '../utils/constants'
+import { clientGateway } from '@/utils/constants'
 import { useMatch } from 'react-location'
+import {
+  StyledEditor,
+  StyledEditorPlaceholder,
+  StyledEmptyDiv,
+  StyledEmptyInput,
+  StyledNotTypingEditor
+} from './Editor.style'
+import { StyledComponent } from 'styled-components'
+import { EditableProps } from 'slate-react/dist/components/editable'
 
 const Leaf: FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
   return leaf.underline ? (
@@ -93,28 +101,27 @@ const allowedKeys = new Set([
 const EditorView: FC<{
   id: string
   editor: Editor & ReactEditor & HistoryEditor
-  className: string
-  mentionsClassName?: string
-  typingClassName?: string
-  inputClassName: string
+  className?: string
+  mentions?: StyledComponent<'div', any, {}, never>
+  wrapper?: StyledComponent<'div', any, {}, never>
+  input?: StyledComponent<(props: EditableProps) => JSX.Element, any, {}, never>
   emptyEditor: Node[]
   placeholder?: string
   children?: any
-  newLines: boolean
+  newLines?: boolean
   onEnter: (content: string) => void
   onTyping?: () => void
   onDismiss?: () => void
-  typingIndicator?: boolean
   userMentions?: boolean
   channelMentions?: boolean
   draftKey?: string
 }> = ({
   id,
   editor,
-  className,
-  mentionsClassName,
-  typingClassName,
-  inputClassName,
+  wrapper: WrapperComponent = StyledEditor,
+  mentions: MentionsComponent = StyledEmptyDiv,
+
+  input: InputComponent = StyledEmptyInput,
   children,
   emptyEditor,
   placeholder,
@@ -122,7 +129,6 @@ const EditorView: FC<{
   onEnter,
   onTyping,
   onDismiss,
-  typingIndicator,
   userMentions,
   channelMentions,
   draftKey
@@ -364,7 +370,7 @@ const EditorView: FC<{
   return (
     <>
       {target && (
-        <div className={mentionsClassName}>
+        <MentionsComponent>
           <Suspense fallback={<></>}>
             {!communityID && target.type === 'user' ? (
               <Mentions.Conversation
@@ -400,20 +406,13 @@ const EditorView: FC<{
               <></>
             )}
           </Suspense>
-        </div>
+        </MentionsComponent>
       )}
-      <div
-        className={`${styles.editor} ${className} ${
-          typingIndicator ? typingClassName : ''
-        }`}
-      >
+      <WrapperComponent>
         {serialize(value) === '' && placeholder ? (
-          <div
-            className={styles.placeholder}
-            onClick={() => ReactEditor.focus(editor)}
-          >
+          <StyledEditorPlaceholder onClick={() => ReactEditor.focus(editor)}>
             {placeholder}
-          </div>
+          </StyledEditorPlaceholder>
         ) : (
           <></>
         )}
@@ -483,9 +482,8 @@ const EditorView: FC<{
             }
           }}
         >
-          <Editable
+          <InputComponent
             autoFocus={!ui.modal && !isMobile}
-            className={`${styles.input} ${inputClassName}`}
             autoCapitalize={isMobile ? 'true' : 'false'}
             spellCheck
             renderLeaf={renderLeaf}
@@ -594,7 +592,7 @@ const EditorView: FC<{
           />
         </Slate>
         {children}
-      </div>
+      </WrapperComponent>
     </>
   )
 }

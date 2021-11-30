@@ -14,11 +14,23 @@ import { postTyping, uploadFile } from '@/api/messages'
 import { Chat } from '@/state/chat'
 import Upload from './Upload'
 import { emptyEditor, withMentions } from '@/utils/slate'
-import Editor from '@/components/Editor'
+import { Editor } from '@/components/Form'
 import { createEditor, Editor as SlateEditor, Transforms } from 'slate'
 import { withHistory } from 'slate-history'
 import { withReact } from 'slate-react'
 import { SymmetricKey } from '@innatical/inncryption'
+import {
+  StyledBox,
+  StyledBoxButtons,
+  StyledBoxInput,
+  StyledBoxMentions,
+  StyledBoxMissingPermissions,
+  StyledBoxPicker,
+  StyledBoxPlaceholder,
+  StyledBoxPlaceholderButton,
+  StyledBoxPlaceholderInput,
+  StyledBoxUploadInput
+} from './Box.style'
 
 const adjectives = [
   ' amazing',
@@ -60,10 +72,10 @@ const BoxView: FC<{
     []
   )
   return (
-    <div>
+    <>
       <Suspense fallback={<BoxPlaceholder />}>
         {uploadDetails && !emojiPicker && (
-          <div className={styles.uploadPicker}>
+          <StyledBoxPicker>
             <Upload
               {...uploadDetails}
               onUpload={async (file) => {
@@ -77,11 +89,11 @@ const BoxView: FC<{
                 setUploadDetails(null)
               }}
             />
-          </div>
+          </StyledBoxPicker>
         )}
 
         {emojiPicker && (
-          <div className={styles.emojiPicker}>
+          <StyledBoxPicker>
             <Picker
               onEmojiClick={(_, data) => {
                 if (editor.selection) {
@@ -94,7 +106,7 @@ const BoxView: FC<{
               }}
               native
             />
-          </div>
+          </StyledBoxPicker>
         )}
 
         {hasPermission ? (
@@ -102,12 +114,11 @@ const BoxView: FC<{
             draftKey={channelID}
             id={'sendMessage'}
             editor={editor}
+            wrapper={StyledBox}
+            mentions={StyledBoxMentions}
+            input={StyledBoxInput}
             emptyEditor={emptyEditor}
             newLines
-            className={styles.box}
-            mentionsClassName={styles.mentionsWrapper}
-            inputClassName={styles.input}
-            typingClassName={styles.typingIndicator}
             placeholder={`Say something${adjective}...`}
             userMentions
             onTyping={async () => {
@@ -134,7 +145,7 @@ const BoxView: FC<{
               }
             }}
           >
-            <div className={styles.buttons}>
+            <StyledBoxButtons>
               {!isMobile && (
                 <Button
                   type='button'
@@ -159,9 +170,8 @@ const BoxView: FC<{
                 <FontAwesomeIcon
                   icon={uploadDetails && !emojiPicker ? faTimes : faFileUpload}
                 />
-                <input
+                <StyledBoxUploadInput
                   ref={uploadInput}
-                  className={styles.uploadInput}
                   type='file'
                   onChange={async (event) => {
                     if (!token || !event.target.files?.item(0)) return
@@ -175,25 +185,25 @@ const BoxView: FC<{
                   <div className={`${styles.badge}`} />
                 )}
               </Button>
-            </div>
+            </StyledBoxButtons>
           </Editor>
         ) : (
-          <div className={styles.boxNoSend}>
+          <StyledBoxMissingPermissions>
             Sending Messages is disabled for this channel!
-          </div>
+          </StyledBoxMissingPermissions>
         )}
       </Suspense>
-    </div>
+    </>
   )
 }
 
 const BoxPlaceholder: FC = () => {
   return (
-    <div className={styles.placeholder}>
-      <div className={styles.input} />
-      <div className={styles.upload} />
-      <div className={styles.emoji} />
-    </div>
+    <StyledBoxPlaceholder>
+      <StyledBoxPlaceholderInput />
+      <StyledBoxPlaceholderButton />
+      <StyledBoxPlaceholderButton />
+    </StyledBoxPlaceholder>
   )
 }
 
