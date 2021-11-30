@@ -1,7 +1,14 @@
 import { IconDefinition } from '@fortawesome/pro-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, ReactNode } from 'react'
-import styles from './Modal.module.scss'
+import {
+  StyledModal,
+  StyledModalBody,
+  StyledModalBottom,
+  StyledModalHeader,
+  StyledModalHeaderIcon,
+  StyledModalSpacer
+} from './Modal.style'
 
 const Modal: FC<{
   onDismiss?: () => void
@@ -21,33 +28,28 @@ const Modal: FC<{
   noWidth
 }) => {
   return (
-    <div className={styles.modal} style={noWidth ? { width: 'auto' } : {}}>
+    <StyledModal style={noWidth ? { width: 'auto' } : {}}>
       {title ? (
-        <div className={styles.header}>
+        <StyledModalHeader>
           {Icon &&
             (typeof Icon === 'function' ? (
               <Icon />
             ) : (
-              <div
-                className={styles.icon}
-                onClick={() => onDismiss && onDismiss()}
-              >
+              <StyledModalHeaderIcon onClick={() => onDismiss && onDismiss()}>
                 <FontAwesomeIcon icon={Icon} />
-              </div>
+              </StyledModalHeaderIcon>
             ))}
-          <div className={styles.title}>
+          <div>
             {subtitle && <small>{subtitle}</small>}
             <h2>{title}</h2>
           </div>
-        </div>
+        </StyledModalHeader>
       ) : (
-        <div className={styles.spacer} />
+        <StyledModalSpacer />
       )}
-      <div className={`${styles.body} ${bottom ? styles.bottomBody : ''}`}>
-        {children}
-      </div>
-      {bottom && <div className={styles.bottom}>{bottom}</div>}
-    </div>
+      <StyledModalBody bottom={!!bottom}>{children}</StyledModalBody>
+      {bottom && <StyledModalBottom>{bottom}</StyledModalBottom>}
+    </StyledModal>
   )
 }
 

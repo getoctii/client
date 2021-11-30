@@ -1,4 +1,3 @@
-import styles from './Box.module.scss'
 import { Button } from '@/components/Form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -181,9 +180,7 @@ const BoxView: FC<{
                     })
                   }}
                 />
-                {uploadDetails && emojiPicker && (
-                  <div className={`${styles.badge}`} />
-                )}
+                {uploadDetails && emojiPicker && <div />}
               </Button>
             </StyledBoxButtons>
           </Editor>

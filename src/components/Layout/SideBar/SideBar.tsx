@@ -1,14 +1,7 @@
 import { memo, Suspense, useCallback, useMemo } from 'react'
-import styles from './SideBar.module.scss'
 import { UI } from '@/state/ui'
-import { Auth } from '@/state/auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faInbox,
-  faPlus,
-  faGrid,
-  faComments
-} from '@fortawesome/pro-solid-svg-icons'
+import { faPlus, faGrid, faComments } from '@fortawesome/pro-solid-svg-icons'
 import { Button } from '@/components/Form'
 import { DragDropContext, Droppable, Draggable } from '@react-forked/dnd'
 import { useMedia } from 'react-use'
@@ -20,6 +13,17 @@ import { FC } from 'react'
 import { useCommunity } from '@/hooks/communities'
 import { useMatches, useMatchRoute, useNavigate } from 'react-location'
 import Avatar from '@/components/Avatar/Avatar'
+import { StyledIconBadge } from '@/domain/User/Icon/Icon.style'
+import {
+  StyledSidebar,
+  StyledSidebarButton,
+  StyledSidebarIcon,
+  StyledSidebarPinned,
+  StyledSidebarPinnedWrapper,
+  StyledSidebarPlaceholder,
+  StyledSidebarScrollable,
+  StyledSidebarSeperator
+} from './Sidebar.style'
 
 const reorder = (
   list: string[],
@@ -40,31 +44,13 @@ const Community: FC<{
   const matches = useMatches()
   const navigate = useNavigate()
   const community = useCommunity(communityID)
-  // const unreads = useQuery(['unreads', id, token], getUnreads)
-  // const mentions = useQuery(['mentions', id, token], getMentions)
-
-  // const mentionsCount = useMemo(
-  //   () =>
-  //     communityFull.data?.channels
-  //       .map(
-  //         (channel) =>
-  //           mentions.data?.[channel]?.filter((mention) => !mention.read)
-  //             .length ?? 0
-  //       )
-  //       .reduce((acc, curr) => acc + curr, 0),
-  //   [communityFull, mentions]
-  // )
 
   const draggableChild = useCallback(
     (provided) => (
-      <div
+      <StyledSidebarIcon
         key={communityID}
         style={provided.draggableProps.style}
-        className={
-          matches.find((p) => p.params.id === communityID)
-            ? `${styles.icon} ${styles.selected}`
-            : styles.icon
-        }
+        selected={!!matches.find((p) => p.params.id === communityID)}
         ref={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
@@ -78,22 +64,7 @@ const Community: FC<{
         ) : (
           <Avatar username={community?.name} size='sidebar' />
         )}
-        {/* {match?.params.id !== community.id &&
-          (mentionsCount && mentionsCount > 0 ? (
-            <div
-              className={`${styles.mention} ${
-                mentionsCount > 9 ? styles.pill : ''
-              }`}
-            >
-              <span>{mentionsCount > 99 ? '99+' : mentionsCount}</span>
-            </div>
-          ) : (
-            communityFull.data?.channels.some((channelID) => {
-              const channel = unreads.data?.[channelID]
-              return channel?.last_message_id !== channel?.read
-            }) && <div className={`${styles.badge}`} />
-          ))} */}
-      </div>
+      </StyledSidebarIcon>
     ),
     [communityID, community, matches]
   )
@@ -110,7 +81,7 @@ const Placeholder: FC = () => {
   return (
     <>
       {Array.from(Array(length).keys()).map((_, index) => (
-        <div key={index} className={styles.communityPlaceholder} />
+        <StyledSidebarPlaceholder key={index} />
       ))}
     </>
   )
@@ -141,11 +112,7 @@ const Communities: FC = () => {
 
   const DroppableComponent = useCallback(
     (provided) => (
-      <div
-        className={styles.list}
-        {...provided.droppableProps}
-        ref={provided.innerRef}
-      >
+      <div {...provided.droppableProps} ref={provided.innerRef}>
         {(communities ?? [])
           .sort(
             (a, b) =>
@@ -175,205 +142,63 @@ const Communities: FC = () => {
 
 const SideBar: FC = () => {
   const ui = UI.useContainer()
-  const isMobile = useMedia('(max-width: 740px)')
   const matchRoute = useMatchRoute()
   const navigate = useNavigate()
   const user = useCurrentUser()
 
-  // const scrollRef = useRef<HTMLDivElement>(null)
-  // const currentScrollPosition = useScroll(scrollRef)
-  // const {
-  //   sidebar: [scrollPosition, setScrollPosition]
-  // } = ScrollPosition.useContainer()
-  // const unreads = useQuery(['unreads', auth.id, auth.token], getUnreads)
-  // const mentions = useQuery(['mentions', auth.id, auth.token], getMentions)
-
-  // const mentionsCount = useMemo(
-  //   () =>
-  //     participants.data
-  //       ?.filter((part) => part.conversation.participants.length > 1)
-  //       .map(
-  //         (part) =>
-  //           mentions.data?.[part.conversation.channel_id]?.filter(
-  //             (mention) => !mention.read
-  //           ).length ?? 0
-  //       )
-  //       .reduce((acc, curr) => acc + curr, 0),
-  //   [participants, mentions]
-  // )
-
-  // useLayoutEffect(() => {
-  //   if (scrollRef.current)
-  //     scrollRef.current.scrollTo(scrollPosition.x, scrollPosition.y)
-  //   // eslint-disable-next-line
-  // }, [])
-
-  // useEffect(() => {
-  //   setScrollPosition(currentScrollPosition)
-  // }, [currentScrollPosition, setScrollPosition])
   return (
-    <div className={styles.sidebar}>
-      {/* This doesnt fucking work
-            Hours Wasted: 3 
-        */}
-      {/* 
-      {window.inntronType === 'native' && window.inntronPlatform === 'macos' ? (
-        <div className={styles.spacer} />
-      ) : (
-        <></>
-      )} */}
-      <div className={styles.scrollable} /*ref={scrollRef}*/>
-        {isMobile && (
-          <>
-            <Button
-              type='button'
-              className={`${styles.avatar} ${
-                matchRoute({ to: '/app/settings' }) ? styles.selected : ''
-              }`}
-            >
-              <Avatar username={user?.username} avatar={user?.avatar} />
-              {/* <img
-                src={user?.avatar}
-                alt={user?.username}
-                onClick={() => navigate({ to: '/app/settings' })}
-              /> */}
-              <div
-                className={styles.overlay}
-                onClick={() => navigate({ to: '/app/settings' })}
-              />
-              {user?.state && (
-                <div
-                  className={`${styles.badge} ${
-                    user.state === State.ONLINE
-                      ? styles.online
-                      : user.state === State.DND
-                      ? styles.dnd
-                      : user.state === State.IDLE
-                      ? styles.idle
-                      : user.state === State.OFFLINE
-                      ? styles.offline
-                      : ''
-                  }`}
-                />
-              )}
-            </Button>
-            <Button
-              className={styles.plus}
-              type='button'
-              onClick={() => ui.setModal({ name: ModalTypes.NEW_COMMUNITY })}
-            >
-              <FontAwesomeIcon
-                className={styles.symbol}
-                icon={faPlus}
-                size='2x'
-              />
-            </Button>
-          </>
-        )}
-        <Button
-          className={`${styles.hub} ${
-            matchRoute({ to: '/app/hub' }) ? styles.selected : ''
-          }`}
+    <StyledSidebar>
+      <StyledSidebarScrollable>
+        <StyledSidebarButton
+          selected={!!matchRoute({ to: '/app/hub' })}
           type='button'
           onClick={() => {
             navigate({ to: '/app/hub' })
           }}
         >
-          <FontAwesomeIcon className={styles.symbol} icon={faGrid} size='2x' />
-        </Button>
-        <Button
-          className={`${styles.messages} ${
-            matchRoute({ to: '/app/conversations' }) ? styles.selected : ''
-          }`}
+          <FontAwesomeIcon icon={faGrid} size='2x' />
+        </StyledSidebarButton>
+        <StyledSidebarButton
+          selected={!!matchRoute({ to: '/app/conversations' })}
           type='button'
           onClick={() => {
             navigate({ to: '/app' })
           }}
         >
-          <FontAwesomeIcon
-            className={styles.symbol}
-            icon={faComments}
-            size='2x'
-          />
-          {/* {matchTab?.params.tab !== 'conversations' &&
-            matchTab &&
-            (mentionsCount && mentionsCount > 0 ? (
-              <div
-                className={`${styles.mention} ${
-                  mentionsCount > 9 ? styles.pill : ''
-                }`}
-              >
-                <span>{mentionsCount > 99 ? '99+' : mentionsCount}</span>
-              </div>
-            ) : (
-              participants.data
-                ?.filter((part) => part.conversation.participants.length > 1)
-                .some((participant) => {
-                  const channel =
-                    unreads.data?.[participant.conversation.channel_id]
-                  return channel?.last_message_id !== channel?.read
-                }) && <div className={`${styles.badge}`} />
-            ))} */}
-        </Button>
-        <div className={styles.separator} />
+          <FontAwesomeIcon icon={faComments} size='2x' />
+        </StyledSidebarButton>
+        <StyledSidebarSeperator />
         <Suspense fallback={<Placeholder />}>
           <Communities />
         </Suspense>
         <br />
-      </div>
-      {!isMobile && (
-        <div className={styles.pinned}>
-          <div className={styles.pinnedWrapper}>
-            <Button
-              className={`${styles.avatar} ${
-                matchRoute({ to: '/app/settings' }) ? styles.selected : ''
-              }`}
-              type='button'
-              onClick={() => navigate({ to: '/app/settings' })}
-            >
-              <Avatar
-                username={user?.username}
-                avatar={user?.avatar}
-                size='sidebar'
-              />
-              {/* <img
-                src={user?.avatar}
-                alt={user?.username}
-                onClick={() => {
-                  navigate({ to: '/app/settings' })
-                }}
-              /> */}
-              {!matchRoute({ to: '/app/settings' }) && user?.state && (
-                <div
-                  className={`${styles.badge} ${
-                    user.state === State.ONLINE
-                      ? styles.online
-                      : user.state === State.DND
-                      ? styles.dnd
-                      : user.state === State.IDLE
-                      ? styles.idle
-                      : user.state === State.OFFLINE
-                      ? styles.offline
-                      : ''
-                  }`}
-                />
-              )}
-            </Button>
-            <Button
-              className={styles.plus}
-              type='button'
-              onClick={() => ui.setModal({ name: ModalTypes.NEW_COMMUNITY })}
-            >
-              <FontAwesomeIcon
-                className={styles.symbol}
-                icon={faPlus}
-                size='2x'
-              />
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+      </StyledSidebarScrollable>
+      <StyledSidebarPinnedWrapper>
+        <StyledSidebarPinned>
+          <StyledSidebarButton
+            selected={!!matchRoute({ to: '/app/settings' })}
+            type='button'
+            onClick={() => navigate({ to: '/app/settings' })}
+          >
+            <Avatar
+              username={user?.username}
+              avatar={user?.avatar}
+              size='sidebar'
+            />
+            {!matchRoute({ to: '/app/settings' }) && user?.state && (
+              <StyledIconBadge state={user.state} />
+            )}
+          </StyledSidebarButton>
+          <StyledSidebarButton
+            style={{ marginBottom: '0' }}
+            type='button'
+            onClick={() => ui.setModal({ name: ModalTypes.NEW_COMMUNITY })}
+          >
+            <FontAwesomeIcon icon={faPlus} size='2x' />
+          </StyledSidebarButton>
+        </StyledSidebarPinned>
+      </StyledSidebarPinnedWrapper>
+    </StyledSidebar>
   )
 }
 

@@ -63,7 +63,7 @@ lleyton@innatical.com
 // })
 
 addEventListener('contextmenu', (e) => {
-  e.preventDefault()
+  // e.preventDefault()
 })
 
 ReactDOM.render(
