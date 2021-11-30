@@ -1,19 +1,12 @@
 import { FC, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import styles from './Channel.module.scss'
 import { useQueries, useQuery } from 'react-query'
-import {
-  ChannelPermissions,
-  ChannelTypes,
-  clientGateway,
-  InternalChannelTypes
-} from '../../utils/constants'
+import { clientGateway, InternalChannelTypes } from '../../utils/constants'
 import { Auth } from '@/state/auth'
-import { useDropArea, useMedia } from 'react-use'
+import { useDropArea } from 'react-use'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowDown,
   faArrowUp,
-  faChevronLeft,
   faHashtag,
   faMicrophone,
   faMicrophoneSlash,
@@ -25,7 +18,6 @@ import {
   faAt,
   faUserGroup
 } from '@fortawesome/pro-solid-svg-icons'
-import { useHistory, useParams } from 'react-router-dom'
 import { Box } from '@/domain/Chat'
 import Typing from '../../state/typing'
 import { Button } from '@/components/Form'
@@ -34,15 +26,38 @@ import { getUser } from '@/api/users'
 import { ChannelResponse } from '@/api/messages'
 import { useChannel } from '@/hooks/messages'
 import { Chat } from '@/state/chat'
-import { Permission } from '../../utils/permissions'
 import { AddMember } from '@/domain/Conversation'
 import { VoiceCard } from '../community/voice/VoiceChannel'
 import { Call } from '../../state/call'
-import { useCurrentUser, useUser } from '@/hooks/users'
+import { useUser } from '@/hooks/users'
 import { ConversationMember, ConversationType } from '@/api/conversations'
 import { useConversation } from '@/hooks/conversations'
 import { Keychain } from '@/state/keychain'
 import { useMatch } from 'react-location'
+import {
+  StyledChannel,
+  StyledChannelCall,
+  StyledChannelCallButtons,
+  StyledChannelCallContent,
+  StyledChannelCallUsers,
+  StyledChannelCallVideo,
+  StyledChannelCallVideoButtons,
+  StyledChannelCallVideoStreams,
+  StyledChannelHeader,
+  StyledChannelHeaderButtonGroup,
+  StyledChannelHeaderIcon,
+  StyledChannelHeaderStatus,
+  StyledChannelHeaderTitle,
+  StyledChannelHeading,
+  StyledChannelPlaceholder,
+  StyledChannelPlaceholderHeader,
+  StyledChannelPlaceholderHeaderIcon,
+  StyledChannelPlaceholderHeaderTitle,
+  StyledChannelPlaceholderHeaderTitleName,
+  StyledChannelPlaceholderHeaderTitleStatus,
+  StyledChannelTyping,
+  StyledChannelTypingEmpty
+} from './Channel.style'
 
 const TypingIndicator: FC<{
   channelID: string
@@ -56,7 +71,7 @@ const TypingIndicator: FC<{
   )
   if (users?.length > 0) {
     return (
-      <p className={styles.typing}>
+      <StyledChannelTyping>
         {users?.length === 1
           ? `${users[0]} is typing...`
           : users?.length === 2
@@ -68,21 +83,21 @@ const TypingIndicator: FC<{
           : users?.length > 3
           ? 'A lot of people are typing...'
           : ''}
-      </p>
+      </StyledChannelTyping>
     )
-  } else return <div className={styles.typingEmpty} />
+  } else return <StyledChannelTypingEmpty />
 }
 
 const PrivateName: FC<{ id?: string }> = ({ id }) => {
   const user = useUser(id)
   return (
-    <div className={styles.title}>
+    <StyledChannelHeaderTitle>
       {user?.username}#
       {user?.discriminator === 0
         ? 'inn'
         : user?.discriminator.toString().padStart(4, '0')}
-      <p className={styles.status}>{user?.status}</p>
-    </div>
+      <StyledChannelHeaderStatus>{user?.status}</StyledChannelHeaderStatus>
+    </StyledChannelHeaderTitle>
   )
 }
 
@@ -104,7 +119,7 @@ const Header: FC<{
   )
 
   return (
-    <div className={styles.title}>
+    <StyledChannelHeaderTitle>
       {type === ConversationType.DM ? (
         (members ?? []).length > 0 ? (
           <PrivateName id={members?.[0].userID} />
@@ -116,8 +131,10 @@ const Header: FC<{
       ) : (
         channel?.name
       )}
-      <p className={styles.status}>{channel?.description}</p>
-    </div>
+      <StyledChannelHeaderStatus>
+        {channel?.description}
+      </StyledChannelHeaderStatus>
+    </StyledChannelHeaderTitle>
   )
 }
 
@@ -144,7 +161,7 @@ const VideoCard: FC<{ track: MediaStreamTrack }> = ({ track }) => {
     ref.current.srcObject = stream
     ref.current?.play()
   }, [ref, track])
-  return <video ref={ref} className={styles.video} />
+  return <StyledChannelCallVideo ref={ref} />
 }
 
 const VoiceChannel: FC<{
@@ -189,13 +206,9 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
   console.log(speaking)
 
   return (
-    <div className={styles.call}>
-      <div className={styles.callContent}>
-        <div
-          className={`${styles.users} ${
-            remoteVideoTracks?.length ?? 0 > 0 ? styles.vertical : ''
-          }`}
-        >
+    <StyledChannelCall>
+      <StyledChannelCallContent>
+        <StyledChannelCallUsers vertical={(remoteVideoTracks?.length ?? 0) > 0}>
           {channel.voiceUsers?.map((user) => (
             <VoiceCard
               userID={user}
@@ -205,18 +218,19 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
               small
             />
           ))}
-        </div>
+        </StyledChannelCallUsers>
         {trackLength > 0 ? (
           <>
-            <div className={styles.videoStreams}>
+            <StyledChannelCallVideoStreams>
               {remoteVideoTracks ? (
                 <VideoCard track={remoteVideoTracks[currentVideoStream]} />
               ) : (
                 <></>
               )}
-            </div>
-            <div className={styles.videoButtons}>
+            </StyledChannelCallVideoStreams>
+            <StyledChannelCallVideoButtons>
               <Button
+                primary
                 type={'button'}
                 onClick={() => {
                   if (currentVideoStream + 1 > trackLength - 1)
@@ -228,6 +242,7 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
               </Button>
               <Button
                 type={'button'}
+                primary
                 onClick={() => {
                   console.log(currentVideoStream - 1 < 0)
                   if (currentVideoStream - 1 < 0)
@@ -237,13 +252,13 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
               >
                 <FontAwesomeIcon icon={faArrowDown} />
               </Button>
-            </div>
+            </StyledChannelCallVideoButtons>
           </>
         ) : (
           <></>
         )}
-      </div>
-      <div className={styles.buttons}>
+      </StyledChannelCallContent>
+      <StyledChannelCallButtons>
         <Button type='button' onClick={() => setMuted(!muted)}>
           <FontAwesomeIcon icon={muted ? faMicrophoneSlash : faMicrophone} />
         </Button>
@@ -252,7 +267,8 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
           <FontAwesomeIcon icon={deafened ? faVolumeMute : faVolumeUp} />
         </Button>
         <Button
-          className={current ? styles.disconnect : styles.connect}
+          danger={current}
+          primary={!current}
           type='button'
           onClick={async () => {
             if (current) {
@@ -284,8 +300,8 @@ const CallView: FC<{ channel: ChannelResponse; conversationID: string }> = ({
         >
           {current ? 'Disconnect' : 'Connect'}
         </Button>
-      </div>
-    </div>
+      </StyledChannelCallButtons>
+    </StyledChannelCall>
   )
 }
 
@@ -319,8 +335,6 @@ const ChannelView: FC<{
   )
 
   const [showAddParticipant, setShowAddParticipant] = useState(false)
-  const isMobile = useMedia('(max-width: 740px)')
-  const history = useHistory()
 
   const channel = useChannel(channelID)
 
@@ -361,49 +375,21 @@ const ChannelView: FC<{
 
   return (
     <Suspense fallback={<ChannelPlaceholder />}>
-      <div className={styles.chat} {...bond}>
-        <div className={styles.header}>
-          <div className={styles.heading}>
-            {isMobile ? (
-              <div
-                className={styles.icon}
-                style={
-                  channel?.color
-                    ? {
-                        backgroundColor: channel?.color
-                      }
-                    : {
-                        background: 'var(--neko-colors-primary)'
-                      }
+      <StyledChannel {...bond}>
+        <StyledChannelHeader>
+          <StyledChannelHeading>
+            <StyledChannelHeaderIcon>
+              <FontAwesomeIcon
+                icon={
+                  conversation?.type === ConversationType.DM
+                    ? faAt
+                    : conversation?.type === ConversationType.GROUP
+                    ? faUserGroup
+                    : faHashtag
                 }
-                onClick={() => {
-                  if (isMobile) {
-                    if (type === InternalChannelTypes.CommunityChannel) {
-                      history.push(`/communities/${channel?.communityID}`)
-                    } else {
-                      history.push('/')
-                    }
-                  }
-                }}
-              >
-                <FontAwesomeIcon
-                  className={styles.backButton}
-                  icon={faChevronLeft}
-                />
-              </div>
-            ) : (
-              <div className={styles.icon}>
-                <FontAwesomeIcon
-                  icon={
-                    conversation?.type === ConversationType.DM
-                      ? faAt
-                      : conversation?.type === ConversationType.GROUP
-                      ? faUserGroup
-                      : faHashtag
-                  }
-                />
-              </div>
-            )}
+              />
+            </StyledChannelHeaderIcon>
+
             <Suspense fallback={<></>}>
               <Header
                 type={conversation?.type}
@@ -412,7 +398,7 @@ const ChannelView: FC<{
                 name={conversation?.name}
               />
             </Suspense>
-            <div className={styles.buttonGroup}>
+            <StyledChannelHeaderButtonGroup>
               {voiceChannelID && room?.channelID !== voiceChannelID && (
                 <div
                   onClick={async () => {
@@ -454,7 +440,7 @@ const ChannelView: FC<{
                   />
                 </div>
               )}
-            </div>
+            </StyledChannelHeaderButtonGroup>
             {showAddParticipant && (
               <AddMember
                 groupID={
@@ -465,14 +451,14 @@ const ChannelView: FC<{
                 participant={members?.[0].userID}
               />
             )}
-          </div>
+          </StyledChannelHeading>
           {voiceChannelID && (
             <VoiceChannel
               id={voiceChannelID}
               conversationID={conversationID!}
             />
           )}
-        </div>
+        </StyledChannelHeader>
         <Suspense fallback={<Messages.Placeholder />}>
           {channelID ? (
             <Messages.View
@@ -494,7 +480,7 @@ const ChannelView: FC<{
           }}
         />
         <TypingIndicator channelID={channelID} />
-      </div>
+      </StyledChannel>
     </Suspense>
   )
 }
@@ -503,18 +489,22 @@ const ChannelPlaceholder: FC = () => {
   const username = useMemo(() => Math.floor(Math.random() * 6) + 3, [])
   const status = useMemo(() => Math.floor(Math.random() * 10) + 8, [])
   return (
-    <div className={styles.placeholder}>
-      <div className={styles.header}>
-        <div className={styles.icon} />
-        <div className={styles.title}>
-          <div className={styles.name} style={{ width: `${username}rem` }} />
-          <div className={styles.status} style={{ width: `${status}rem` }} />
-        </div>
-      </div>
+    <StyledChannelPlaceholder>
+      <StyledChannelPlaceholderHeader>
+        <StyledChannelPlaceholderHeaderIcon />
+        <StyledChannelPlaceholderHeaderTitle>
+          <StyledChannelPlaceholderHeaderTitleName
+            style={{ width: `${username}rem` }}
+          />
+          <StyledChannelPlaceholderHeaderTitleStatus
+            style={{ width: `${status}rem` }}
+          />
+        </StyledChannelPlaceholderHeaderTitle>
+      </StyledChannelPlaceholderHeader>
       <Messages.Placeholder />
       <br />
       <Box.Placeholder />
-    </div>
+    </StyledChannelPlaceholder>
   )
 }
 

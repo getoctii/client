@@ -1,4 +1,6 @@
-.confirmation {
+import styled from 'styled-components'
+
+export const StyledAlert = styled.div`
   padding: 2rem;
   width: 380px;
   div {
@@ -6,10 +8,6 @@
     button {
       width: 100%;
     }
-  }
-
-  .cancel {
-    background: var(--neko-colors-secondary);
   }
 
   h3 {
@@ -31,12 +29,8 @@
     height: 100%;
     width: 100%;
   }
-}
+`
 
-.danger {
-  background: var(--neko-colors-danger);
-}
-
-.separator {
+export const StyledAlertSeperator = styled.div`
   width: 15px;
-}
+`

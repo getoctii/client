@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback, useMemo, FC, Suspense } from 'react'
-import styles from './Messages.module.scss'
 import { useInfiniteQuery } from 'react-query'
 import { Auth } from '@/state/auth'
 import { Message } from '@/domain/Chat'
@@ -9,6 +8,12 @@ import { Waypoint } from 'react-waypoint'
 import { getMessages, MessageResponse } from '@/api/messages'
 import { Chat } from '@/state/chat'
 import { Keychain } from '@/state/keychain'
+import {
+  StyledMessages,
+  StyledMessagesBuffer,
+  StyledMessagesTop,
+  StyledMessagesWaypoint
+} from './Messages.style'
 
 dayjs.extend(dayjsUTC)
 
@@ -168,8 +173,8 @@ const MessagesView: FC<{ channelID: string; conversationID?: string }> = ({
   //     </div>
   //   )
   return (
-    <div key={channelID} className={styles.messages} ref={ref}>
-      <div key='buffer' className={styles.buffer} />
+    <StyledMessages key={channelID} ref={ref}>
+      <StyledMessagesBuffer key='buffer' />
       <Waypoint
         topOffset={5}
         onEnter={() => setTracking(true)}
@@ -204,14 +209,14 @@ const MessagesView: FC<{ channelID: string; conversationID?: string }> = ({
         )
       )}
       {!hasNextPage ? (
-        <div key='header' className={styles.top}>
+        <StyledMessagesTop key='header'>
           <h3>
             Woah, you reached the top of the chat. Here's a cookie{' '}
             <span role='img' aria-label='Cookie'>
               🍪
             </span>
           </h3>
-        </div>
+        </StyledMessagesTop>
       ) : (
         <></>
       )}
@@ -220,31 +225,31 @@ const MessagesView: FC<{ channelID: string; conversationID?: string }> = ({
           .fill(0)
           .map((_, index) => <Message.Placeholder key={index} />)}
       {isFetchingNextPage && hasNextPage ? (
-        <div className={styles.waypoint}>
+        <StyledMessagesWaypoint>
           <Waypoint
             onEnter={async () => {
               await fetchNextPage()
             }}
             bottomOffset={30}
           >
-            <div className={styles.waypoint} />
+            <StyledMessagesWaypoint />
           </Waypoint>
-        </div>
+        </StyledMessagesWaypoint>
       ) : (
         <></>
       )}
-    </div>
+    </StyledMessages>
   )
 }
 
 const MessagesPlaceholder: FC = () => {
   const length = useMemo(() => Math.floor(Math.random() * 10) + 8, [])
   return (
-    <div className={styles.messages}>
+    <StyledMessages>
       {Array.from(Array(length).fill(0).keys()).map((_, index) => (
         <Message.Placeholder key={index} />
       ))}
-    </div>
+    </StyledMessages>
   )
 }
 

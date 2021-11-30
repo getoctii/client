@@ -1,14 +1,10 @@
 import { FC } from 'react'
-import styles from './StatusBar.module.scss'
+import { StyledStatusBar } from './StatusBar.style'
 
 const StatusBar: FC<{
   sidebar?: boolean
 }> = ({ children, sidebar }) => {
-  return (
-    <div className={`${styles.statusBar} ${sidebar ? styles.sidebar : ''}`}>
-      {children}
-    </div>
-  )
+  return <StyledStatusBar sidebar={sidebar}>{children}</StyledStatusBar>
 }
 
 export default StatusBar

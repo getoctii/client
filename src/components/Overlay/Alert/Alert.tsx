@@ -1,7 +1,7 @@
 import { FC } from 'react'
-import styles from './Alert.module.scss'
 import { Button } from '@/components/Form'
 import { UI } from '../../../state/ui'
+import { StyledAlert, StyledAlertSeperator } from './Alert.style'
 
 export enum AlertType {
   TEXT = 'channel',
@@ -15,7 +15,7 @@ const Alert: FC<{
 }> = ({ type, onConfirm }) => {
   const ui = UI.useContainer()
   return (
-    <div className={styles.confirmation}>
+    <StyledAlert>
       <h3>
         {type === AlertType.DEVELOPER
           ? 'Are you sure you want to enable developer mode???????!?'
@@ -33,23 +33,15 @@ const Alert: FC<{
           : 'One you do this, you cannot undo it.'}
       </p>
       <div>
-        <Button
-          type='button'
-          className={styles.danger}
-          onClick={async () => await onConfirm()}
-        >
+        <Button type='button' danger onClick={async () => await onConfirm()}>
           {type === AlertType.DEVELOPER ? 'sell my soul' : 'Delete'}
         </Button>
-        <div className={styles.separator} />
-        <Button
-          type='button'
-          className={styles.cancel}
-          onClick={() => ui.clearModal()}
-        >
+        <StyledAlertSeperator />
+        <Button type='button' secondary onClick={() => ui.clearModal()}>
           {type === AlertType.DEVELOPER ? 'oh s***, nvm' : 'Cancel'}
         </Button>
       </div>
-    </div>
+    </StyledAlert>
   )
 }
 

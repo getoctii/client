@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, useCallback, useEffect, useState, Fragment } from 'react'
 import { ContextMenuItems, UI } from '../../../state/ui'
-import styles from './ContextMenu.module.scss'
+import { StyledContextMenu, StyledContextMenuItem } from './ContextMenu.style'
 
 export const ContextGlobal: FC = () => {
   const { contextMenu, setContextMenu } = UI.useContainer()
@@ -39,9 +39,8 @@ export const ContextMenu: FC<{
   const { setContextMenu } = UI.useContainer()
 
   return (
-    <div
+    <StyledContextMenu
       key={Math.random() * 100}
-      className={styles.menu}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -51,8 +50,8 @@ export const ContextMenu: FC<{
       {items.map(({ text, icon, danger, onClick }, index) => (
         <Fragment key={index}>
           {danger && <hr />}
-          <div
-            className={danger ? styles.danger : ''}
+          <StyledContextMenuItem
+            danger={danger}
             onMouseDown={(event) => {
               event.persist()
               event.stopPropagation()
@@ -64,10 +63,10 @@ export const ContextMenu: FC<{
           >
             <span>{text}</span>
             <FontAwesomeIcon icon={icon} fixedWidth />
-          </div>
+          </StyledContextMenuItem>
         </Fragment>
       ))}
-    </div>
+    </StyledContextMenu>
   )
 }
 
@@ -82,7 +81,6 @@ export const ContextWrapper: FC<{
   const [touchTimeout, setTouchTimeout] = useState<any>()
   return (
     <div
-      className={styles.wrapper}
       onMouseDown={(event) => {
         event.persist()
         event.stopPropagation()

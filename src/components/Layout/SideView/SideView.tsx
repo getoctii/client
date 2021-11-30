@@ -2,8 +2,13 @@ import { IconDefinition } from '@fortawesome/pro-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FC, ReactNode } from 'react'
 import { useMatchRoute, useNavigate } from 'react-location'
-// import { useHistory, useRouteMatch } from 'react-router-dom'
-import styles from './SideView.module.scss'
+
+import {
+  StyledSideView,
+  StyledSideViewIcon,
+  StyledSideViewList,
+  StyledSideViewTab
+} from './SideView.style'
 
 const SideView: FC<{
   name: string
@@ -17,39 +22,26 @@ const SideView: FC<{
 }> = ({ name, tabs, children }) => {
   const navigate = useNavigate()
   const matchRoute = useMatchRoute()
-  //'/:tab/:page'
 
   return (
-    <div className={styles.sideview}>
+    <StyledSideView>
       <h1>{name}</h1>
-      <div className={styles.list}>
+      <StyledSideViewList>
         {tabs.map((tab) => (
-          <div
+          <StyledSideViewTab
             key={tab.name}
-            className={`${styles.tab} ${
-              tab.color === 'primary'
-                ? styles.primary
-                : tab.color === 'secondary'
-                ? styles.secondary
-                : tab.color === 'danger'
-                ? styles.danger
-                : styles.warning
-            } ${
-              matchRoute({ to: `${tab.name.toLowerCase()}` })
-                ? styles.selected
-                : ''
-            }`}
+            selected={!!matchRoute({ to: `${tab.name.toLowerCase()}` })}
             onClick={() => navigate({ to: tab.link })}
           >
-            <div className={styles.icon}>
+            <StyledSideViewIcon>
               <FontAwesomeIcon icon={tab.icon} fixedWidth />
-            </div>
+            </StyledSideViewIcon>
             {tab.name}
-          </div>
+          </StyledSideViewTab>
         ))}
-      </div>
+      </StyledSideViewList>
       {children}
-    </div>
+    </StyledSideView>
   )
 }
 
