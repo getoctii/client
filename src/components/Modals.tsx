@@ -21,8 +21,6 @@ import { UI } from '@/state/ui'
 import { Permission } from '../utils/permissions'
 import { AddFriend } from '@/modals/Hub'
 import PreviewUser from '@/domain/User/PreviewUser'
-import MFAModal from '../views/authentication/MFAModal'
-import CodePrompt from '../views/authentication/CodePrompt'
 import { Ringing } from '@/modals/Call'
 
 const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
@@ -59,10 +57,6 @@ const ResolveModal = ({ name, props }: { name: ModalTypes; props?: any }) => {
       return <NewVersion {...props} />
     case ModalTypes.PREVIEW_USER:
       return <PreviewUser {...props} />
-    case ModalTypes.ENABLED_2FA:
-      return <MFAModal {...props} />
-    case ModalTypes.CODE_PROMPT:
-      return <CodePrompt {...props} />
     case ModalTypes.RINGING:
       return <Ringing {...props} />
     case ModalTypes.ADD_INTEGRATION:

@@ -1,5 +1,5 @@
-import { ErrorMessage, Field, Form, Formik } from 'formik'
-import styles from './styles.module.scss'
+import { Form, Formik } from 'formik'
+
 import { login } from '@/api/auth'
 import { BarLoader } from 'react-spinners'
 import { Auth } from '@/state/auth'
@@ -8,7 +8,14 @@ import { FC } from 'react'
 import { UI } from '@/state/ui'
 import { ModalTypes } from '@/utils/constants'
 import axios from 'axios'
-import { Heading, Wrapper } from './styles'
+import {
+  StyledLogin,
+  StyledLoginButton,
+  StyledLoginError,
+  StyledLoginHeading,
+  StyledLoginInput,
+  StyledLoginLabel
+} from './Login.style'
 import { Link, useNavigate } from 'react-location'
 import { Keychain } from '@/state/keychain'
 
@@ -19,7 +26,7 @@ const LoginSchema = Yup.object().shape({
     .max(140, 'Too long, password must be under 140 characters.')
 })
 
-export const Login: FC = () => {
+const Login: FC = () => {
   const navigate = useNavigate()
   const { setKeychain } = Keychain.useContainer()
   const auth = Auth.useContainer()
@@ -77,48 +84,32 @@ export const Login: FC = () => {
       }}
     >
       {({ isSubmitting }) => (
-        <Wrapper>
+        <StyledLogin>
           <Form>
-            <Heading>Octii</Heading>
+            <StyledLoginHeading>Octii</StyledLoginHeading>
             <p>The chat platform of the future</p>
-            <label htmlFor='email' className={styles.label}>
-              Email
-            </label>
-            <Field
-              className={styles.input}
+            <StyledLoginLabel htmlFor='email'>Email</StyledLoginLabel>
+            <StyledLoginInput
               id='email'
               name='email'
               type='email'
               enterKeyHint='next'
             />
-            <ErrorMessage component='p' className={styles.error} name='email' />
+            <StyledLoginError component='p' name='email' />
 
-            <label htmlFor='password' className={styles.label}>
-              Password
-            </label>
-            <Field
-              className={styles.input}
-              id='password'
-              name='password'
-              type='password'
-            />
-            <ErrorMessage
-              component='p'
-              className={styles.error}
-              name='password'
-            />
+            <StyledLoginLabel htmlFor='password'>Password</StyledLoginLabel>
+            <StyledLoginInput id='password' name='password' type='password' />
+            <StyledLoginError component='p' name='password' />
             {/*TODO: Currently at #ffffff for testing, add theming support*/}
-            <button
-              className={styles.button}
-              type='submit'
-              disabled={isSubmitting}
-            >
+            <StyledLoginButton primary type='submit' disabled={isSubmitting}>
               {isSubmitting ? <BarLoader color='#ffffff' /> : 'Login'}
-            </button>
+            </StyledLoginButton>
             <Link to={'/register'}>Not Registered?</Link>
           </Form>
-        </Wrapper>
+        </StyledLogin>
       )}
     </Formik>
   )
 }
+
+export default Login

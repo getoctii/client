@@ -4,7 +4,7 @@ import Conversation from './views/conversation/Conversation'
 import { SideBar } from '@/components/Layout'
 import { AnimatePresence } from 'framer-motion'
 import { Auth } from '@/state/auth'
-import { Home, Downloads, OnBoarding } from './views/Marketing'
+import { Home, Downloads, OnBoarding } from './views/marketing'
 import { Call } from '@/state/call'
 import { Current } from '@/modals/Call'
 import EventSource from './events'
@@ -20,8 +20,8 @@ import {
   Router as BrowserRouter,
   useNavigate
 } from 'react-location'
-import { Login } from './views/authentication/Login'
-import { Register } from './views/authentication/Register'
+import Login from './views/authentication/Login'
+import Register from './views/authentication/Register'
 import { ConversationList, ConversationEmpty } from '@/domain/Conversation'
 import { SideView } from '@/components/Layout'
 import {
@@ -32,7 +32,7 @@ import {
 } from '@fortawesome/pro-solid-svg-icons'
 import { FriendList } from '@/domain/Hub'
 import { SideBar as CommunitySideBar } from '@/domain/Community'
-import Channel from './views/chat/Channel'
+import Channel from './views/channel/Channel'
 import Profile from './views/settings/Profile'
 import { Status } from '@/domain/User'
 import { ThemeProvider } from 'styled-components'

@@ -1,12 +1,18 @@
 import { FC } from 'react'
-import { ErrorMessage, Field, Form, Formik } from 'formik'
-import styles from './styles.module.scss'
+import { Form, Formik } from 'formik'
 import { register } from '@/api/auth'
 import { BarLoader } from 'react-spinners'
 import { Auth } from '@/state/auth'
 import * as Yup from 'yup'
 import axios from 'axios'
-import { Heading, Wrapper } from './styles'
+import {
+  StyledRegister,
+  StyledRegisterButton,
+  StyledRegisterError,
+  StyledRegisterHeading,
+  StyledRegisterInput,
+  StyledRegisterLabel
+} from './Register.style'
 import { Link, useNavigate } from 'react-location'
 import { Keychain } from '@/state/keychain'
 
@@ -21,7 +27,7 @@ const RegisterSchema = Yup.object().shape({
     .matches(/^[a-zA-Z0-9]+$/, 'Username must be alphanumeric.')
 })
 
-export const Register: FC = () => {
+const Register: FC = () => {
   const auth = Auth.useContainer()
   const { setKeychain } = Keychain.useContainer()
   const navigate = useNavigate()
@@ -71,62 +77,39 @@ export const Register: FC = () => {
       }}
     >
       {({ isSubmitting }) => (
-        <Wrapper>
+        <StyledRegister>
           <Form>
-            <Heading>Octii</Heading>
+            <StyledRegisterHeading>Octii</StyledRegisterHeading>
             <p>The chat platform of the future</p>
-            <label htmlFor='email' className={styles.label}>
-              Email
-            </label>
-            <Field
-              className={styles.input}
-              id='email'
-              name='email'
-              type='email'
-            />
-            <ErrorMessage component='p' className={styles.error} name='email' />
+            <StyledRegisterLabel htmlFor='email'>Email</StyledRegisterLabel>
+            <StyledRegisterInput id='email' name='email' type='email' />
+            <StyledRegisterError component='p' name='email' />
 
-            <label htmlFor='username' className={styles.label}>
+            <StyledRegisterLabel htmlFor='username'>
               Username
-            </label>
-            <Field
-              className={styles.input}
-              id='username'
-              name='username'
-              type='text'
-            />
-            <ErrorMessage
-              component='p'
-              className={styles.error}
-              name='username'
-            />
+            </StyledRegisterLabel>
+            <StyledRegisterInput id='username' name='username' type='text' />
+            <StyledRegisterError component='p' name='username' />
 
-            <label htmlFor='password' className={styles.label}>
+            <StyledRegisterLabel htmlFor='password'>
               Password
-            </label>
-            <Field
-              className={styles.input}
+            </StyledRegisterLabel>
+            <StyledRegisterInput
               id='password'
               name='password'
               type='password'
             />
-            <ErrorMessage
-              component='p'
-              className={styles.error}
-              name='password'
-            />
+            <StyledRegisterError component='p' name='password' />
 
-            <button
-              className={styles.button}
-              type='submit'
-              disabled={isSubmitting}
-            >
+            <StyledRegisterButton primary type='submit' disabled={isSubmitting}>
               {isSubmitting ? <BarLoader color='#ffffff' /> : 'Register'}
-            </button>
+            </StyledRegisterButton>
             <Link to={'/login'}>Already Registered?</Link>
           </Form>
-        </Wrapper>
+        </StyledRegister>
       )}
     </Formik>
   )
 }
+
+export default Register
