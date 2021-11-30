@@ -1,12 +1,5 @@
 import { useCallback, useMemo, FC } from 'react'
-import styles from './ChannelList.module.scss'
-import {
-  ChannelTypes,
-  clientGateway,
-  ModalTypes,
-  Permissions
-} from '../../../utils/constants'
-
+import { ChannelTypes, clientGateway } from '@/utils/constants'
 import { useQueries } from 'react-query'
 import { Auth } from '@/state/auth'
 import { ChannelResponse } from '@/api/communities'
@@ -18,13 +11,17 @@ import {
 } from '@react-forked/dnd'
 import { CategoryCard, ChannelCard } from '@/domain/Community'
 import { CategoryChannelsDraggable } from '../CategoryCard/CategoryCard'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/pro-solid-svg-icons'
-import { Permission } from '../../../utils/permissions'
-import { UI } from '../../../state/ui'
+import { Permission } from '@/utils/permissions'
+import { UI } from '@/state/ui'
 import { useMatch } from 'react-location'
 import { useChannels } from '@/hooks/communities'
 import { getChannel } from '@/api/messages'
+import {
+  StyledChannelList,
+  StyledChannelListPlaceholder,
+  StyledChannelListPlaceholderRooms,
+  StyledChannelListSpacer
+} from './ChannelList.style'
 
 const insert = (
   list: ChannelResponse[],
@@ -251,9 +248,9 @@ const ChannelsView: FC = () => {
   )
 
   return (
-    <div className={styles.channels}>
-      <div className={styles.spacer} />
-      <div className={styles.list}>
+    <div>
+      <StyledChannelListSpacer />
+      <StyledChannelList>
         {(Object.keys(groupedChannels)?.length ?? 0) > 0 ? (
           <DragDropContext onDragEnd={onDragEnd}>
             <CategoryChannelsDraggable
@@ -270,7 +267,7 @@ const ChannelsView: FC = () => {
         ) : (
           <></>
         )}
-      </div>
+      </StyledChannelList>
     </div>
   )
 }
@@ -278,12 +275,12 @@ const ChannelsView: FC = () => {
 const ChannelsPlaceholder: FC = () => {
   const length = useMemo(() => Math.floor(Math.random() * 10) + 1, [])
   return (
-    <div className={styles.channelsPlaceholder}>
-      <div className={styles.rooms} />
+    <StyledChannelListPlaceholder>
+      <StyledChannelListPlaceholderRooms />
       {Array.from(Array(length).keys()).map((_, index) => (
         <ChannelCard.Placeholder key={index} index={index} />
       ))}
-    </div>
+    </StyledChannelListPlaceholder>
   )
 }
 

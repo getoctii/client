@@ -10,7 +10,7 @@ import { Current } from '@/modals/Call'
 import EventSource from './events'
 import { ContextMenu } from '@/components/Overlay'
 import { useSuspenseStorageItem } from '@/utils/storage'
-import Modal from '@/components/Modals'
+import ModalManager from '@/modals'
 import { Permission } from '@/utils/permissions'
 import { useCommunities, useConversations } from '@/hooks/users'
 import {
@@ -96,7 +96,7 @@ const AppLayout = () => {
       )}
       <Suspense fallback={<></>}>
         <AnimatePresence>
-          <Modal key='modals' />
+          <ModalManager key='modals' />
           <ContextMenuHandler key='contextmenu' />
         </AnimatePresence>
       </Suspense>
